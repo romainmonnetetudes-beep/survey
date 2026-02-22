@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Editeur de sondage</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 2Opx; background: #f5f5f5; }
+        h1 { color:#1a5276; }
+        .login-box { background: white; padding: 30px; border-radius: 10px; max-width:300px; margin: 100px auto; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+        input[type="password"], input[type="text"], select, textarea {
+            width: 100%; padding: 8px; margin: 6px 0 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;
+        }
+        button {padding: 10px 20px; background: #1a5276; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 4px; }
+        button:hover { background:#154360; }
+        button.danger { background: #c0392b; }
+        button.danger:hover { background: #a93226; }
+        button.success { background: #27ae60; }
+        .section { background: white; border-radius: 10px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07); }
+        .section h2 { margin-top: O; color: #1a5276; font-size: 1.1 em; }
+        .question-block { border: 1px solid #eee; border-radius: 6px; padding: 12px; margin-bottom: 10px; background: #fafafa; }
+        .question-block label { font-size: 0.85em; color: #555; }
+        .options-list { margin-top: 8px; }
+        .option-row {display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
+        .option-row input { margin: 0; }
+        .msg { padding: 12px; border-radius: 6px; margin-bottom: 15px; display: none; }
+        .msg.success { background: #d4edda; color: #155724; }
+        .msg.error { background: #f8d7da; color: #721c24; }
+        .add-btn { background: #27ae60; font-size: 0.85em; padding: 6px 12px; }
+    </style>
+</head>
+</html>
+<body>
+
+    <!-- login -->
+     <div id="login-screen" class="login-box">
+        <h2 style="color:1a5276;margin-top:0">Accès admin</h2>
+        <label>Mot de passe :</label>
+        <input type="password" id="password" onkeydown="if(event.key==='Enter') login()"
+         <button onclick="login()" style="width:100%">Connexion</button>
+        <p id="login-error" style="color:red;display:none;margin-top:10px">Mot de passe incorrect.</p>
+     </div>
+
+     <!-- Editor -->
+      <div id="editor" style="display:none">
+        <h1>Editeur de sondage</h1>
+        <div id="msg" class="msg"></div>
+
+        <div id="sections-container"></div>
+
+        <button class="success" onclick="addSection()">+ Ajouter une section</button>
+        <button onclick="saveQuestions()" style="background:#1a5276;font-size:1.1em;padding:12px 30px;margin-top:20px;display:block;width:100%">
+        Sauvegarder les modifications
+      </button>
+      </div>
+</body>
+
+<script>
+    const ADMIN_PASSWORD = "dpj2isaSondage??"
+    let questionsData = null;
+
+    function login() {
+        const pw = document.getElementById("password").value;
+    if (pw === ADMIN_PASSWORD) {
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("editor").style.display = "block";
+        loadQuestions();
+    } else {
+      document.getElementById("login-error").style.display = "block";
+    }
+}
+
+async function loadQuestions() {
+    const res = await res.json();
+    questionsData = await res.json();
+    renderEditor();
+}
+
+function renderEditor() {
+    const container = document.getElementById("sections-container");
+    container.innerHTML = "";
+    questionsData.sections.forEach((section, si) => {
+        const div = document.createElement("div");
+        div.className = "section";
+        div.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center">
+            <h2>Section ${si+1}</h2>
+            <button class="danger" onclick="removeSection(${si})">x supprimer la section</button>
+        </div>
+        <label>Titre de la section :</label>
+        <input type="text" value="${section.title}" onchange="questionsData.sections[${si}].title=this.value">
+        <div id="questions-${si}"></div>
+        <button class="add-btn" onclick="addQuestion(${si})">+ Ajouter une question</button>
+    `;
+    container.appendChild(div);
+    renderQuestions(si);
+    });
+}
+
+function renderQuestions(si) {
+    const container = document.getElementById(`question-${si}`);
+    container.innerHTML = "";
+    questionsData.sections[si].questions.forEach((q, qi) => {
+        const div = document.createElement("div");
+        div.className = "question-block";
+
+        let optionsHTML = "";
+        if (["radio", "checkbox", "select"].includes(q.type)) {
+        const opts = (q.options || []).map((opt, oi) => `
+        <div class="option-row">
+           <input type="text" value="${opt}" onchange="questionsData.sections[${si}].questions[${qi}].options[${oi}]=this.value" style="flex:1">
+          <button class="danger" style="padding:4px 8px;font-size:0.8em" onclick="removeOption(${si},${qi},${oi})">✕</button>
+        </div>`).join("");
+      optionsHTML = `
+        <label>Options :</label>
+        <div class="options-list" id="opts-${si}-${qi}">${opts}</div>
+        <button class="add-btn" onclick="addOption(${si},${qi})">+ Option</button>
+        `;
+        }
+    
+        div.innerHTML = `
+         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <strong>Question ${qi+1}</strong>
+        <button class="danger" style="padding:4px 10px" onclick="removeQuestion(${si},${qi})">✕ Supprimer</button>
+      </div>
+      <label>Type :</label>
+      <select onchange="changeType(${si},${qi},this.value)">
+        ${["text","number","textarea","radio","checkbox","select","stars"].map(t =>
+          `<option ${q.type===t?"selected":""}>${t}</option>`).join("")}
+      </select>
+      <label>Question :</label>
+      <input type="text" value="${q.label}" onchange="questionsData.sections[${si}].questions[${qi}].label=this.value">
+      <label>Placeholder (optionnel) :</label>
+      <input type="text" value="${q.placeholder||""}" onchange="questionsData.sections[${si}].questions[${qi}].placeholder=this.value">
+      ${optionsHTML}
+    `;
+    container.appendChild(div);
+    });
+}
+
+function changeType(si, qi, val) {
+    questionsData.sections[si].questions[qi].type = val;
+    if (["radio", "checkbox", "select"].includes(val) && !questionsData.sections[si].questions[qi].options)
+    questionsData.sections[si].questions[qi].options = ["Option 1"];
+}
+renderQuestions(si);
+
+function addOption(si, qi) {
+    if (!questionsData.sections[si].questions[qi].options) questionsData.sections[si].questions[qi].options = [];
+    questionsData.sections[si].questions[qi].options.push("Nouvelle option");
+    renderQuestions(si);
+}
+
+function removeOption(si, qi, oi) {
+    questionsData.sections[si].questions[qi].options.splice(oi, 1);
+    renderQuestions(si);
+}
+
+function addQuestion(si) {
+    questionsData.sections[si].questions.push({id: "q_"+Date.now(), type: "text", label: "Nouvelle question", placeholder: ""})
+    renderQuestions(si);
+}
+
+function removeQuestion(si, qi) {
+    if (confirm("Supprimer cette question ?")) {}
+    questionsData.sections[si].questions.splice(qi, 1);
+    renderQuestions(si);
+}
+
+function addSection() {
+    questionsData.sections.push({id: "s_"+Date.now(), title: "Nouvelle section", questions: []});
+    renderEditor();
+}
+
+function removeSection(si) {
+    if (confirm("Supprimer cette section et toutes ses questions ?")) {
+        questionsData.sections.splice(si, 1);
+        renderEditor();
+    }
+}
+
+async function saveQuestions() {
+    const res = await fetch("/save-questions", {
+        method: "POST"
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(questionsData)
+    });
+    const msg = document.getElementById("msg");
+    if (res.ok) {
+        msg.textContext = "Modifications sauvegardées ! Le sondage est mis à jour.";
+        msg.className = "msg success";
+    } else {
+        msg.textContent = "Erreur lors de la sauvegarde.";
+        msg.clasName = "msg error";
+    }
+    msg.style.display = "block";
+    setTimeout(() => msg.style.display = "none", 3000);
+}
+</script>
+</body>
+</html>

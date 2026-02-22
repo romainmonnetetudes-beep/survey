@@ -1,0 +1,79 @@
+{
+  "sections": [
+    {
+      "id": "profil",
+      "title": "👤 Votre profil",
+      "questions": [
+        {"id": "annees", "type": "number", "label": "Depuis combien d'années habitez-vous à Millau ?", "placeholder": "ex: 5"},
+        {"id": "age", "type": "select", "label": "Votre tranche d'âge :", "options": ["Moins de 18 ans", "18 - 25 ans", "26 - 40 ans", "41 - 60 ans", "Plus de 60 ans"]},
+        {"id": "quartier", "type": "text", "label": "Votre quartier ou commune (optionnel) :", "placeholder": "ex: Centre-ville, La Capelle..."}
+      ]
+    },
+    {
+      "id": "satisfaction",
+      "title": "🏡 Satisfaction générale",
+      "questions": [
+        {"id": "satisfaction", "type": "radio", "label": "Dans l'ensemble, êtes-vous satisfait(e) de vivre à Millau ?", "options": ["Très satisfait", "Satisfait", "Neutre", "Insatisfait", "Très insatisfait"]}
+      ]
+    },
+    {
+      "id": "logement",
+      "title": "🏠 Logement",
+      "questions": [
+        {"id": "logement", "type": "stars", "label": "Comment évaluez-vous la qualité et l'accessibilité du logement à Millau ?"},
+        {"id": "logement_comment", "type": "textarea", "label": "Commentaire (optionnel) :", "placeholder": "Prix des loyers, qualité des logements..."}
+      ]
+    },
+    {
+      "id": "transports",
+      "title": "🚗 Transports & Mobilité",
+      "questions": [
+        {"id": "transports", "type": "stars", "label": "Êtes-vous satisfait(e) des transports et de la mobilité à Millau ?"},
+        {"id": "transports_comment", "type": "textarea", "label": "Commentaire (optionnel) :", "placeholder": "Transports en commun, routes, vélo..."}
+      ]
+    },
+    {
+      "id": "services",
+      "title": "🏥 Services publics & Commerces",
+      "questions": [
+        {"id": "services_insuffisants", "type": "checkbox", "label": "Quels services jugez-vous insuffisants à Millau ?", "options": ["Santé (médecins, hôpital)", "Écoles et éducation", "Commerces de proximité", "Services administratifs", "Loisirs et culture", "Internet et numérique", "Aucun manque particulier"]}
+      ]
+    },
+    {
+      "id": "environnement",
+      "title": "🌿 Cadre de vie & Environnement",
+      "questions": [
+        {"id": "environnement", "type": "stars", "label": "Comment appréciez-vous le cadre naturel et la qualité environnementale de Millau ?"}
+      ]
+    },
+    {
+      "id": "emploi",
+      "title": "💼 Emploi & Économie",
+      "questions": [
+        {"id": "emploi", "type": "radio", "label": "Comment évaluez-vous les opportunités d'emploi à Millau ?", "options": ["Très bonnes", "Correctes", "Limitées", "Très limitées", "Sans opinion"]}
+      ]
+    },
+    {
+      "id": "securite",
+      "title": "🤝 Lien social & Sécurité",
+      "questions": [
+        {"id": "securite", "type": "radio", "label": "Vous sentez-vous en sécurité à Millau ?", "options": ["Toujours", "Souvent", "Parfois", "Rarement"]},
+        {"id": "communaute", "type": "select", "label": "Ressentez-vous un bon esprit de communauté dans votre quartier ?", "options": ["Oui, très fort", "Plutôt oui", "Plutôt non", "Non, très peu"]}
+      ]
+    },
+    {
+      "id": "avenir",
+      "title": "🔭 Regard sur l'avenir",
+      "questions": [
+        {"id": "avenir", "type": "radio", "label": "Envisagez-vous de rester vivre à Millau dans les 5 prochaines années ?", "options": ["Oui certainement", "Probablement", "Incertain", "Probablement pas", "Non je pars"]}
+      ]
+    },
+    {
+      "id": "commentaire",
+      "title": "💬 Commentaire libre",
+      "questions": [
+        {"id": "commentaire_libre", "type": "textarea", "label": "Y a-t-il quelque chose d'important que vous souhaitez ajouter ?", "placeholder": "Vos remarques, suggestions, points positifs ou négatifs..."}
+      ]
+    }
+  ]
+}
