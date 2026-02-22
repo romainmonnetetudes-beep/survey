@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 import sqlite3
+import json
 
 app = Flask(__name__)
 DB = "survey.db"
@@ -39,8 +40,6 @@ if __name__ == "__main__":
     import os
 app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 
-import json
-
 @app.route("/admin")
 def admin():
     return send_from_directory(".", "admin.html")
@@ -57,3 +56,18 @@ def save_questions():
         json.dump(data, f, ensure_ascii=False, indent=2)
     return jsonify({"status": "ok"})
 
+@app.route("/admin")
+def admin():
+    return send_from_directory(".", "admin.html")
+
+@app.route("/questions")
+def get_questions():
+    with open("questions.json", "r", encoding="utf-8") as f:
+        return jsonify(json.load(f))
+
+@app.route("/save-questions", methods=["POST"])
+def save_questions():
+    data = request.json
+    with open("questions.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    return jsonify({"status": "ok"})
