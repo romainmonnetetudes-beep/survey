@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Sondage - Conditions de vie à Millau</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #333; }
+    .header { background: #1a5276; color: white; padding: 30px 20px; text-align: center; }
+    .header h1 { font-size: 1.6em; margin-bottom: 8px; }
+    .header p { opacity: 0.85; font-size: 0.95em; }
+    .container { max-width: 650px; margin: 30px auto; padding: 0 20px 60px; }
+    .card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .card h2 { font-size: 1em; color: #1a5276; margin-bottom: 15px; font-weight: 600; }
+    label { display: block; margin-bottom: 8px; font-size: 0.95em; }
+    input[type="text"], input[type="number"], textarea, select {
+      width: 100%; padding: 10px; border: 1px solid #ccd; border-radius: 6px;
+      font-size: 0.95em; margin-top: 4px;
+    }
+    textarea { resize: vertical; }
+    .radio-group label, .checkbox-group label {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-radius: 6px; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .radio-group label:hover, .checkbox-group label:hover { background: #eaf0fb; }
+    input[type="radio"], input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+    .stars { display: flex; gap: 8px; font-size: 2em; cursor: pointer; margin-top: 8px; }
+    .stars span { color: #ccc; transition: color 0.15s; user-select: none; }
+    .submit-btn {
+      width: 100%; padding: 15px; background: #1a5276; color: white;
+      border: none; border-radius: 8px; font-size: 1.1em; cursor: pointer;
+      margin-top: 10px; transition: background 0.2s;
+    }
+    .submit-btn:hover { background: #154360; }
+    #success { display: none; text-align: center; padding: 40px 20px; }
+    #success .check { font-size: 3em; }
+    #success h2 { color: #1a5276; margin: 15px 0 10px; }
+    #success button { margin-top: 20px; padding: 10px 30px; background: #1a5276; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1em; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Sondage — Conditions de vie à Millau</h1>
+  <p>Votre avis nous aide à mieux comprendre le quotidien des habitants de Millau.<br>Ce sondage est anonyme et prend environ 3 minutes.</p>
+</div>
+
+<div class="container">
+  <div id="form-area">
+
+    <!-- Profil -->
+    <div class="card">
+      <h2>👤 Votre profil</h2>
+      <label>Depuis combien d'années habitez-vous à Millau ?
+        <input type="number" id="annees" min="0" max="100" placeholder="ex: 5">
+      </label>
+      <label style="margin-top:15px">Votre tranche d'âge :
+        <select id="age">
+          <option value="">-- Sélectionnez --</option>
+          <option>Moins de 18 ans</option>
+          <option>18 - 25 ans</option>
+          <option>26 - 40 ans</option>
+          <option>41 - 60 ans</option>
+          <option>Plus de 60 ans</option>
+        </select>
+      </label>
+      <label style="margin-top:15px">Votre quartier ou commune (optionnel) :
+        <input type="text" id="quartier" placeholder="ex: Centre-ville, La Capelle...">
+      </label>
+    </div>
+
+    <!-- Satisfaction générale -->
+    <div class="card">
+      <h2>🏡 Satisfaction générale</h2>
+      <label>Dans l'ensemble, êtes-vous satisfait(e) de vivre à Millau ?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="satisfaction" value="Très satisfait"> Très satisfait(e)</label>
+        <label><input type="radio" name="satisfaction" value="Satisfait"> Satisfait(e)</label>
+        <label><input type="radio" name="satisfaction" value="Neutre"> Neutre</label>
+        <label><input type="radio" name="satisfaction" value="Insatisfait"> Insatisfait(e)</label>
+        <label><input type="radio" name="satisfaction" value="Très insatisfait"> Très insatisfait(e)</label>
+      </div>
+    </div>
+
+    <!-- Logement -->
+    <div class="card">
+      <h2>🏠 Logement</h2>
+      <label>Comment évaluez-vous la qualité et l'accessibilité du logement à Millau ?</label>
+      <div class="stars" id="stars-logement" data-id="logement">
+        <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span>
+        <span data-val="4">★</span><span data-val="5">★</span>
+      </div>
+      <input type="hidden" id="logement" value="">
+      <label style="margin-top:15px">Commentaire (optionnel) :
+        <textarea id="logement_comment" rows="2" placeholder="Prix des loyers, qualité des logements..."></textarea>
+      </label>
+    </div>
+
+    <!-- Transports -->
+    <div class="card">
+      <h2>🚗 Transports & Mobilité</h2>
+      <label>Êtes-vous satisfait(e) des transports et de la mobilité à Millau ?</label>
+      <div class="stars" id="stars-transports" data-id="transports">
+        <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span>
+        <span data-val="4">★</span><span data-val="5">★</span>
+      </div>
+      <input type="hidden" id="transports" value="">
+      <label style="margin-top:15px">Commentaire (optionnel) :
+        <textarea id="transports_comment" rows="2" placeholder="Transports en commun, routes, vélo..."></textarea>
+      </label>
+    </div>
+
+    <!-- Services -->
+    <div class="card">
+      <h2>🏥 Services publics & Commerces</h2>
+      <label>Quels services jugez-vous insuffisants à Millau ? (plusieurs choix possibles)</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="Santé (médecins, hôpital)"> Santé (médecins, hôpital)</label>
+        <label><input type="checkbox" value="Écoles et éducation"> Écoles et éducation</label>
+        <label><input type="checkbox" value="Commerces de proximité"> Commerces de proximité</label>
+        <label><input type="checkbox" value="Services administratifs"> Services administratifs</label>
+        <label><input type="checkbox" value="Loisirs et culture"> Loisirs et culture</label>
+        <label><input type="checkbox" value="Internet et numérique"> Internet et numérique</label>
+        <label><input type="checkbox" value="Aucun manque particulier"> Aucun manque particulier</label>
+      </div>
+    </div>
+
+    <!-- Environnement -->
+    <div class="card">
+      <h2>🌿 Cadre de vie & Environnement</h2>
+      <label>Comment appréciez-vous le cadre naturel et la qualité environnementale de Millau ?</label>
+      <div class="stars" id="stars-environnement" data-id="environnement">
+        <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span>
+        <span data-val="4">★</span><span data-val="5">★</span>
+      </div>
+      <input type="hidden" id="environnement" value="">
+    </div>
+
+    <!-- Emploi -->
+    <div class="card">
+      <h2>💼 Emploi & Économie</h2>
+      <label>Comment évaluez-vous les opportunités d'emploi à Millau ?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="emploi" value="Très bonnes"> Très bonnes</label>
+        <label><input type="radio" name="emploi" value="Correctes"> Correctes</label>
+        <label><input type="radio" name="emploi" value="Limitées"> Limitées</label>
+        <label><input type="radio" name="emploi" value="Très limitées"> Très limitées</label>
+        <label><input type="radio" name="emploi" value="Sans opinion"> Sans opinion</label>
+      </div>
+    </div>
+
+    <!-- Lien social -->
+    <div class="card">
+      <h2>🤝 Lien social & Sécurité</h2>
+      <label>Vous sentez-vous en sécurité à Millau ?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="securite" value="Toujours"> Toujours</label>
+        <label><input type="radio" name="securite" value="Souvent"> Souvent</label>
+        <label><input type="radio" name="securite" value="Parfois"> Parfois</label>
+        <label><input type="radio" name="securite" value="Rarement"> Rarement</label>
+      </div>
+      <label style="margin-top:15px">Ressentez-vous un bon esprit de communauté dans votre quartier ?
+        <select id="communaute">
+          <option value="">-- Sélectionnez --</option>
+          <option>Oui, très fort</option>
+          <option>Plutôt oui</option>
+          <option>Plutôt non</option>
+          <option>Non, très peu</option>
+        </select>
+      </label>
+    </div>
+
+    <!-- Avenir -->
+    <div class="card">
+      <h2>🔭 Regard sur l'avenir</h2>
+      <label>Envisagez-vous de rester vivre à Millau dans les 5 prochaines années ?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="avenir" value="Oui certainement"> Oui, certainement</label>
+        <label><input type="radio" name="avenir" value="Probablement"> Probablement</label>
+        <label><input type="radio" name="avenir" value="Incertain"> Incertain(e)</label>
+        <label><input type="radio" name="avenir" value="Probablement pas"> Probablement pas</label>
+        <label><input type="radio" name="avenir" value="Non je pars"> Non, je compte partir</label>
+      </div>
+    </div>
+
+    <!-- Commentaire libre -->
+    <div class="card">
+      <h2>💬 Commentaire libre</h2>
+      <label>Y a-t-il quelque chose d'important que vous souhaitez ajouter sur votre vie à Millau ?
+        <textarea id="commentaire_libre" rows="4" placeholder="Vos remarques, suggestions, points positifs ou négatifs..."></textarea>
+      </label>
+    </div>
+
+    <button class="submit-btn" onclick="submitSurvey()">Envoyer mes réponses ✓</button>
+  </div>
+
+  <!-- Success message -->
+  <div id="success" class="card">
+    <div class="check">✅</div>
+    <h2>Merci pour votre participation !</h2>
+    <p>Vos réponses ont bien été enregistrées.<br>Vous pouvez soumettre une nouvelle réponse si vous le souhaitez.</p>
+    <button onclick="resetForm()">Répondre à nouveau</button>
+  </div>
+</div>
+
+<script>
+  // Star ratings
+  document.querySelectorAll(".stars").forEach(group => {
+    const id = group.dataset.id;
+    const stars = group.querySelectorAll("span");
+
+    stars.forEach(star => {
+      star.addEventListener("click", () => {
+        const val = parseInt(star.dataset.val);
+        document.getElementById(id).value = val;
+        stars.forEach(s => {
+          if (parseInt(s.dataset.val) <= val) {
+            s.style.color = "#f1c40f";
+          } else {
+            s.style.color = "#ccc";
+          }
+        });
+      });
+
+      star.addEventListener("mouseover", () => {
+        const val = parseInt(star.dataset.val);
+        stars.forEach(s => {
+          s.style.color = parseInt(s.dataset.val) <= val ? "#f1c40f" : "#ccc";
+        });
+      });
+
+      star.addEventListener("mouseout", () => {
+        const saved = parseInt(document.getElementById(id).value) || 0;
+        stars.forEach(s => {
+          s.style.color = parseInt(s.dataset.val) <= saved ? "#f1c40f" : "#ccc";
+        });
+      });
+    });
+  });
+
+  async function submitSurvey() {
+    const services = [...document.querySelectorAll(".checkbox-group input:checked")].map(c => c.value);
+
+    const data = {
+      annees: document.getElementById("annees").value,
+      age: document.getElementById("age").value,
+      quartier: document.getElementById("quartier").value,
+      satisfaction: document.querySelector('input[name="satisfaction"]:checked')?.value || "",
+      logement: document.getElementById("logement").value,
+      logement_comment: document.getElementById("logement_comment").value,
+      transports: document.getElementById("transports").value,
+      transports_comment: document.getElementById("transports_comment").value,
+      environnement: document.getElementById("environnement").value,
+      emploi: document.querySelector('input[name="emploi"]:checked')?.value || "",
+      securite: document.querySelector('input[name="securite"]:checked')?.value || "",
+      communaute: document.getElementById("communaute").value,
+      services_insuffisants: services.join(", "),
+      avenir: document.querySelector('input[name="avenir"]:checked')?.value || "",
+      commentaire_libre: document.getElementById("commentaire_libre").value,
+    };
+
+    await fetch("/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: "Anonyme", answer: JSON.stringify(data) })
+    });
+
+    document.getElementById("form-area").style.display = "none";
+    document.getElementById("success").style.display = "block";
+    window.scrollTo(0, 0);
+  }
+
+  function resetForm() {
+    document.getElementById("form-area").style.display = "block";
+    document.getElementById("success").style.display = "none";
+    document.getElementById("form-area").querySelectorAll("input, textarea, select").forEach(el => {
+      if (el.type === "radio" || el.type === "checkbox") el.checked = false;
+      else el.value = "";
+    });
+    document.querySelectorAll(".stars span").forEach(s => s.style.color = "#ccc");
+    window.scrollTo(0, 0);
+  }
+</script>

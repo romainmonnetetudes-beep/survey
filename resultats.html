@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Résultats — Sondage Millau</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0f2540;
+      --blue: #1a5276;
+      --accent: #c0392b;
+      --gold: #d4a843;
+      --light: #f7f3ee;
+      --white: #ffffff;
+      --muted: #7f8c8d;
+      --card-bg: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--light);
+      color: var(--navy);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: var(--navy);
+      padding: 50px 40px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: rgba(192,57,43,0.12);
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 20%;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: rgba(212,168,67,0.08);
+    }
+    .header-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+    .header-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      font-size: 0.7em;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4em;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .header p { color: rgba(255,255,255,0.6); font-size: 0.95em; }
+    .header-meta {
+      margin-top: 24px;
+      display: flex; gap: 30px; flex-wrap: wrap;
+    }
+    .meta-item { text-align: center; }
+    .meta-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2em;
+      color: var(--gold);
+      display: block;
+      line-height: 1;
+    }
+    .meta-label { color: rgba(255,255,255,0.5); font-size: 0.8em; margin-top: 4px; }
+
+    /* Main */
+    .main { max-width: 900px; margin: 40px auto; padding: 0 20px 60px; }
+
+    /* Section title */
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3em;
+      color: var(--navy);
+      margin: 40px 0 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--navy);
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* Card */
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(15,37,64,0.07);
+    }
+    .card-title {
+      font-size: 0.8em;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    /* Bar chart */
+    .bar-item { margin-bottom: 14px; }
+    .bar-label {
+      display: flex; justify-content: space-between;
+      font-size: 0.9em; margin-bottom: 5px;
+    }
+    .bar-label span:last-child { color: var(--muted); font-size: 0.85em; }
+    .bar-track {
+      background: #eee;
+      border-radius: 4px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--blue);
+      transition: width 1s ease;
+      width: 0;
+    }
+    .bar-fill.gold { background: var(--gold); }
+    .bar-fill.red { background: var(--accent); }
+    .bar-fill.green { background: #27ae60; }
+
+    /* Stars display */
+    .star-display { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+    .stars-row { font-size: 1.5em; }
+    .stars-row .s { color: #ddd; }
+    .stars-row .s.on { color: var(--gold); }
+    .star-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2em;
+      color: var(--navy);
+    }
+    .star-sub { font-size: 0.8em; color: var(--muted); }
+
+    /* Grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* Verbatims */
+    .verbatim-list { display: flex; flex-direction: column; gap: 12px; }
+    .verbatim {
+      background: var(--light);
+      border-left: 3px solid var(--blue);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.9em;
+      line-height: 1.6;
+      color: #333;
+    }
+    .verbatim-meta { font-size: 0.75em; color: var(--muted); margin-top: 6px; }
+
+    /* Loading */
+    #loading {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid #ddd;
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Refresh button */
+    .refresh-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--navy); color: white;
+      border: none; border-radius: 8px;
+      padding: 10px 20px; font-size: 0.9em;
+      cursor: pointer; margin-top: 8px;
+      transition: background 0.2s;
+    }
+    .refresh-btn:hover { background: var(--blue); }
+
+    /* Empty state */
+    .empty { text-align: center; padding: 40px; color: var(--muted); }
+
+    /* Tag chips */
+    .chip-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .chip {
+      background: var(--light);
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.82em;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .chip-count {
+      background: var(--blue);
+      color: white;
+      border-radius: 10px;
+      padding: 1px 7px;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+
+    /* Fade in */
+    .fade-in { animation: fadeIn 0.5s ease forwards; opacity: 0; }
+    @keyframes fadeIn { to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <span class="header-tag">Tableau de bord</span>
+    <h1>Résultats du sondage<br>Conditions de vie à Millau</h1>
+    <p>Analyse des réponses collectées auprès des habitants</p>
+    <div class="header-meta">
+      <div class="meta-item">
+        <span class="meta-num" id="total-count">—</span>
+        <div class="meta-label">Réponses totales</div>
+      </div>
+      <div class="meta-item">
+        <span class="meta-num" id="last-date">—</span>
+        <div class="meta-label">Dernière réponse</div>
+      </div>
+    </div>
+    <button class="refresh-btn" onclick="loadResults()" style="margin-top:24px">
+      ↻ Actualiser les données
+    </button>
+  </div>
+</div>
+
+<div class="main">
+  <div id="loading">
+    <div class="spinner"></div>
+    <p>Chargement des résultats...</p>
+  </div>
+  <div id="dashboard" style="display:none"></div>
+</div>
+
+<script>
+async function loadResults() {
+  document.getElementById("loading").style.display = "block";
+  document.getElementById("dashboard").style.display = "none";
+
+  try {
+    const res = await fetch("/results");
+    const raw = await res.json();
+
+    // Parse each response's answer JSON
+    const data = raw.map(r => {
+      try { return { ...JSON.parse(r.answer), time: r.time }; }
+      catch { return null; }
+    }).filter(Boolean);
+
+    document.getElementById("total-count").textContent = data.length;
+    if (data.length > 0) {
+      const d = new Date(data[0].time);
+      document.getElementById("last-date").textContent =
+        d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    }
+
+    if (data.length === 0) {
+      document.getElementById("dashboard").innerHTML = '<div class="empty card">Aucune réponse enregistrée pour le moment.</div>';
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      return;
+    }
+
+    document.getElementById("dashboard").innerHTML = buildDashboard(data);
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+
+    // Animate bars
+    setTimeout(() => {
+      document.querySelectorAll(".bar-fill").forEach(b => {
+        b.style.width = b.dataset.w;
+      });
+    }, 100);
+
+  } catch(e) {
+    document.getElementById("loading").innerHTML = '<p style="color:red">Erreur de chargement. Assurez-vous que le serveur tourne.</p>';
+  }
+}
+
+function pct(count, total) { return total ? Math.round(count/total*100) : 0; }
+
+function countValues(data, key) {
+  const counts = {};
+  data.forEach(r => { const v = r[key]; if (v) counts[v] = (counts[v]||0) + 1; });
+  return Object.entries(counts).sort((a,b) => b[1]-a[1]);
+}
+
+function avgStars(data, key) {
+  const vals = data.map(r => parseInt(r[key])).filter(v => v > 0);
+  return vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : null;
+}
+
+function starsHTML(avg) {
+  if (!avg) return '<span style="color:#aaa">Aucune note</span>';
+  const full = Math.round(avg);
+  let s = '';
+  for (let i=1;i<=5;i++) s += `<span class="s ${i<=full?'on':''}">★</span>`;
+  return `<div class="star-display">
+    <div class="star-num">${avg}</div>
+    <div><div class="stars-row">${s}</div><div class="star-sub">sur 5</div></div>
+  </div>`;
+}
+
+function barChart(entries, total, colorClass='') {
+  if (!entries.length) return '<p style="color:#aaa;font-size:0.9em">Aucune donnée</p>';
+  return entries.map(([label, count]) => `
+    <div class="bar-item">
+      <div class="bar-label"><span>${label}</span><span>${count} (${pct(count,total)}%)</span></div>
+      <div class="bar-track"><div class="bar-fill ${colorClass}" data-w="${pct(count,total)}%" style="width:0"></div></div>
+    </div>`).join('');
+}
+
+function buildDashboard(data) {
+  const n = data.length;
+  let html = '';
+
+  // Satisfaction
+  html += `<div class="section-title">🏡 Satisfaction générale</div>`;
+  const sat = countValues(data, 'satisfaction');
+  html += `<div class="card fade-in"><div class="card-title">Êtes-vous satisfait(e) de vivre à Millau ?</div>${barChart(sat, n)}</div>`;
+
+  // Age & durée
+  html += `<div class="grid-2">`;
+  const ages = countValues(data, 'age');
+  html += `<div class="card fade-in"><div class="card-title">Tranche d'âge</div>${barChart(ages, n, 'gold')}</div>`;
+
+  const durBuckets = {'Moins d\'1 an':0, '1-5 ans':0, '5-15 ans':0, 'Plus de 15 ans':0};
+  data.forEach(r => {
+    const y = parseInt(r.annees);
+    if (!isNaN(y)) {
+      if (y < 1) durBuckets['Moins d\'1 an']++;
+      else if (y <= 5) durBuckets['1-5 ans']++;
+      else if (y <= 15) durBuckets['5-15 ans']++;
+      else durBuckets['Plus de 15 ans']++;
+    }
+  });
+  const durEntries = Object.entries(durBuckets).filter(([,v])=>v>0);
+  html += `<div class="card fade-in"><div class="card-title">Durée de résidence</div>${barChart(durEntries, n, 'gold')}</div>`;
+  html += `</div>`;
+
+  // Notes étoiles
+  html += `<div class="section-title">⭐ Notes moyennes</div>`;
+  html += `<div class="grid-2">`;
+  [['logement','🏠 Logement'],['transports','🚗 Transports'],['environnement','🌿 Environnement']].forEach(([key, label]) => {
+    const avg = avgStars(data, key);
+    html += `<div class="card fade-in"><div class="card-title">${label}</div>${starsHTML(avg)}</div>`;
+  });
+  html += `</div>`;
+
+  // Emploi & securite
+  html += `<div class="section-title">💼 Emploi & Sécurité</div>`;
+  html += `<div class="grid-2">`;
+  const emploi = countValues(data, 'emploi');
+  html += `<div class="card fade-in"><div class="card-title">Opportunités d'emploi</div>${barChart(emploi, n, 'red')}</div>`;
+  const secu = countValues(data, 'securite');
+  html += `<div class="card fade-in"><div class="card-title">Sentiment de sécurité</div>${barChart(secu, n, 'green')}</div>`;
+  html += `</div>`;
+
+  // Services insuffisants
+  html += `<div class="section-title">🏥 Services jugés insuffisants</div>`;
+  const serviceCounts = {};
+  data.forEach(r => {
+    if (r.services_insuffisants) {
+      r.services_insuffisants.split(', ').forEach(s => {
+        if (s) serviceCounts[s] = (serviceCounts[s]||0) + 1;
+      });
+    }
+  });
+  const serviceEntries = Object.entries(serviceCounts).sort((a,b)=>b[1]-a[1]);
+  html += `<div class="card fade-in"><div class="chip-list">`;
+  serviceEntries.forEach(([label, count]) => {
+    html += `<div class="chip">${label} <span class="chip-count">${count}</span></div>`;
+  });
+  html += `</div></div>`;
+
+  // Avenir
+  html += `<div class="section-title">🔭 Intention de rester à Millau</div>`;
+  const avenir = countValues(data, 'avenir');
+  html += `<div class="card fade-in">${barChart(avenir, n)}</div>`;
+
+  // Communauté
+  html += `<div class="section-title">🤝 Esprit de communauté</div>`;
+  const communaute = countValues(data, 'communaute');
+  html += `<div class="card fade-in">${barChart(communaute, n, 'green')}</div>`;
+
+  // Commentaires libres
+  const comments = data.map(r => ({ text: r.commentaire_libre, meta: r.quartier, time: r.time }))
+    .filter(r => r.text && r.text.trim().length > 5);
+
+  if (comments.length > 0) {
+    html += `<div class="section-title">💬 Commentaires libres (${comments.length})</div>`;
+    html += `<div class="verbatim-list">`;
+    comments.slice(0, 20).forEach(c => {
+      const d = new Date(c.time);
+      const dateStr = d.toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' });
+      html += `<div class="verbatim fade-in">
+        "${c.text}"
+        <div class="verbatim-meta">${c.meta ? c.meta + ' · ' : ''}${dateStr}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  return html;
+}
+
+loadResults();
+</script>
+</body>
+</html>
