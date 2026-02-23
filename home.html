@@ -1,144 +1,158 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Sondage Millau</title>
-    </head>
-</html>
-
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-
-<style>
-
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sondage Millau</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
     :root {
-        --navy: #0f2540;
-        --blue: #1a5276;
-        --accent: #c0392b;
-        --gold: #d4a843;
-        --light: #f7f3ee;
-        --white: #ffffff;
-        --muted: #7f8c8d;
+      --navy: #0f2540;
+      --blue: #1a5276;
+      --accent: #c0392b;
+      --gold: #d4a843;
+      --light: #f7f3ee;
+      --white: #ffffff;
+      --muted: #7f8c8d;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0;}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-        font-family: 'DM Sans', sans-serif;
-        background: var(--light);
-        color: var(--navy);
-        min-height: 100vh;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--light);
+      color: var(--navy);
+      min-height: 100vh;
     }
 
+    /* Page transition overlay */
+    .transition-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--navy);
+      z-index: 9999;
+      transform: translateY(100%);
+      transition: transform 0.4s ease;
+      pointer-events: none;
+    }
+    .transition-overlay.active {
+      transform: translateY(0);
+    }
+
+    /* Header */
     .header {
-        background: var(--navy);
-        padding: 50px 40px 50px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
+      background: var(--navy);
+      padding: 60px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
     }
-
     .header::before {
-        content: '';
-        position: absolute;
-        top: -60px; right: -60px;
-        width: 300px; height: 300px;
-        border-radius: 50%;
-        background: rgba(192,57,43,0.12);
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: rgba(192,57,43,0.12);
     }
-
     .header::after {
-        content: '';
-        position: absolute;
-        bottom: -80px; left: 20%;
-        width: 200px; height: 200px;
-        border-radius: 50%;
-        background: rgba(212,168,67,0.08);
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 20%;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: rgba(212,168,67,0.08);
     }
-
     .header-tag {
-        display: inline-block;
-        background: var(--accent);
-        color: white;
-        font-size: 0.7em;
-        font-weight: 500;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        padding: 4px 12px;
-        border-radius: 20px;
-        margin-bottom: 16px;
-        position: relative;
-        z-index: 1;
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      font-size: 0.7em;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+      animation: fadeDown 0.8s ease forwards;
     }
-
     .header h1 {
-        font-family: 'Playfair Display', serif;
-        font-size: 2.4em;
-        color: white;
-        line-height: 1.2;
-        margin-bottom: 10px;
-        position: relative;
-        z-index: 1;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6em;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+      animation: fadeDown 0.8s ease 0.15s both;
     }
-
     .header p {
-        color: rgba(255,255,255,0.6);
-        font-size: 0,95em;
-        position: relative;
-        z-index: 1;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.95em;
+      position: relative;
+      z-index: 1;
+      animation: fadeDown 0.8s ease 0.3s both;
     }
 
+    /* Main */
     .main {
-        max-width: 900px;
-        margin: 50px auto;
-        padding: 0 20px 60px;
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 0 20px 60px;
     }
 
     .section-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.3em;
-        color: var(--navy);
-        margin-bottom: 24px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid var(--navy);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3em;
+      color: var(--navy);
+      margin-bottom: 24px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--navy);
+      animation: fadeUp 0.8s ease 0.4s both;
     }
 
+    /* Cards */
     .cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
     }
 
     .card {
-        background: var(--white);
-        border-radius: 12px;
-        padding: 30px 24px;
-        text-decoration: none;
-        color: var(--navy);
-        box-shadow: 0 2px 12px rgba(15,37,64,0.07);
-        border-top: 3px solid transparent;
-        transition: transform 0.2s, box-shadow 0.2s, border-color 0.2;
-        display: block;
+      background: var(--white);
+      border-radius: 12px;
+      padding: 30px 24px 24px;
+      text-decoration: none;
+      color: var(--navy);
+      box-shadow: 0 2px 12px rgba(15,37,64,0.07);
+      border-top: 3px solid transparent;
+      display: block;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease;
     }
-
-    .color:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(15,37,64,0.12);
+    .card.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
-
-    .card.blue { border-top-color: var(--blue); }
-    .card.blue:hover { border-top-color: var(--blue); }
-
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 35px rgba(15,37,64,0.13);
+    }
+    .card.blue  { border-top-color: var(--blue); }
     .card.green { border-top-color: #27ae60; }
-    .card.green:hover { border-top-color: #27ae60; }
-
     .card.red   { border-top-color: var(--accent); }
-    .card.red:hover   { border-top-color: var(--accent); }
 
-     .card-icon {
+    .card-icon {
       font-size: 2.2em;
       margin-bottom: 14px;
       display: block;
+      transition: transform 0.3s ease;
+    }
+    .card:hover .card-icon {
+      transform: scale(1.15);
     }
 
     .card-label {
@@ -162,160 +176,127 @@
       font-weight: 300;
       color: var(--muted);
       line-height: 1.6;
+      margin-bottom: 16px;
     }
 
     .card-arrow {
       display: inline-block;
-      margin-top: 16px;
       font-size: 0.85em;
       font-weight: 500;
       color: var(--blue);
+      transition: transform 0.25s ease;
+    }
+    .card:hover .card-arrow {
+      transform: translateX(6px);
     }
 
-    /* ===================== */
-    /* FOOTER */
-    /* ===================== */
+    /* Footer */
     .footer {
       text-align: center;
       margin-top: 50px;
       font-size: 0.78em;
       color: var(--muted);
+      animation: fadeUp 0.8s ease 0.9s both;
     }
 
-    /* ===================== */
-    /* MOBILE — smaller screens */
-    /* ===================== */
+    /* Animations */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mobile */
     @media (max-width: 600px) {
-      .header h1 { font-size: 1.7em; }
+      .header h1 { font-size: 1.8em; }
       .cards { grid-template-columns: 1fr; }
     }
-
-    .transition-overlay {
-        position: fixed;
-        inset: 0;
-        background: var(--navy);
-        z-index: 9999;
-        transform: translateY(100%);
-        transition: transform 0.4s ease;
-        pointer-events: none;
-    }
-    .transition-overlay.active {
-        transform: translateY(0)
-    }
-
   </style>
 </head>
 <body>
 
-    <div class="transition-overlay" id="overlay"></div>
+  <!-- Page transition overlay -->
+  <div class="transition-overlay" id="overlay"></div>
 
-  <!-- ===================== -->
-  <!-- HEADER SECTION -->
-  <!-- ===================== -->
+  <!-- Header -->
   <div class="header">
-    <span class="header-tag">Ville de Millau · Aveyron</span>
-    <h1>Sondage — Conditions<br>de vie à Millau</h1>
-    <p>Participez à notre enquête citoyenne et consultez les résultats en temps réel.</p>
+    <span class="header-tag">Ville de Millau &middot; Aveyron</span>
+    <h1>Sondage &mdash; Conditions<br>de vie &agrave; Millau</h1>
+    <p>Participez &agrave; notre enqu&ecirc;te citoyenne et consultez les r&eacute;sultats en temps r&eacute;el.</p>
   </div>
 
-  <!-- ===================== -->
-  <!-- MAIN CONTENT -->
-  <!-- ===================== -->
+  <!-- Main content -->
   <div class="main">
 
     <div class="section-title">🗂️ Choisissez une section</div>
 
-    <!-- ===================== -->
-    <!-- THE 3 CARDS -->
-    <!-- To add a new card: copy one <a> block and change the href, icon, title and text -->
-    <!-- ===================== -->
     <div class="cards">
 
       <a href="/survey" class="card blue">
         <span class="card-icon">📝</span>
         <span class="card-label">Participer</span>
-        <h2>Répondre au sondage</h2>
-        <p>Donnez votre avis sur votre quotidien à Millau. Anonyme et rapide.</p>
-        <span class="card-arrow">Accéder →</span>
+        <h2>R&eacute;pondre au sondage</h2>
+        <p>Donnez votre avis sur votre quotidien &agrave; Millau. Anonyme et rapide.</p>
+        <span class="card-arrow">Acc&eacute;der &rarr;</span>
       </a>
 
       <a href="/resultats" class="card green">
         <span class="card-icon">📊</span>
         <span class="card-label">Statistiques</span>
-        <h2>Voir les résultats</h2>
-        <p>Consultez les réponses et analyses des habitants en temps réel.</p>
-        <span class="card-arrow">Accéder →</span>
+        <h2>Voir les r&eacute;sultats</h2>
+        <p>Consultez les r&eacute;ponses et analyses des habitants en temps r&eacute;el.</p>
+        <span class="card-arrow">Acc&eacute;der &rarr;</span>
       </a>
 
       <a href="/admin" class="card red">
         <span class="card-icon">⚙️</span>
         <span class="card-label">Administration</span>
-        <h2>Gérer le sondage</h2>
-        <p>Modifier, ajouter ou supprimer des questions. Accès protégé.</p>
-        <span class="card-arrow">Accéder →</span>
+        <h2>G&eacute;rer le sondage</h2>
+        <p>Modifier, ajouter ou supprimer des questions. Acc&egrave;s prot&eacute;g&eacute;.</p>
+        <span class="card-arrow">Acc&eacute;der &rarr;</span>
       </a>
 
     </div>
 
-    <!-- ===================== -->
-    <!-- FOOTER -->
-    <!-- ===================== -->
     <div class="footer">
-      Sondage réalisé dans le cadre d'un projet scolaire · Millau, 2026
+      Sondage r&eacute;alis&eacute; dans le cadre d'un projet scolaire &middot; Millau, 2026
     </div>
 
   </div>
 
-    .card-arrow {
-        display: inline-block;
-        margin-top: 16px;
-        font-size: 0.85em;
-        font-weight: 500;
-        color: var(--blue);
-        transition: transform 0.2s ease;
-    }
-    .card:hover .card-arrow {
-        transform: translateX(6px);
-    }
-    .card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+  <script>
+    // Fade in cards one by one as they appear on screen
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          setTimeout(function() {
+            entry.target.classList.add("visible");
+          }, entry.target.dataset.delay || 0);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll(".card").forEach(function(el, i) {
+      el.dataset.delay = i * 150;
+      observer.observe(el);
+    });
+
+    // Smooth page transitions when clicking a card
+    document.querySelectorAll("a.card").forEach(function(link) {
+      link.addEventListener("click", function(e) {
+        e.preventDefault();
+        var href = this.getAttribute("href");
+        var overlay = document.getElementById("overlay");
+        overlay.classList.add("active");
+        setTimeout(function() {
+          window.location.href = href;
+        }, 400);
+      });
+    });
+  </script>
 
 </body>
 </html>
-
-
-</style>
-
-<script>
-
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = "1";
-                entry.target.style.transform = "translateY(0)";
-            }
-        });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll(".card").forEach(function(el) {
-        el.style.opacity = "0";
-        el.style.transform = "translateY(30px)"
-        el.style.transition = "opacity 0.6s ease, transform 0.6s ease"
-        observer.observe(el);
-    });
-
-    // Smooth page transitions
-  document.querySelectorAll("a.card").forEach(function(link) {
-    link.addEventListener("click", function(e) {
-      e.preventDefault();
-      var href = this.getAttribute("href");
-      var overlay = document.getElementById("overlay");
-      overlay.classList.add("active");
-      setTimeout(function() {
-        window.location.href = href;
-      }, 400);
-    });
-  });
-
-</script>
