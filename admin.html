@@ -181,7 +181,7 @@ function removeSection(si) {
 async function saveQuestions() {
     const res = await fetch("/save-questions", {
         method: "POST"
-        headers: {"Content-Type": "application/json"},
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(questionsData)
     });
     const msg = document.getElementById("msg");
