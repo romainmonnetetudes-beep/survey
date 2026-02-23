@@ -45,6 +45,30 @@ def save_questions():
         json.dump(data, f, ensure_ascii=False, indent=2)
     return jsonify({"status": "ok"})
 
+@app.route("/admin")
+def admin():
+    return send_from_directory(".", "admin.html")
+
+@app.route("/questions")
+def get_questions():
+    with open("questions.json", "r", encoding="utf-8") as f:
+        return jsonify(json.load(f))
+
+@app.route("/save-questions", methods=["POST"])
+def save_questions():
+    data = request.json
+    with open("questions.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    return jsonify({"status": "ok"})
+
+@app.route("/")
+def home():
+    return send_from_directory(".", "home.html")
+
+@app.route("/survey")
+def survey():
+    return send_from_directory(".", "index.html")
+
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
