@@ -70,7 +70,7 @@
 }
 
 async function loadQuestions() {
-    const res = await res.json();
+    const res = await fetch("/questions");
     questionsData = await res.json();
     renderEditor();
 }
