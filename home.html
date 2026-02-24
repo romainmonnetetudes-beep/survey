@@ -144,7 +144,8 @@
     .card.blue  { border-top-color: var(--blue); }
     .card.green { border-top-color: #27ae60; }
     .card.red   { border-top-color: var(--accent); }
-
+    .card.gold { border-top-color: var(--gold); }
+    
     .card-icon {
       font-size: 2.2em;
       margin-bottom: 14px;
@@ -233,37 +234,50 @@
 
     <div class="section-title">🗂️ Choisissez une section</div>
 
-    <div class="cards">
-
-      <a href="/survey" class="card blue">
-        <span class="card-icon">📝</span>
-        <span class="card-label">Participer</span>
-        <h2>R&eacute;pondre au sondage</h2>
-        <p>Donnez votre avis sur votre quotidien &agrave; Millau. Anonyme et rapide.</p>
-        <span class="card-arrow">Acc&eacute;der &rarr;</span>
-      </a>
-
-      <a href="/resultats" class="card green">
-        <span class="card-icon">📊</span>
-        <span class="card-label">Statistiques</span>
-        <h2>Voir les r&eacute;sultats</h2>
-        <p>Consultez les r&eacute;ponses et analyses des habitants en temps r&eacute;el.</p>
-        <span class="card-arrow">Acc&eacute;der &rarr;</span>
-      </a>
-
-      <a href="/admin" class="card red">
-        <span class="card-icon">⚙️</span>
-        <span class="card-label">Administration</span>
-        <h2>G&eacute;rer le sondage</h2>
-        <p>Modifier, ajouter ou supprimer des questions. Acc&egrave;s prot&eacute;g&eacute;.</p>
-        <span class="card-arrow">Acc&eacute;der &rarr;</span>
-      </a>
+ <div class="cards">
+  <a href="/survey/1" class="card blue">
+    <span class="card-icon">📝</span>
+    <span class="card-label">Participer</span>
+    <h2>Répondre au sondage</h2>
+    <p>Donnez votre avis sur votre quotidien à Millau.</p>
+    <span class="card-arrow">Accéder →</span>
+  </a>
+  <a href="/resultats" class="card green">
+    <span class="card-icon">📊</span>
+    <span class="card-label">Statistiques</span>
+    <h2>Voir les résultats</h2>
+    <p>Consultez les réponses en temps réel.</p>
+    <span class="card-arrow">Accéder →</span>
+  </a>
+  <a href="/login" class="card gold">
+    <span class="card-icon">👤</span>
+    <span class="card-label">Espace personnel</span>
+    <h2>Connexion</h2>
+    <p>Gérez votre propre sondage depuis votre tableau de bord.</p>
+    <span class="card-arrow">Accéder →</span>
+  </a>
+  <a href="/admin" class="card red">
+    <span class="card-icon">⚙️</span>
+    <span class="card-label">Administration</span>
+    <h2>Gérer le sondage</h2>
+    <p>Modifier les questions. Accès protégé.</p>
+    <span class="card-arrow">Accéder →</span>
+  </a>
+</div>
 
     </div>
 
     <div class="footer">
       Sondage r&eacute;alis&eacute; dans le cadre d'un projet scolaire &middot; Millau, 2026
     </div>
+
+    <a href="/login" class="card blue">
+  <span class="card-icon">👤</span>
+  <span class="card-label">Espace personnel</span>
+  <h2>Connexion</h2>
+  <p>Accédez à votre tableau de bord pour gérer votre propre sondage.</p>
+  <span class="card-arrow">Accéder →</span>
+</a>
 
   </div>
 
