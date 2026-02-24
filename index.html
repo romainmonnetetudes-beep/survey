@@ -1,307 +1,942 @@
 <!DOCTYPE html>
+<!-- DOCTYPE tells the browser this is a modern HTML5 page -->
+
 <html lang="fr">
+<!-- lang="fr" tells the browser the page is in French -->
+
 <head>
+  <!-- HEAD contains info about the page, not visible content -->
+
   <meta charset="UTF-8">
-  <title>Sondage - Conditions de vie à Millau</title>
+  <!-- UTF-8 makes sure accented characters like é à ê display correctly -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- This makes the page look good on phones - without it, mobile would zoom out -->
+
+  <title>Sondage &mdash; Conditions de vie &agrave; Millau</title>
+  <!-- The text shown in the browser tab. &mdash; = — and &agrave; = à -->
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <!-- Loads two fonts from Google:
+       - Playfair Display = the elegant serif font used for titles
+       - DM Sans = the clean font used for body text -->
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #333; }
-    .header { background: #1a5276; color: white; padding: 30px 20px; text-align: center; }
-    .header h1 { font-size: 1.6em; margin-bottom: 8px; }
-    .header p { opacity: 0.85; font-size: 0.95em; }
-    .container { max-width: 650px; margin: 30px auto; padding: 0 20px 60px; }
-    .card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    .card h2 { font-size: 1em; color: #1a5276; margin-bottom: 15px; font-weight: 600; }
-    label { display: block; margin-bottom: 8px; font-size: 0.95em; }
-    input[type="text"], input[type="number"], textarea, select {
-      width: 100%; padding: 10px; border: 1px solid #ccd; border-radius: 6px;
-      font-size: 0.95em; margin-top: 4px;
+    /* Everything inside <style> is CSS - it controls how things LOOK */
+
+    /* ============================================
+       CSS VARIABLES — your color palette
+       Change these and the whole page recolors!
+       ============================================ */
+    :root {
+      --navy: #0f2540;    /* Dark navy blue - used for headers and text */
+      --blue: #1a5276;    /* Medium blue - used for focus states and links */
+      --accent: #c0392b;  /* Red - used for the tag badge */
+      --gold: #d4a843;    /* Gold - used for stars and progress bar */
+      --light: #f7f3ee;   /* Cream - the page background color */
+      --white: #ffffff;   /* Pure white - used for cards */
+      --muted: #7f8c8d;   /* Grey - used for placeholder and secondary text */
+      --border: #e0d9d0;  /* Light beige - used for borders */
     }
-    textarea { resize: vertical; }
-    .radio-group label, .checkbox-group label {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 12px; border-radius: 6px; cursor: pointer;
-      transition: background 0.15s;
+
+    /* ============================================
+       RESET — removes default browser spacing
+       ============================================ */
+    * {
+      box-sizing: border-box; /* Makes padding included in width calculations */
+      margin: 0;              /* Removes default margins */
+      padding: 0;             /* Removes default padding */
     }
-    .radio-group label:hover, .checkbox-group label:hover { background: #eaf0fb; }
-    input[type="radio"], input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
-    .stars { display: flex; gap: 8px; font-size: 2em; cursor: pointer; margin-top: 8px; }
-    .stars span { color: #ccc; transition: color 0.15s; user-select: none; }
+
+    /* ============================================
+       BODY — the whole page
+       ============================================ */
+    body {
+      font-family: 'DM Sans', sans-serif; /* Default font for all text */
+      background: var(--light);           /* Cream background */
+      color: var(--navy);                 /* Default text color */
+      min-height: 100vh;                  /* At least full screen height */
+      animation: pageIn 0.4s ease forwards; /* Fade in when page loads */
+    }
+
+    /* The fade-in animation for page load */
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(10px); } /* Start invisible, slightly below */
+      to   { opacity: 1; transform: translateY(0); }    /* End fully visible, normal position */
+    }
+
+    /* ============================================
+       BACK BUTTON — fixed top-left corner
+       ============================================ */
+    .back-btn {
+      position: fixed;   /* Stays in place even when scrolling */
+      top: 16px;
+      left: 16px;
+      background: white;
+      color: var(--navy);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85em;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 20px;        /* Makes it pill-shaped */
+      text-decoration: none;      /* Removes underline from the link */
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12); /* Subtle shadow */
+      z-index: 1000;              /* Makes sure it's above everything else */
+      transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth hover animation */
+    }
+    .back-btn:hover {
+      transform: translateY(-2px);                    /* Lifts up slightly on hover */
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);        /* Bigger shadow on hover */
+    }
+
+    /* ============================================
+       PROGRESS BAR — fixed at the very top
+       ============================================ */
+    .progress-wrap {
+      position: fixed;  /* Stays at top even when scrolling */
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;     /* Just below the back button */
+      background: rgba(247,243,238,0.95); /* Semi-transparent cream */
+      backdrop-filter: blur(8px);         /* Blurs content behind it */
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px 10px;
+    }
+
+    /* The "Section 1 sur 10" and "10%" text row */
+    .progress-info {
+      max-width: 680px;
+      margin: 0 auto 8px;
+      display: flex;                  /* Puts children side by side */
+      justify-content: space-between; /* One on left, one on right */
+      align-items: center;
+      font-size: 0.78em;
+      color: var(--muted);
+    }
+    .progress-info strong {
+      color: var(--navy);
+      font-weight: 500;
+    }
+
+    /* The grey track behind the progress bar */
+    .progress-track {
+      max-width: 680px;
+      margin: 0 auto;
+      height: 4px;
+      background: var(--border); /* Grey track */
+      border-radius: 4px;
+      overflow: hidden;          /* Hides the fill that goes beyond the track */
+    }
+
+    /* The colored fill inside the track - width is updated by JavaScript */
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--gold)); /* Blue to gold gradient */
+      border-radius: 4px;
+      transition: width 0.5s ease; /* Smooth grow animation */
+      width: 0%;                   /* Starts at 0, JS updates this */
+    }
+
+    /* ============================================
+       HEADER — the dark banner at the top
+       ============================================ */
+    .header {
+      background: var(--navy);
+      padding: 80px 40px 50px; /* Extra top padding to clear the progress bar */
+      text-align: center;
+      position: relative; /* Needed for the decorative circles */
+      overflow: hidden;   /* Hides parts of circles that go outside */
+    }
+
+    /* Decorative circle top-right */
+    .header::before {
+      content: '';          /* Required for pseudo-elements */
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 300px; height: 300px;
+      border-radius: 50%;  /* Makes it a circle */
+      background: rgba(192,57,43,0.1); /* Semi-transparent red */
+    }
+
+    /* Decorative circle bottom-left */
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 15%;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: rgba(212,168,67,0.07); /* Semi-transparent gold */
+    }
+
+    /* The red pill badge */
+    .header-tag {
+      display: inline-block;
+      background: var(--accent); /* Red background */
+      color: white;
+      font-size: 0.7em;
+      font-weight: 500;
+      letter-spacing: 0.15em;    /* Spreads letters out */
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1; /* Above the decorative circles */
+    }
+
+    /* Main title */
+    .header h1 {
+      font-family: 'Playfair Display', serif; /* Elegant serif font */
+      font-size: 2.2em;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Subtitle */
+    .header p {
+      color: rgba(255,255,255,0.6); /* White at 60% opacity = dimmed */
+      font-size: 0.9em;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ============================================
+       MAIN CONTENT AREA
+       ============================================ */
+    .main {
+      max-width: 680px;      /* Limits width for readability */
+      margin: 0 auto;        /* Centers horizontally */
+      padding: 40px 20px 80px; /* Space around content */
+    }
+
+    /* ============================================
+       SECTIONS — each question group
+       ============================================ */
+    .section {
+      margin-bottom: 16px;
+      opacity: 0;                    /* Starts invisible */
+      transform: translateY(24px);   /* Starts slightly below */
+      transition: opacity 0.5s ease, transform 0.5s ease; /* Smooth reveal */
+    }
+    /* When JavaScript adds the "visible" class, it fades in */
+    .section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* The row with the number circle and section title */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* The numbered circle */
+    .section-num {
+      width: 32px; height: 32px;
+      background: var(--navy);
+      color: white;
+      border-radius: 50%; /* Circle */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8em;
+      font-weight: 500;
+      flex-shrink: 0; /* Never shrinks on small screens */
+    }
+
+    /* The section title text */
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15em;
+      color: var(--navy);
+    }
+
+    /* The white card behind each section */
+    .card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(15,37,64,0.06);
+      border: 1px solid var(--border);
+    }
+
+    /* ============================================
+       QUESTIONS — inside each card
+       ============================================ */
+    .question {
+      margin-bottom: 24px; /* Space between questions */
+    }
+    .question:last-child {
+      margin-bottom: 0; /* No extra space after last question */
+    }
+
+    /* Question text */
+    .question label {
+      display: block;
+      font-size: 0.93em;
+      font-weight: 500;
+      color: var(--navy);
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    /* ============================================
+       INPUTS — text, number, textarea, select
+       ============================================ */
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92em;
+      color: var(--navy);
+      background: var(--light); /* Cream background */
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      outline: none; /* Removes the default ugly blue outline */
+    }
+
+    /* When the user clicks on an input */
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--blue);                    /* Blue border on focus */
+      box-shadow: 0 0 0 3px rgba(26,82,118,0.1);    /* Soft blue glow */
+      background: white;
+    }
+
+    textarea {
+      resize: vertical;    /* User can only resize vertically, not horizontally */
+      min-height: 80px;
+    }
+
+    /* ============================================
+       RADIO & CHECKBOX OPTIONS
+       ============================================ */
+    .options {
+      display: flex;
+      flex-direction: column; /* Stack options vertically */
+      gap: 8px;               /* Space between each option */
+    }
+
+    /* Each clickable option row */
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer; /* Shows hand cursor on hover */
+      transition: border-color 0.2s, background 0.2s;
+      font-size: 0.9em;
+    }
+    /* Hover effect */
+    .option-label:hover {
+      border-color: var(--blue);
+      background: rgba(26,82,118,0.04);
+    }
+    /* Radio and checkbox inside the option */
+    .option-label input[type="radio"],
+    .option-label input[type="checkbox"] {
+      width: 18px; height: 18px;
+      accent-color: var(--blue); /* Colors the radio/checkbox blue */
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    /* When JavaScript adds "selected" class after clicking */
+    .option-label.selected {
+      border-color: var(--blue);
+      background: rgba(26,82,118,0.06);
+    }
+
+    /* ============================================
+       STAR RATING
+       ============================================ */
+    .stars {
+      display: flex;
+      gap: 6px; /* Space between stars */
+    }
+
+    .star {
+      font-size: 2em;
+      cursor: pointer;
+      color: #ddd;             /* Grey by default */
+      transition: color 0.15s, transform 0.15s;
+      user-select: none;       /* Prevents text selection when clicking */
+    }
+    .star:hover {
+      transform: scale(1.2);  /* Grows on hover */
+    }
+    .star.on {
+      color: var(--gold);     /* Gold when selected */
+    }
+
+    /* ============================================
+       SUBMIT BUTTON
+       ============================================ */
+    .submit-wrap {
+      margin-top: 32px;
+      text-align: center;
+    }
+
     .submit-btn {
-      width: 100%; padding: 15px; background: #1a5276; color: white;
-      border: none; border-radius: 8px; font-size: 1.1em; cursor: pointer;
-      margin-top: 10px; transition: background 0.2s;
+      background: var(--navy);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 16px 48px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(15,37,64,0.2);
     }
-    .submit-btn:hover { background: #154360; }
-    #success { display: none; text-align: center; padding: 40px 20px; }
-    #success .check { font-size: 3em; }
-    #success h2 { color: #1a5276; margin: 15px 0 10px; }
-    #success button { margin-top: 20px; padding: 10px 30px; background: #1a5276; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1em; }
+    .submit-btn:hover {
+      background: var(--blue);
+      transform: translateY(-2px); /* Lifts up */
+      box-shadow: 0 8px 24px rgba(15,37,64,0.25);
+    }
+    .submit-btn:active {
+      transform: translateY(0); /* Pushes back down when clicked */
+    }
+
+    /* ============================================
+       SUCCESS SCREEN — shown after submitting
+       ============================================ */
+    #success {
+      display: none; /* Hidden until JavaScript shows it */
+      text-align: center;
+      padding: 60px 20px;
+      animation: pageIn 0.5s ease forwards;
+    }
+    .success-icon {
+      font-size: 4em;
+      margin-bottom: 20px;
+    }
+    #success h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8em;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+    #success p {
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* "Answer again" button */
+    .again-btn {
+      background: white;
+      color: var(--navy);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 28px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95em;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .again-btn:hover {
+      border-color: var(--blue);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    /* ============================================
+       MOBILE — adjustments for small screens
+       ============================================ */
+    @media (max-width: 600px) {
+      .header { padding: 80px 20px 40px; }  /* Less side padding */
+      .header h1 { font-size: 1.7em; }       /* Smaller title */
+      .card { padding: 20px; }               /* Less card padding */
+    }
+
   </style>
 </head>
 <body>
 
-<a href="/" style="
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  background: white;
-  color: #0f2540;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85em;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 20px;
-  text-decoration: none;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
-  z-index: 1000;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'"
-   onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 10px rgba(0,0,0,0.12)'">
-  ← Accueil
-</a>
+  <!-- BACK BUTTON — links back to home page -->
+  <a href="/" class="back-btn">&larr; Accueil</a>
+  <!-- &larr; = the ← arrow character -->
 
-<div class="header">
-  <h1>Sondage — Conditions de vie à Millau</h1>
-  <p>Votre avis nous aide à mieux comprendre le quotidien des habitants de Millau.<br>Ce sondage est anonyme et prend environ 3 minutes.</p>
-</div>
-
-<div class="container">
-  <div id="form-area">
-
-    <!-- Profil -->
-    <div class="card">
-      <h2>👤 Votre profil</h2>
-      <label>Depuis combien d'années habitez-vous à Millau ?
-        <input type="number" id="annees" min="0" max="100" placeholder="ex: 5">
-      </label>
-      <label style="margin-top:15px">Votre tranche d'âge :
-        <select id="age">
-          <option value="">-- Sélectionnez --</option>
-          <option>Moins de 18 ans</option>
-          <option>18 - 25 ans</option>
-          <option>26 - 40 ans</option>
-          <option>41 - 60 ans</option>
-          <option>Plus de 60 ans</option>
-        </select>
-      </label>
-      <label style="margin-top:15px">Votre quartier ou commune (optionnel) :
-        <input type="text" id="quartier" placeholder="ex: Centre-ville, La Capelle...">
-      </label>
+  <!-- PROGRESS BAR — fixed at top, updated by JavaScript -->
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span id="progress-label">Section <strong>1</strong> sur 10</span>
+      <span id="progress-pct">0%</span>
     </div>
-
-    <!-- Satisfaction générale -->
-    <div class="card">
-      <h2>🏡 Satisfaction générale</h2>
-      <label>Dans l'ensemble, êtes-vous satisfait(e) de vivre à Millau ?</label>
-      <div class="radio-group">
-        <label><input type="radio" name="satisfaction" value="Très satisfait"> Très satisfait(e)</label>
-        <label><input type="radio" name="satisfaction" value="Satisfait"> Satisfait(e)</label>
-        <label><input type="radio" name="satisfaction" value="Neutre"> Neutre</label>
-        <label><input type="radio" name="satisfaction" value="Insatisfait"> Insatisfait(e)</label>
-        <label><input type="radio" name="satisfaction" value="Très insatisfait"> Très insatisfait(e)</label>
-      </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+      <!-- Width of this div is updated by JavaScript as user scrolls -->
     </div>
-
-    <!-- Logement -->
-    <div class="card">
-      <h2>🏠 Logement</h2>
-      <label>Comment évaluez-vous la qualité et l'accessibilité du logement à Millau ?</label>
-      <div class="stars" id="stars-logement" data-id="logement">
-        <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span>
-        <span data-val="4">★</span><span data-val="5">★</span>
-      </div>
-      <input type="hidden" id="logement" value="">
-      <label style="margin-top:15px">Commentaire (optionnel) :
-        <textarea id="logement_comment" rows="2" placeholder="Prix des loyers, qualité des logements..."></textarea>
-      </label>
-    </div>
-
-    <!-- Transports -->
-    <div class="card">
-      <h2>🚗 Transports & Mobilité</h2>
-      <label>Êtes-vous satisfait(e) des transports et de la mobilité à Millau ?</label>
-      <div class="stars" id="stars-transports" data-id="transports">
-        <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span>
-        <span data-val="4">★</span><span data-val="5">★</span>
-      </div>
-      <input type="hidden" id="transports" value="">
-      <label style="margin-top:15px">Commentaire (optionnel) :
-        <textarea id="transports_comment" rows="2" placeholder="Transports en commun, routes, vélo..."></textarea>
-      </label>
-    </div>
-
-    <!-- Services -->
-    <div class="card">
-      <h2>🏥 Services publics & Commerces</h2>
-      <label>Quels services jugez-vous insuffisants à Millau ? (plusieurs choix possibles)</label>
-      <div class="checkbox-group">
-        <label><input type="checkbox" value="Santé (médecins, hôpital)"> Santé (médecins, hôpital)</label>
-        <label><input type="checkbox" value="Écoles et éducation"> Écoles et éducation</label>
-        <label><input type="checkbox" value="Commerces de proximité"> Commerces de proximité</label>
-        <label><input type="checkbox" value="Services administratifs"> Services administratifs</label>
-        <label><input type="checkbox" value="Loisirs et culture"> Loisirs et culture</label>
-        <label><input type="checkbox" value="Internet et numérique"> Internet et numérique</label>
-        <label><input type="checkbox" value="Aucun manque particulier"> Aucun manque particulier</label>
-      </div>
-    </div>
-
-    <!-- Environnement -->
-    <div class="card">
-      <h2>🌿 Cadre de vie & Environnement</h2>
-      <label>Comment appréciez-vous le cadre naturel et la qualité environnementale de Millau ?</label>
-      <div class="stars" id="stars-environnement" data-id="environnement">
-        <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span>
-        <span data-val="4">★</span><span data-val="5">★</span>
-      </div>
-      <input type="hidden" id="environnement" value="">
-    </div>
-
-    <!-- Emploi -->
-    <div class="card">
-      <h2>💼 Emploi & Économie</h2>
-      <label>Comment évaluez-vous les opportunités d'emploi à Millau ?</label>
-      <div class="radio-group">
-        <label><input type="radio" name="emploi" value="Très bonnes"> Très bonnes</label>
-        <label><input type="radio" name="emploi" value="Correctes"> Correctes</label>
-        <label><input type="radio" name="emploi" value="Limitées"> Limitées</label>
-        <label><input type="radio" name="emploi" value="Très limitées"> Très limitées</label>
-        <label><input type="radio" name="emploi" value="Sans opinion"> Sans opinion</label>
-      </div>
-    </div>
-
-    <!-- Lien social -->
-    <div class="card">
-      <h2>🤝 Lien social & Sécurité</h2>
-      <label>Vous sentez-vous en sécurité à Millau ?</label>
-      <div class="radio-group">
-        <label><input type="radio" name="securite" value="Toujours"> Toujours</label>
-        <label><input type="radio" name="securite" value="Souvent"> Souvent</label>
-        <label><input type="radio" name="securite" value="Parfois"> Parfois</label>
-        <label><input type="radio" name="securite" value="Rarement"> Rarement</label>
-      </div>
-      <label style="margin-top:15px">Ressentez-vous un bon esprit de communauté dans votre quartier ?
-        <select id="communaute">
-          <option value="">-- Sélectionnez --</option>
-          <option>Oui, très fort</option>
-          <option>Plutôt oui</option>
-          <option>Plutôt non</option>
-          <option>Non, très peu</option>
-        </select>
-      </label>
-    </div>
-
-    <!-- Avenir -->
-    <div class="card">
-      <h2>🔭 Regard sur l'avenir</h2>
-      <label>Envisagez-vous de rester vivre à Millau dans les 5 prochaines années ?</label>
-      <div class="radio-group">
-        <label><input type="radio" name="avenir" value="Oui certainement"> Oui, certainement</label>
-        <label><input type="radio" name="avenir" value="Probablement"> Probablement</label>
-        <label><input type="radio" name="avenir" value="Incertain"> Incertain(e)</label>
-        <label><input type="radio" name="avenir" value="Probablement pas"> Probablement pas</label>
-        <label><input type="radio" name="avenir" value="Non je pars"> Non, je compte partir</label>
-      </div>
-    </div>
-
-    <!-- Commentaire libre -->
-    <div class="card">
-      <h2>💬 Commentaire libre</h2>
-      <label>Y a-t-il quelque chose d'important que vous souhaitez ajouter sur votre vie à Millau ?
-        <textarea id="commentaire_libre" rows="4" placeholder="Vos remarques, suggestions, points positifs ou négatifs..."></textarea>
-      </label>
-    </div>
-
-    <button class="submit-btn" onclick="submitSurvey()">Envoyer mes réponses ✓</button>
   </div>
 
-  <!-- Success message -->
-  <div id="success" class="card">
-    <div class="check">✅</div>
-    <h2>Merci pour votre participation !</h2>
-    <p>Vos réponses ont bien été enregistrées.<br>Vous pouvez soumettre une nouvelle réponse si vous le souhaitez.</p>
-    <button onclick="resetForm()">Répondre à nouveau</button>
+  <!-- HEADER BANNER -->
+  <div class="header">
+    <span class="header-tag">Enqu&ecirc;te citoyenne &middot; Millau 2026</span>
+    <h1>Conditions de vie<br>&agrave; Millau</h1>
+    <!-- <br> forces a line break -->
+    <p>Sondage anonyme &mdash; environ 3 minutes</p>
   </div>
-</div>
 
-<script>
-  // Star ratings
-  document.querySelectorAll(".stars").forEach(group => {
-    const id = group.dataset.id;
-    const stars = group.querySelectorAll("span");
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <div id="form-area">
 
-    stars.forEach(star => {
-      star.addEventListener("click", () => {
-        const val = parseInt(star.dataset.val);
-        document.getElementById(id).value = val;
-        stars.forEach(s => {
-          if (parseInt(s.dataset.val) <= val) {
-            s.style.color = "#f1c40f";
-          } else {
-            s.style.color = "#ccc";
-          }
-        });
+      <!-- SECTION 1: PROFIL -->
+      <!-- data-section="1" is read by JavaScript to know which section this is -->
+      <div class="section" data-section="1">
+        <div class="section-header">
+          <div class="section-num">1</div>
+          <div class="section-title">&#128100; Votre profil</div>
+          <!-- &#128100; = 👤 emoji in HTML code -->
+        </div>
+        <div class="card">
+
+          <div class="question">
+            <label>Depuis combien d'ann&eacute;es habitez-vous &agrave; Millau ?</label>
+            <input type="number" id="annees" min="0" max="100" placeholder="ex: 5">
+            <!-- min/max limits what numbers can be typed -->
+          </div>
+
+          <div class="question">
+            <label>Votre tranche d'&acirc;ge :</label>
+            <select id="age">
+              <option value="">-- S&eacute;lectionnez --</option>
+              <!-- value="" means nothing is selected by default -->
+              <option>Moins de 18 ans</option>
+              <option>18 - 25 ans</option>
+              <option>26 - 40 ans</option>
+              <option>41 - 60 ans</option>
+              <option>Plus de 60 ans</option>
+            </select>
+          </div>
+
+          <div class="question">
+            <label>Votre quartier ou commune (optionnel) :</label>
+            <input type="text" id="quartier" placeholder="ex: Centre-ville, La Capelle...">
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SECTION 2: SATISFACTION -->
+      <div class="section" data-section="2">
+        <div class="section-header">
+          <div class="section-num">2</div>
+          <div class="section-title">&#127968; Satisfaction g&eacute;n&eacute;rale</div>
+        </div>
+        <div class="card">
+          <div class="question">
+            <label>Dans l'ensemble, &ecirc;tes-vous satisfait(e) de vivre &agrave; Millau ?</label>
+            <div class="options">
+              <!-- name="satisfaction" groups these radios — only one can be selected -->
+              <label class="option-label"><input type="radio" name="satisfaction" value="Très satisfait"> Tr&egrave;s satisfait(e)</label>
+              <label class="option-label"><input type="radio" name="satisfaction" value="Satisfait"> Satisfait(e)</label>
+              <label class="option-label"><input type="radio" name="satisfaction" value="Neutre"> Neutre</label>
+              <label class="option-label"><input type="radio" name="satisfaction" value="Insatisfait"> Insatisfait(e)</label>
+              <label class="option-label"><input type="radio" name="satisfaction" value="Très insatisfait"> Tr&egrave;s insatisfait(e)</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: LOGEMENT -->
+      <div class="section" data-section="3">
+        <div class="section-header">
+          <div class="section-num">3</div>
+          <div class="section-title">&#127968; Logement</div>
+        </div>
+        <div class="card">
+          <div class="question">
+            <label>Comment &eacute;valuez-vous la qualit&eacute; et l'accessibilit&eacute; du logement &agrave; Millau ?</label>
+            <!-- Stars widget - id must match the hidden input id below -->
+            <div class="stars" id="stars-logement">
+              <span class="star" data-val="1">&#9733;</span>
+              <!-- &#9733; = ★ star character. data-val is read by JavaScript -->
+              <span class="star" data-val="2">&#9733;</span>
+              <span class="star" data-val="3">&#9733;</span>
+              <span class="star" data-val="4">&#9733;</span>
+              <span class="star" data-val="5">&#9733;</span>
+            </div>
+            <!-- Hidden input stores the star value to be sent with the form -->
+            <input type="hidden" id="logement" value="">
+          </div>
+          <div class="question">
+            <label>Commentaire (optionnel) :</label>
+            <textarea id="logement_comment" placeholder="Prix des loyers, qualit&eacute; des logements..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: TRANSPORTS -->
+      <div class="section" data-section="4">
+        <div class="section-header">
+          <div class="section-num">4</div>
+          <div class="section-title">&#128663; Transports &amp; Mobilit&eacute;</div>
+          <!-- &amp; = & character in HTML -->
+        </div>
+        <div class="card">
+          <div class="question">
+            <label>&Ecirc;tes-vous satisfait(e) des transports et de la mobilit&eacute; &agrave; Millau ?</label>
+            <div class="stars" id="stars-transports">
+              <span class="star" data-val="1">&#9733;</span>
+              <span class="star" data-val="2">&#9733;</span>
+              <span class="star" data-val="3">&#9733;</span>
+              <span class="star" data-val="4">&#9733;</span>
+              <span class="star" data-val="5">&#9733;</span>
+            </div>
+            <input type="hidden" id="transports" value="">
+          </div>
+          <div class="question">
+            <label>Commentaire (optionnel) :</label>
+            <textarea id="transports_comment" placeholder="Transports en commun, routes, v&eacute;lo..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: SERVICES -->
+      <div class="section" data-section="5">
+        <div class="section-header">
+          <div class="section-num">5</div>
+          <div class="section-title">&#127973; Services publics &amp; Commerces</div>
+        </div>
+        <div class="card">
+          <div class="question">
+            <label>Quels services jugez-vous insuffisants &agrave; Millau ? (plusieurs choix possibles)</label>
+            <div class="options">
+              <!-- Checkboxes allow MULTIPLE selections unlike radio buttons -->
+              <label class="option-label"><input type="checkbox" value="Santé (médecins, hôpital)"> Sant&eacute; (m&eacute;decins, h&ocirc;pital)</label>
+              <label class="option-label"><input type="checkbox" value="Écoles et éducation"> &Eacute;coles et &eacute;ducation</label>
+              <label class="option-label"><input type="checkbox" value="Commerces de proximité"> Commerces de proximit&eacute;</label>
+              <label class="option-label"><input type="checkbox" value="Services administratifs"> Services administratifs</label>
+              <label class="option-label"><input type="checkbox" value="Loisirs et culture"> Loisirs et culture</label>
+              <label class="option-label"><input type="checkbox" value="Internet et numérique"> Internet et num&eacute;rique</label>
+              <label class="option-label"><input type="checkbox" value="Aucun manque particulier"> Aucun manque particulier</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 6: ENVIRONNEMENT -->
+      <div class="section" data-section="6">
+        <div class="section-header">
+          <div class="section-num">6</div>
+          <div class="section-title">&#127807; Cadre de vie &amp; Environnement</div>
+        </div>
+        <div class="card">
+          <div class="question">
+            <label>Comment appr&eacute;ciez-vous le cadre naturel et la qualit&eacute; environnementale de Millau ?</label>
+            <div class="stars" id="stars-environnement">
+              <span class="star" data-val="1">&#9733;</span>
+              <span class="star" data-val="2">&#9733;</span>
+              <span class="star" data-val="3">&#9733;</span>
+              <span class="star" data-val="4">&#9733;</span>
+              <span class="star" data-val="5">&#9733;</span>
+            </div>
+            <input type="hidden" id="environnement" value="">
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 7: EMPLOI -->
+      <div class="section" data-section="7">
+        <div class="section-header">
+          <div class="section-num">7</div>
+          <div class="section-title">&#128188; Emploi &amp; &Eacute;conomie</div>
+        </div>
+        <div class="card">
+          <div class="question">
+            <label>Comment &eacute;valuez-vous les opportunit&eacute;s d'emploi &agrave; Millau ?</label>
+            <div class="options">
+              <label class="option-label"><input type="radio" name="emploi" value="Très bonnes"> Tr&egrave;s bonnes</label>
+              <label class="option-label"><input type="radio" name="emploi" value="Correctes"> Correctes</label>
+              <label class="option-label"><input type="radio" name="emploi" value="Limitées"> Limit&eacute;es</label>
+              <label class="option-label"><input type="radio" name="emploi" value="Très limitées"> Tr&egrave;s limit&eacute;es</label>
+              <label class="option-label"><input type="radio" name="emploi" value="Sans opinion"> Sans opinion</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 8: SECURITE -->
+      <div class="section" data-section="8">
+        <div class="section-header">
+          <div class="section-num">8</div>
+          <div class="section-title">&#129309; Lien social &amp; S&eacute;curit&eacute;</div>
+        </div>
+        <div class="card">
+          <div class="question">
+            <label>Vous sentez-vous en s&eacute;curit&eacute; &agrave; Millau ?</label>
+            <div class="options">
+              <label class="option-label"><input type="radio" name="securite" value="Toujours"> Toujours</label>
+              <label class="option-label"><input type="radio" name="securite" value="Souvent"> Souvent</label>
+              <label class="option-label"><input type="radio" name="securite" value="Parfois"> Parfois</label>
+              <label class="option-label"><input type="radio" name="securite" value="Rarement"> Rarement</label>
+            </div>
+          </div>
+          <div class="question">
+            <label>Ressentez-vous un bon esprit de communaut&eacute; dans votre quartier ?</label>
+            <select id="communaute">
+              <option value="">-- S&eacute;lectionnez --</option>
+              <option>Oui, tr&egrave;s fort</option>
+              <option>Plut&ocirc;t oui</option>
+              <option>Plut&ocirc;t non</option>
+              <option>Non, tr&egrave;s peu</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 9: AVENIR -->
+      <div class="section" data-section="9">
+        <div class="section-header">
+          <div class="section-num">9</div>
+          <div class="section-title">&#128301; Regard sur l'avenir</div>
+        </div>
+        <div class="card">
+          <div class="question">
+            <label>Envisagez-vous de rester vivre &agrave; Millau dans les 5 prochaines ann&eacute;es ?</label>
+            <div class="options">
+              <label class="option-label"><input type="radio" name="avenir" value="Oui certainement"> Oui, certainement</label>
+              <label class="option-label"><input type="radio" name="avenir" value="Probablement"> Probablement</label>
+              <label class="option-label"><input type="radio" name="avenir" value="Incertain"> Incertain(e)</label>
+              <label class="option-label"><input type="radio" name="avenir" value="Probablement pas"> Probablement pas</label>
+              <label class="option-label"><input type="radio" name="avenir" value="Non je pars"> Non, je compte partir</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 10: COMMENTAIRE LIBRE -->
+      <div class="section" data-section="10">
+        <div class="section-header">
+          <div class="section-num">10</div>
+          <div class="section-title">&#128172; Commentaire libre</div>
+        </div>
+        <div class="card">
+          <div class="question">
+            <label>Y a-t-il quelque chose d'important que vous souhaitez ajouter ?</label>
+            <textarea id="commentaire_libre" rows="4" placeholder="Vos remarques, suggestions..."></textarea>
+            <!-- rows="4" sets the default height of the textarea -->
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBMIT BUTTON -->
+      <div class="submit-wrap">
+        <button class="submit-btn" onclick="submitSurvey()">
+          Envoyer mes r&eacute;ponses &rarr;
+          <!-- onclick="submitSurvey()" calls the JavaScript function below when clicked -->
+          <!-- &rarr; = → arrow -->
+        </button>
+      </div>
+
+    </div>
+    <!-- End of form-area -->
+
+    <!-- SUCCESS SCREEN — hidden by default, shown after submit -->
+    <div id="success">
+      <div class="success-icon">&#10003;</div>
+      <!-- &#10003; = ✓ checkmark -->
+      <h2>Merci pour votre participation !</h2>
+      <p>Vos r&eacute;ponses ont bien &eacute;t&eacute; enregistr&eacute;es.<br>Vous pouvez soumettre une nouvelle r&eacute;ponse.</p>
+      <button class="again-btn" onclick="resetForm()">R&eacute;pondre &agrave; nouveau</button>
+    </div>
+
+  </div>
+  <!-- End of main -->
+
+  <script>
+    // Everything in <script> is JavaScript — it handles BEHAVIOUR
+
+    var TOTAL = 10; // Total number of sections
+
+    // UPDATE PROGRESS BAR
+    // Called every time the user scrolls
+    function updateProgress() {
+      var sections = document.querySelectorAll(".section"); // Gets all sections
+      var visible = 0;
+
+      sections.forEach(function(s) {
+        var rect = s.getBoundingClientRect(); // Gets position of section on screen
+        // If the section is in the top 60% of the screen, count it as "reached"
+        if (rect.top < window.innerHeight * 0.6) {
+          visible = parseInt(s.dataset.section); // data-section="3" becomes the number 3
+        }
       });
 
-      star.addEventListener("mouseover", () => {
-        const val = parseInt(star.dataset.val);
-        stars.forEach(s => {
-          s.style.color = parseInt(s.dataset.val) <= val ? "#f1c40f" : "#ccc";
+      var pct = Math.round((visible / TOTAL) * 100); // e.g. 3/10 = 30%
+
+      // Update the visual elements
+      document.getElementById("progress-fill").style.width = pct + "%";
+      document.getElementById("progress-pct").textContent = pct + "%";
+      document.getElementById("progress-label").innerHTML =
+        "Section <strong>" + Math.max(1, visible) + "</strong> sur " + TOTAL;
+    }
+
+    // FADE IN SECTIONS ON SCROLL
+    // IntersectionObserver watches when elements enter the screen
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) { // If the element is visible on screen
+          setTimeout(function() {
+            entry.target.classList.add("visible"); // Add "visible" class = fade in
+            updateProgress();
+          }, entry.target.dataset.delay || 0); // Slight delay per section
+        }
+      });
+    }, { threshold: 0.1 }); // Trigger when 10% of element is visible
+
+    // Apply the observer to every section, with staggered delay
+    document.querySelectorAll(".section").forEach(function(s, i) {
+      s.dataset.delay = i * 100; // Each section waits 100ms more than the previous
+      observer.observe(s);
+    });
+
+    // Also update progress bar when user scrolls manually
+    window.addEventListener("scroll", updateProgress);
+
+    // HIGHLIGHT SELECTED RADIO/CHECKBOX OPTIONS
+    document.querySelectorAll(".option-label input").forEach(function(input) {
+      input.addEventListener("change", function() {
+        // For radio buttons: deselect all others in the same group first
+        if (this.type === "radio") {
+          document.querySelectorAll("input[name='" + this.name + "']").forEach(function(r) {
+            r.closest(".option-label").classList.remove("selected");
+            // .closest() finds the nearest parent with that class
+          });
+        }
+        // Then highlight or unhighlight this one
+        if (this.checked) {
+          this.closest(".option-label").classList.add("selected");
+        } else {
+          this.closest(".option-label").classList.remove("selected");
+        }
+      });
+    });
+
+    // STAR RATINGS
+    document.querySelectorAll(".stars").forEach(function(group) {
+      var id = group.id.replace("stars-", ""); // "stars-logement" becomes "logement"
+      var stars = group.querySelectorAll(".star");
+
+      stars.forEach(function(star) {
+
+        // When a star is clicked
+        star.addEventListener("click", function() {
+          var val = parseInt(this.dataset.val); // Which star number was clicked
+          document.getElementById(id).value = val; // Save value to hidden input
+          // Color all stars up to and including the clicked one
+          stars.forEach(function(s) {
+            s.classList.toggle("on", parseInt(s.dataset.val) <= val);
+          });
         });
+
+        // When hovering over a star — preview the selection
+        star.addEventListener("mouseover", function() {
+          var val = parseInt(this.dataset.val);
+          stars.forEach(function(s) {
+            s.style.color = parseInt(s.dataset.val) <= val ? "#d4a843" : "#ddd";
+          });
+        });
+
+        // When mouse leaves — restore the saved selection
+        star.addEventListener("mouseout", function() {
+          var saved = parseInt(document.getElementById(id).value) || 0;
+          stars.forEach(function(s) {
+            s.style.color = parseInt(s.dataset.val) <= saved ? "#d4a843" : "#ddd";
+          });
+        });
+
+      });
+    });
+
+    // SUBMIT THE FORM
+    async function submitSurvey() {
+      // Collect checked checkboxes from section 5
+      var services = Array.from(
+        document.querySelectorAll(".section:nth-child(5) input[type=checkbox]:checked")
+      ).map(function(c) { return c.value; });
+
+      // Build the data object with all answers
+      var data = {
+        annees:            document.getElementById("annees").value,
+        age:               document.getElementById("age").value,
+        quartier:          document.getElementById("quartier").value,
+        satisfaction:      (document.querySelector('input[name="satisfaction"]:checked') || {}).value || "",
+        logement:          document.getElementById("logement").value,
+        logement_comment:  document.getElementById("logement_comment").value,
+        transports:        document.getElementById("transports").value,
+        transports_comment:document.getElementById("transports_comment").value,
+        environnement:     document.getElementById("environnement").value,
+        emploi:            (document.querySelector('input[name="emploi"]:checked') || {}).value || "",
+        securite:          (document.querySelector('input[name="securite"]:checked') || {}).value || "",
+        communaute:        document.getElementById("communaute").value,
+        services_insuffisants: services.join(", "), // Joins array into "item1, item2, item3"
+        avenir:            (document.querySelector('input[name="avenir"]:checked') || {}).value || "",
+        commentaire_libre: document.getElementById("commentaire_libre").value
+      };
+
+      // Send data to Flask backend via POST request
+      await fetch("/submit", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"}, // Tell Flask it's JSON
+        body: JSON.stringify({name: "Anonyme", answer: JSON.stringify(data)})
+        // JSON.stringify converts the JS object to a text string Flask can read
       });
 
-      star.addEventListener("mouseout", () => {
-        const saved = parseInt(document.getElementById(id).value) || 0;
-        stars.forEach(s => {
-          s.style.color = parseInt(s.dataset.val) <= saved ? "#f1c40f" : "#ccc";
-        });
+      // Hide the form and show the success message
+      document.getElementById("form-area").style.display = "none";
+      document.getElementById("success").style.display = "block";
+      window.scrollTo({top: 0, behavior: "smooth"}); // Scroll to top smoothly
+    }
+
+    // RESET THE FORM — called when "Répondre à nouveau" is clicked
+    function resetForm() {
+      document.getElementById("form-area").style.display = "block";
+      document.getElementById("success").style.display = "none";
+
+      // Clear all inputs
+      document.querySelectorAll("input, textarea, select").forEach(function(el) {
+        if (el.type === "radio" || el.type === "checkbox") {
+          el.checked = false; // Uncheck radio/checkbox
+        } else {
+          el.value = ""; // Clear text/number/select/hidden inputs
+        }
       });
-    });
-  });
 
-  async function submitSurvey() {
-    const services = [...document.querySelectorAll(".checkbox-group input:checked")].map(c => c.value);
+      // Remove selected highlight from all options
+      document.querySelectorAll(".option-label").forEach(function(l) {
+        l.classList.remove("selected");
+      });
 
-    const data = {
-      annees: document.getElementById("annees").value,
-      age: document.getElementById("age").value,
-      quartier: document.getElementById("quartier").value,
-      satisfaction: document.querySelector('input[name="satisfaction"]:checked')?.value || "",
-      logement: document.getElementById("logement").value,
-      logement_comment: document.getElementById("logement_comment").value,
-      transports: document.getElementById("transports").value,
-      transports_comment: document.getElementById("transports_comment").value,
-      environnement: document.getElementById("environnement").value,
-      emploi: document.querySelector('input[name="emploi"]:checked')?.value || "",
-      securite: document.querySelector('input[name="securite"]:checked')?.value || "",
-      communaute: document.getElementById("communaute").value,
-      services_insuffisants: services.join(", "),
-      avenir: document.querySelector('input[name="avenir"]:checked')?.value || "",
-      commentaire_libre: document.getElementById("commentaire_libre").value,
-    };
+      // Reset all stars to grey
+      document.querySelectorAll(".star").forEach(function(s) {
+        s.classList.remove("on");
+        s.style.color = "#ddd";
+      });
 
-    await fetch("/submit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: "Anonyme", answer: JSON.stringify(data) })
-    });
+      // Reset progress bar
+      document.getElementById("progress-fill").style.width = "0%";
 
-    document.getElementById("form-area").style.display = "none";
-    document.getElementById("success").style.display = "block";
-    window.scrollTo(0, 0);
-  }
+      // Scroll back to top
+      window.scrollTo({top: 0, behavior: "smooth"});
+    }
+  </script>
 
-  function resetForm() {
-    document.getElementById("form-area").style.display = "block";
-    document.getElementById("success").style.display = "none";
-    document.getElementById("form-area").querySelectorAll("input, textarea, select").forEach(el => {
-      if (el.type === "radio" || el.type === "checkbox") el.checked = false;
-      else el.value = "";
-    });
-    document.querySelectorAll(".stars span").forEach(s => s.style.color = "#ccc");
-    window.scrollTo(0, 0);
-  }
-</script>
+</body>
+</html>
