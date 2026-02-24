@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tableau de bord &mdash; Sondage Millau</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0f2540;
+      --blue: #1a5276;
+      --accent: #c0392b;
+      --gold: #d4a843;
+      --light: #f7f3ee;
+      --white: #ffffff;
+      --muted: #7f8c8d;
+      --border: #e0d9d0;
+      --green: #27ae60;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--light);
+      color: var(--navy);
+      min-height: 100vh;
+      animation: pageIn 0.4s ease forwards;
+    }
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    /* Header */
+    .header {
+      background: var(--navy);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: rgba(192,57,43,0.12);
+    }
+    .header-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .header-left h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8em;
+      color: white;
+      margin-bottom: 4px;
+    }
+    .header-left p {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.88em;
+    }
+    .header-left p span {
+      color: var(--gold);
+      font-weight: 500;
+    }
+    .logout-btn {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85em;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.18); }
+
+    /* Main */
+    .main {
+      max-width: 860px;
+      margin: 40px auto;
+      padding: 0 20px 80px;
+    }
+
+    /* Section title */
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2em;
+      color: var(--navy);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--navy);
+    }
+
+    /* Cards grid */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 28px 24px;
+      box-shadow: 0 2px 12px rgba(15,37,64,0.07);
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--navy);
+      display: block;
+      border-top: 3px solid transparent;
+      transition: transform 0.2s, box-shadow 0.2s;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.2s;
+    }
+    .card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 28px rgba(15,37,64,0.12);
+    }
+    .card.blue  { border-top-color: var(--blue); }
+    .card.green { border-top-color: var(--green); }
+    .card.gold  { border-top-color: var(--gold); }
+    .card.red   { border-top-color: var(--accent); }
+
+    .card-icon { font-size: 2em; margin-bottom: 12px; display: block; }
+    .card-label {
+      font-size: 0.68em;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+    .card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25em;
+      margin-bottom: 8px;
+    }
+    .card p {
+      font-size: 0.86em;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+    .card-arrow {
+      font-size: 0.85em;
+      font-weight: 500;
+      color: var(--blue);
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+    .card:hover .card-arrow { transform: translateX(5px); }
+
+    /* Survey link box */
+    .link-box {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(15,37,64,0.07);
+      border: 1px solid var(--border);
+      margin-bottom: 40px;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .link-box.visible { opacity: 1; transform: translateY(0); }
+
+    .link-box h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1em;
+      margin-bottom: 6px;
+    }
+    .link-box p {
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .link-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .link-url {
+      flex: 1;
+      padding: 10px 14px;
+      background: var(--light);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.88em;
+      color: var(--navy);
+      font-family: monospace;
+      word-break: break-all;
+    }
+    .copy-btn {
+      background: var(--navy);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88em;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .copy-btn:hover { background: var(--blue); }
+    .copy-msg {
+      font-size: 0.82em;
+      color: var(--green);
+      display: none;
+      margin-top: 6px;
+    }
+
+    /* Loading */
+    #loading {
+      text-align: center;
+      padding: 60px;
+      color: var(--muted);
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+      .header { padding: 30px 20px; }
+      .header-left h1 { font-size: 1.4em; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header with username and logout -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-left">
+        <h1>&#128075; Bonjour, <span id="username-display">...</span> !</h1>
+        <p>Bienvenue sur votre tableau de bord &mdash; g&eacute;rez votre sondage ici.</p>
+      </div>
+      <a href="/logout" class="logout-btn">Se d&eacute;connecter</a>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- Loading spinner -->
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Chargement...</p>
+    </div>
+
+    <!-- Dashboard content -->
+    <div id="content" style="display:none">
+
+      <!-- Public survey link -->
+      <div class="section-title">&#128279; Lien public de votre sondage</div>
+      <div class="link-box" id="link-box">
+        <h3>Partagez ce lien</h3>
+        <p>Envoyez ce lien aux personnes que vous souhaitez sonder. Elles n'ont pas besoin de compte.</p>
+        <div class="link-row">
+          <div class="link-url" id="survey-link">...</div>
+          <button class="copy-btn" onclick="copyLink()">&#128203; Copier</button>
+        </div>
+        <div class="copy-msg" id="copy-msg">&#10003; Lien copi&eacute; !</div>
+      </div>
+
+      <!-- Action cards -->
+      <div class="section-title">&#9881; Vos outils</div>
+      <div class="cards" id="cards">
+
+        <a id="card-survey" href="#" class="card blue">
+          <span class="card-icon">&#128203;</span>
+          <span class="card-label">Pr&eacute;visualiser</span>
+          <h2>Voir mon sondage</h2>
+          <p>Visualisez votre sondage tel que le verront vos r&eacute;pondants.</p>
+          <span class="card-arrow">Ouvrir &rarr;</span>
+        </a>
+
+        <a id="card-results" href="#" class="card green">
+          <span class="card-icon">&#128202;</span>
+          <span class="card-label">Statistiques</span>
+          <h2>Voir mes r&eacute;sultats</h2>
+          <p>Consultez les r&eacute;ponses et analyses de votre sondage.</p>
+          <span class="card-arrow">Ouvrir &rarr;</span>
+        </a>
+
+        <a href="/admin" class="card gold">
+          <span class="card-icon">&#9998;</span>
+          <span class="card-label">Modifier</span>
+          <h2>&Eacute;diter les questions</h2>
+          <p>Ajoutez, modifiez ou supprimez des questions de votre sondage.</p>
+          <span class="card-arrow">Ouvrir &rarr;</span>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    var surveyId = null;
+
+    // Load user info when page opens
+    async function loadDashboard() {
+      try {
+        var res = await fetch("/me");
+
+        // If not logged in, redirect to login
+        if (res.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+
+        var data = await res.json();
+        surveyId = data.survey.id;
+
+        // Update header username
+        document.getElementById("username-display").textContent = data.user.username;
+
+        // Set survey public link
+        var link = window.location.origin + "/survey/" + surveyId;
+        document.getElementById("survey-link").textContent = link;
+
+        // Set card links
+        document.getElementById("card-survey").href = "/survey/" + surveyId;
+        document.getElementById("card-results").href = "/resultats/" + surveyId;
+
+        // Show content
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("content").style.display = "block";
+
+        // Trigger animations
+        setTimeout(function() {
+          document.querySelectorAll(".card, .link-box").forEach(function(el, i) {
+            setTimeout(function() { el.classList.add("visible"); }, i * 120);
+          });
+        }, 50);
+
+      } catch(e) {
+        window.location.href = "/login";
+      }
+    }
+
+    // Copy survey link to clipboard
+    function copyLink() {
+      var link = document.getElementById("survey-link").textContent;
+      navigator.clipboard.writeText(link).then(function() {
+        var msg = document.getElementById("copy-msg");
+        msg.style.display = "block";
+        setTimeout(function() { msg.style.display = "none"; }, 2000);
+      });
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
