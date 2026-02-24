@@ -2,173 +2,781 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Admin - Editeur de sondage</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin &mdash; Sondage Millau</title>
+
+  <!-- Same fonts as all other pages -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
-    h1 { color: #1a5276; }
-    .login-box { background: white; padding: 30px; border-radius: 10px; max-width: 300px; margin: 100px auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    input[type=password], input[type=text], select, textarea { width: 100%; padding: 8px; margin: 6px 0 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-    button { padding: 10px 20px; background: #1a5276; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 4px; }
-    button:hover { background: #154360; }
-    button.danger { background: #c0392b; }
-    button.success { background: #27ae60; }
-    .section { background: white; border-radius: 10px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
-    .section h2 { margin-top: 0; color: #1a5276; font-size: 1.1em; }
-    .question-block { border: 1px solid #eee; border-radius: 6px; padding: 12px; margin-bottom: 10px; background: #fafafa; }
-    .option-row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
-    .option-row input { margin: 0; }
-    .msg { padding: 12px; border-radius: 6px; margin-bottom: 15px; display: none; }
-    .msg.success { background: #d4edda; color: #155724; }
-    .msg.error { background: #f8d7da; color: #721c24; }
+
+    /* ============================================
+       CSS VARIABLES — same palette as all pages
+       ============================================ */
+    :root {
+      --navy: #0f2540;
+      --blue: #1a5276;
+      --accent: #c0392b;
+      --gold: #d4a843;
+      --light: #f7f3ee;
+      --white: #ffffff;
+      --muted: #7f8c8d;
+      --border: #e0d9d0;
+      --green: #27ae60;
+      --danger: #c0392b;
+    }
+
+    /* ============================================
+       RESET & BASE
+       ============================================ */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--light);
+      color: var(--navy);
+      min-height: 100vh;
+      animation: pageIn 0.4s ease forwards;
+    }
+
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================
+       BACK BUTTON — fixed top left
+       ============================================ */
+    .back-btn {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      background: white;
+      color: var(--navy);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85em;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 20px;
+      text-decoration: none;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+      z-index: 1000;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    /* ============================================
+       HEADER BANNER
+       ============================================ */
+    .header {
+      background: var(--navy);
+      padding: 60px 40px 50px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: rgba(192,57,43,0.12);
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 20%;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: rgba(212,168,67,0.08);
+    }
+    .header-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .header-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      font-size: 0.7em;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2em;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .header p {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.9em;
+    }
+
+    /* ============================================
+       LOGIN SCREEN — shown before password entry
+       ============================================ */
+    #login-screen {
+      max-width: 360px;
+      margin: 60px auto;
+      padding: 0 20px;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 36px;
+      box-shadow: 0 4px 24px rgba(15,37,64,0.1);
+      border: 1px solid var(--border);
+    }
+
+    .login-card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4em;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .login-card p {
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* ============================================
+       FORM INPUTS — shared across login and editor
+       ============================================ */
+    label {
+      display: block;
+      font-size: 0.85em;
+      font-weight: 500;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    input[type="password"],
+    input[type="text"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92em;
+      color: var(--navy);
+      background: var(--light);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      margin-bottom: 16px;
+    }
+    input[type="password"]:focus,
+    input[type="text"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26,82,118,0.1);
+      background: white;
+    }
+
+    /* ============================================
+       BUTTONS
+       ============================================ */
+
+    /* Primary button — dark navy */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+    .btn:active { transform: translateY(0); }
+
+    .btn-primary {
+      background: var(--navy);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--blue); }
+
+    /* Green success button */
+    .btn-success {
+      background: var(--green);
+      color: white;
+    }
+
+    /* Red danger button — for deleting */
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+      padding: 6px 12px;
+      font-size: 0.82em;
+    }
+
+    /* Outlined button — for adding */
+    .btn-outline {
+      background: transparent;
+      color: var(--blue);
+      border: 1.5px solid var(--blue);
+      padding: 7px 14px;
+      font-size: 0.85em;
+    }
+    .btn-outline:hover {
+      background: rgba(26,82,118,0.06);
+    }
+
+    /* Error message below password field */
+    .login-error {
+      display: none; /* Hidden until JS shows it */
+      color: var(--danger);
+      font-size: 0.85em;
+      margin-top: -10px;
+      margin-bottom: 16px;
+    }
+
+    /* ============================================
+       EDITOR AREA — shown after login
+       ============================================ */
+    #editor {
+      display: none; /* Hidden until login succeeds */
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* Top row with title and save button */
+    .editor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .editor-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4em;
+      color: var(--navy);
+    }
+
+    /* Success/error message banner */
+    .msg {
+      display: none; /* Hidden until JS shows it */
+      padding: 12px 18px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.9em;
+      animation: fadeUp 0.3s ease forwards;
+    }
+    .msg.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .msg.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* ============================================
+       SECTION CARDS — each survey section
+       ============================================ */
+    .section-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(15,37,64,0.07);
+      border: 1px solid var(--border);
+      /* Fade in animation */
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .section-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Top row of section card */
+    .section-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+
+    /* Section number badge */
+    .section-num {
+      width: 28px; height: 28px;
+      background: var(--navy);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78em;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    /* Section title input */
+    .section-title-input {
+      flex: 1; /* Takes up all available space */
+      font-family: 'Playfair Display', serif;
+      font-size: 1em;
+      margin-bottom: 0; /* Override default margin */
+    }
+
+    /* ============================================
+       QUESTION BLOCKS — inside each section
+       ============================================ */
+    .question-block {
+      background: var(--light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+
+    .question-block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .question-num {
+      font-size: 0.78em;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Two-column grid for type + label inputs */
+    .question-fields {
+      display: grid;
+      grid-template-columns: 180px 1fr; /* Fixed width for type, rest for label */
+      gap: 10px;
+      align-items: start;
+    }
+
+    /* ============================================
+       OPTION ROWS — for radio/checkbox/select
+       ============================================ */
+    .options-area {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .options-label {
+      font-size: 0.78em;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .option-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+      align-items: center;
+    }
+
+    .option-row input {
+      flex: 1;   /* Takes remaining space */
+      margin-bottom: 0; /* Override default */
+    }
+
+    /* ============================================
+       ADD SECTION BUTTON ROW
+       ============================================ */
+    .add-section-row {
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    /* ============================================
+       SAVE BAR — sticky at bottom of screen
+       ============================================ */
+    .save-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--navy);
+      padding: 16px 24px;
+      display: none; /* Hidden until login */
+      justify-content: space-between;
+      align-items: center;
+      z-index: 500;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+    }
+
+    .save-bar p {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.85em;
+    }
+
+    /* Big save button inside save bar */
+    .save-btn {
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 32px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .save-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+
+    /* Extra bottom padding so save bar doesn't cover content */
+    body.editor-open { padding-bottom: 70px; }
+
+    /* ============================================
+       MOBILE
+       ============================================ */
+    @media (max-width: 600px) {
+      .header { padding: 60px 20px 40px; }
+      .header h1 { font-size: 1.7em; }
+      .question-fields { grid-template-columns: 1fr; } /* Stack vertically */
+      .save-bar { flex-direction: column; gap: 10px; text-align: center; }
+    }
+
   </style>
 </head>
 <body>
 
-  <a href="/" style="
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  background: white;
-  color: #0f2540;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85em;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 20px;
-  text-decoration: none;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
-  z-index: 1000;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'"
-   onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 10px rgba(0,0,0,0.12)'">
-  ← Accueil
-</a>
+  <!-- BACK BUTTON -->
+  <a href="/" class="back-btn">&larr; Accueil</a>
 
-<div id="login-screen" class="login-box">
-  <h2 style="color:#1a5276;margin-top:0">Acces admin</h2>
-  <label>Mot de passe :</label>
-  <input type="password" id="password">
-  <button onclick="login()" style="width:100%;margin-top:8px">Connexion</button>
-  <p id="login-error" style="color:red;display:none;margin-top:10px">Mot de passe incorrect.</p>
-</div>
-<div id="editor" style="display:none">
-  <h1>Editeur de sondage</h1>
-  <div id="msg" class="msg"></div>
-  <div id="sections-container"></div>
-  <button class="success" onclick="addSection()">+ Ajouter une section</button>
-  <button onclick="saveQuestions()" style="background:#1a5276;font-size:1.1em;padding:12px 30px;margin-top:20px;display:block;width:100%">Sauvegarder</button>
-</div>
-<script>
-var ADMIN_PASSWORD = "millau2026";
-var questionsData = null;
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-inner">
+      <span class="header-tag">Acc&egrave;s restreint</span>
+      <h1>&#9881; Administration</h1>
+      <p>Modifier les questions et sections du sondage</p>
+    </div>
+  </div>
 
-function login() {
-  var pw = document.getElementById("password").value;
-  if (pw === ADMIN_PASSWORD) {
-    document.getElementById("login-screen").style.display = "none";
-    document.getElementById("editor").style.display = "block";
-    loadQuestions();
-  } else {
-    document.getElementById("login-error").style.display = "block";
-  }
-}
+  <!-- LOGIN SCREEN — shown first -->
+  <div id="login-screen">
+    <div class="login-card">
+      <h2>Connexion</h2>
+      <p>Entrez le mot de passe administrateur pour acc&eacute;der &agrave; l'&eacute;diteur.</p>
 
-function loadQuestions() {
-  fetch("/questions").then(function(r) { return r.json(); }).then(function(data) {
-    questionsData = data;
-    renderEditor();
-  });
-}
+      <label>Mot de passe</label>
+      <input type="password" id="password" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter') login()">
+      <!-- onkeydown lets user press Enter instead of clicking the button -->
 
-function renderEditor() {
-  var container = document.getElementById("sections-container");
-  container.innerHTML = "";
-  questionsData.sections.forEach(function(section, si) {
-    var div = document.createElement("div");
-    div.className = "section";
-    div.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center'><h2>Section " + (si+1) + ": " + section.title + "</h2><button class='danger' onclick='removeSection(" + si + ")'>Supprimer</button></div><label>Titre:</label><input type='text' value='" + section.title.replace(/'/g,"") + "' onchange='questionsData.sections[" + si + "].title=this.value'><div id='questions-" + si + "'></div><button class='success' style='font-size:0.85em;padding:6px 12px' onclick='addQuestion(" + si + ")'>+ Ajouter une question</button>";
-    container.appendChild(div);
-    renderQuestions(si);
-  });
-}
+      <p class="login-error" id="login-error">&#10007; Mot de passe incorrect.</p>
 
-function renderQuestions(si) {
-  var container = document.getElementById("questions-" + si);
-  container.innerHTML = "";
-  questionsData.sections[si].questions.forEach(function(q, qi) {
-    var div = document.createElement("div");
-    div.className = "question-block";
-    var optHTML = "";
-    if (q.type === "radio" || q.type === "checkbox" || q.type === "select") {
-      var opts = (q.options || []).map(function(opt, oi) {
-        return "<div class='option-row'><input type='text' value='" + opt.replace(/'/g,"") + "' onchange='questionsData.sections[" + si + "].questions[" + qi + "].options[" + oi + "]=this.value' style='flex:1'><button class='danger' style='padding:4px 8px' onclick='removeOption(" + si + "," + qi + "," + oi + ")'>x</button></div>";
-      }).join("");
-      optHTML = "<label>Options:</label>" + opts + "<button class='success' style='font-size:0.8em;padding:4px 10px' onclick='addOption(" + si + "," + qi + ")'>+ Option</button>";
+      <button class="btn btn-primary" onclick="login()" style="width:100%;justify-content:center">
+        Connexion &rarr;
+      </button>
+    </div>
+  </div>
+
+  <!-- EDITOR — hidden until login -->
+  <div id="editor">
+
+    <div class="editor-header">
+      <div class="editor-title">&#128221; &Eacute;diteur de sondage</div>
+      <button class="btn btn-success" onclick="saveQuestions()">&#10003; Sauvegarder</button>
+    </div>
+
+    <!-- Success/error message banner -->
+    <div id="msg" class="msg"></div>
+
+    <!-- Sections are injected here by JavaScript -->
+    <div id="sections-container"></div>
+
+    <!-- Add new section button -->
+    <div class="add-section-row">
+      <button class="btn btn-outline" onclick="addSection()">+ Ajouter une section</button>
+    </div>
+
+  </div>
+
+  <!-- SAVE BAR — sticky bottom bar, shown after login -->
+  <div class="save-bar" id="save-bar">
+    <p>Modifications non sauvegard&eacute;es &mdash; n'oubliez pas d'enregistrer !</p>
+    <button class="save-btn" onclick="saveQuestions()">&#10003; Sauvegarder les modifications</button>
+  </div>
+
+  <script>
+
+    // The admin password — change this to whatever you want
+    var ADMIN_PASSWORD = "millau2026";
+
+    // This will hold all the survey questions data
+    var questionsData = null;
+
+    // LOGIN FUNCTION — called when button is clicked or Enter is pressed
+    function login() {
+      var pw = document.getElementById("password").value;
+
+      if (pw === ADMIN_PASSWORD) {
+        // Correct password — hide login, show editor
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("editor").style.display = "block";
+        document.getElementById("save-bar").style.display = "flex";
+        document.body.classList.add("editor-open"); // Adds bottom padding
+        loadQuestions(); // Fetch questions from server
+      } else {
+        // Wrong password — show error message
+        document.getElementById("login-error").style.display = "block";
+        // Shake the input to indicate error
+        var input = document.getElementById("password");
+        input.style.borderColor = "var(--danger)";
+        input.style.boxShadow = "0 0 0 3px rgba(192,57,43,0.15)";
+      }
     }
-    div.innerHTML = "<div style='display:flex;justify-content:space-between;margin-bottom:8px'><strong>Question " + (qi+1) + "</strong><button class='danger' style='padding:4px 10px' onclick='removeQuestion(" + si + "," + qi + ")'>Supprimer</button></div><label>Type:</label><select onchange='changeType(" + si + "," + qi + ",this.value)'><option " + (q.type==="text"?"selected":"") + ">text</option><option " + (q.type==="number"?"selected":"") + ">number</option><option " + (q.type==="textarea"?"selected":"") + ">textarea</option><option " + (q.type==="radio"?"selected":"") + ">radio</option><option " + (q.type==="checkbox"?"selected":"") + ">checkbox</option><option " + (q.type==="select"?"selected":"") + ">select</option><option " + (q.type==="stars"?"selected":"") + ">stars</option></select><label>Question:</label><input type='text' value='" + q.label.replace(/'/g,"") + "' onchange='questionsData.sections[" + si + "].questions[" + qi + "].label=this.value'>" + optHTML;
-    container.appendChild(div);
-  });
-}
 
-function changeType(si, qi, val) {
-  questionsData.sections[si].questions[qi].type = val;
-  if ((val === "radio" || val === "checkbox" || val === "select") && !questionsData.sections[si].questions[qi].options) {
-    questionsData.sections[si].questions[qi].options = ["Option 1"];
-  }
-  renderQuestions(si);
-}
+    // LOAD QUESTIONS from /questions endpoint
+    function loadQuestions() {
+      fetch("/questions")
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          questionsData = data; // Store in our variable
+          renderEditor();       // Build the editor UI
+        });
+    }
 
-function addOption(si, qi) {
-  if (!questionsData.sections[si].questions[qi].options) questionsData.sections[si].questions[qi].options = [];
-  questionsData.sections[si].questions[qi].options.push("Nouvelle option");
-  renderQuestions(si);
-}
+    // RENDER THE EDITOR — builds all section cards from questionsData
+    function renderEditor() {
+      var container = document.getElementById("sections-container");
+      container.innerHTML = ""; // Clear previous content
 
-function removeOption(si, qi, oi) {
-  questionsData.sections[si].questions[qi].options.splice(oi, 1);
-  renderQuestions(si);
-}
+      // Loop through each section
+      questionsData.sections.forEach(function(section, si) {
+        var div = document.createElement("div");
+        div.className = "section-card";
 
-function addQuestion(si) {
-  questionsData.sections[si].questions.push({id: "q_" + Date.now(), type: "text", label: "Nouvelle question", placeholder: ""});
-  renderQuestions(si);
-}
+        // Build section HTML
+        div.innerHTML =
+          // Section header row
+          '<div class="section-card-header">' +
+            '<div class="section-num">' + (si + 1) + '</div>' +
+            // Title input — onchange updates the data directly
+            '<input type="text" class="section-title-input" value="' + esc(section.title) + '" ' +
+              'onchange="questionsData.sections[' + si + '].title=this.value">' +
+            '<button class="btn btn-danger" onclick="removeSection(' + si + ')">&#128465; Supprimer</button>' +
+          '</div>' +
+          // Questions container for this section
+          '<div id="questions-' + si + '"></div>' +
+          // Add question button
+          '<button class="btn btn-outline" style="margin-top:8px" onclick="addQuestion(' + si + ')">+ Question</button>';
 
-function removeQuestion(si, qi) {
-  if (confirm("Supprimer cette question ?")) {
-    questionsData.sections[si].questions.splice(qi, 1);
-    renderQuestions(si);
-  }
-}
+        container.appendChild(div);
+        renderQuestions(si); // Fill in the questions for this section
+      });
 
-function addSection() {
-  questionsData.sections.push({id: "s_" + Date.now(), title: "Nouvelle section", questions: []});
-  renderEditor();
-}
+      // Trigger fade-in animations
+      setTimeout(function() {
+        document.querySelectorAll(".section-card").forEach(function(el) {
+          el.classList.add("visible");
+        });
+      }, 50);
+    }
 
-function removeSection(si) {
-  if (confirm("Supprimer cette section ?")) {
-    questionsData.sections.splice(si, 1);
-    renderEditor();
-  }
-}
+    // RENDER QUESTIONS for a specific section
+    function renderQuestions(si) {
+      var container = document.getElementById("questions-" + si);
+      container.innerHTML = "";
 
-function saveQuestions() {
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", "/save-questions", true);
-  xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.onload = function() {
-    var msg = document.getElementById("msg");
-    msg.textContent = "Modifications sauvegardees !";
-    msg.className = "msg success";
-    msg.style.display = "block";
-    setTimeout(function() { msg.style.display = "none"; }, 3000);
-  };
-  xhr.send(JSON.stringify(questionsData));
-}
-</script>
+      questionsData.sections[si].questions.forEach(function(q, qi) {
+        var div = document.createElement("div");
+        div.className = "question-block";
+
+        // Build options HTML if this question type needs them
+        var optionsHTML = "";
+        if (q.type === "radio" || q.type === "checkbox" || q.type === "select") {
+          var opts = (q.options || []).map(function(opt, oi) {
+            return '<div class="option-row">' +
+              '<input type="text" value="' + esc(opt) + '" ' +
+                'onchange="questionsData.sections[' + si + '].questions[' + qi + '].options[' + oi + ']=this.value">' +
+              '<button class="btn btn-danger" onclick="removeOption(' + si + ',' + qi + ',' + oi + ')">&#10005;</button>' +
+            '</div>';
+          }).join("");
+
+          optionsHTML =
+            '<div class="options-area">' +
+              '<span class="options-label">Options de r&eacute;ponse</span>' +
+              opts +
+              '<button class="btn btn-outline" style="font-size:0.8em;padding:5px 12px" ' +
+                'onclick="addOption(' + si + ',' + qi + ')">+ Ajouter une option</button>' +
+            '</div>';
+        }
+
+        div.innerHTML =
+          '<div class="question-block-header">' +
+            '<span class="question-num">Question ' + (qi + 1) + '</span>' +
+            '<button class="btn btn-danger" onclick="removeQuestion(' + si + ',' + qi + ')">&#128465; Supprimer</button>' +
+          '</div>' +
+          '<div class="question-fields">' +
+            // Type selector
+            '<div>' +
+              '<label>Type</label>' +
+              '<select onchange="changeType(' + si + ',' + qi + ',this.value)">' +
+                ['text','number','textarea','radio','checkbox','select','stars'].map(function(t) {
+                  return '<option ' + (q.type === t ? 'selected' : '') + '>' + t + '</option>';
+                }).join('') +
+              '</select>' +
+            '</div>' +
+            // Label input
+            '<div>' +
+              '<label>Texte de la question</label>' +
+              '<input type="text" value="' + esc(q.label) + '" ' +
+                'onchange="questionsData.sections[' + si + '].questions[' + qi + '].label=this.value">' +
+            '</div>' +
+          '</div>' +
+          optionsHTML;
+
+        container.appendChild(div);
+      });
+    }
+
+    // ESCAPE special characters for use in HTML attributes
+    // Without this, quotes in question text would break the HTML
+    function esc(str) {
+      return (str || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+    }
+
+    // CHANGE QUESTION TYPE
+    function changeType(si, qi, val) {
+      questionsData.sections[si].questions[qi].type = val;
+      // Add default options if switching to a type that needs them
+      if ((val === "radio" || val === "checkbox" || val === "select") &&
+          !questionsData.sections[si].questions[qi].options) {
+        questionsData.sections[si].questions[qi].options = ["Option 1", "Option 2"];
+      }
+      renderQuestions(si); // Re-render just this section's questions
+    }
+
+    // ADD A NEW OPTION to a question
+    function addOption(si, qi) {
+      if (!questionsData.sections[si].questions[qi].options) {
+        questionsData.sections[si].questions[qi].options = [];
+      }
+      questionsData.sections[si].questions[qi].options.push("Nouvelle option");
+      renderQuestions(si);
+    }
+
+    // REMOVE AN OPTION from a question
+    function removeOption(si, qi, oi) {
+      questionsData.sections[si].questions[qi].options.splice(oi, 1);
+      // .splice(index, 1) removes 1 item at the given index
+      renderQuestions(si);
+    }
+
+    // ADD A NEW QUESTION to a section
+    function addQuestion(si) {
+      questionsData.sections[si].questions.push({
+        id: "q_" + Date.now(), // Unique ID using current timestamp
+        type: "text",
+        label: "Nouvelle question",
+        placeholder: ""
+      });
+      renderQuestions(si);
+    }
+
+    // REMOVE A QUESTION from a section
+    function removeQuestion(si, qi) {
+      if (confirm("Supprimer cette question ?")) {
+        questionsData.sections[si].questions.splice(qi, 1);
+        renderQuestions(si);
+      }
+    }
+
+    // ADD A NEW SECTION
+    function addSection() {
+      questionsData.sections.push({
+        id: "s_" + Date.now(),
+        title: "Nouvelle section",
+        questions: []
+      });
+      renderEditor(); // Re-render everything to show new section
+    }
+
+    // REMOVE A SECTION
+    function removeSection(si) {
+      if (confirm("Supprimer cette section et toutes ses questions ?")) {
+        questionsData.sections.splice(si, 1);
+        renderEditor();
+      }
+    }
+
+    // SAVE QUESTIONS — sends updated data to Flask
+    function saveQuestions() {
+      // Use XMLHttpRequest (old style) to avoid template literal issues
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/save-questions", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+
+      xhr.onload = function() {
+        var msg = document.getElementById("msg");
+        if (xhr.status === 200) {
+          // Success — show green message
+          msg.textContent = "&#10003; Modifications sauvegard&eacute;es ! Le sondage est mis &agrave; jour.";
+          msg.className = "msg success";
+        } else {
+          // Error — show red message
+          msg.textContent = "&#10007; Erreur lors de la sauvegarde.";
+          msg.className = "msg error";
+        }
+        msg.style.display = "block";
+        // Hide message after 3 seconds
+        setTimeout(function() { msg.style.display = "none"; }, 3000);
+        // Scroll to top to see the message
+        window.scrollTo({top: 0, behavior: "smooth"});
+      };
+
+      // Send the data as JSON string
+      xhr.send(JSON.stringify(questionsData));
+    }
+
+  </script>
 </body>
 </html>
