@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sondage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       VARIABLES & RESET
+       ============================================ */
+    :root {
+      --navy: #0f2540;
+      --blue: #1a5276;
+      --accent: #c0392b;
+      --gold: #d4a843;
+      --light: #f7f3ee;
+      --white: #ffffff;
+      --muted: #7f8c8d;
+      --border: #e0d9d0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--light);
+      color: var(--navy);
+      min-height: 100vh;
+      animation: pageIn 0.4s ease forwards;
+    }
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================
+       PROGRESS BAR — fixed at top
+       ============================================ */
+    .progress-wrap {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 999;
+      background: rgba(247,243,238,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px 10px;
+    }
+    .progress-info {
+      max-width: 680px;
+      margin: 0 auto 8px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78em;
+      color: var(--muted);
+    }
+    .progress-track {
+      max-width: 680px;
+      margin: 0 auto;
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--gold));
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+
+    /* ============================================
+       HEADER
+       ============================================ */
+    .header {
+      background: var(--navy);
+      padding: 70px 40px 50px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: rgba(192,57,43,0.1);
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 15%;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: rgba(212,168,67,0.07);
+    }
+    .header-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      font-size: 0.7em;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2em;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .header p {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.9em;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ============================================
+       MAIN CONTENT
+       ============================================ */
+    .main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* ============================================
+       SECTIONS — fade in on scroll
+       ============================================ */
+    .section {
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-num {
+      width: 30px; height: 30px;
+      background: var(--navy);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78em;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1em;
+    }
+
+    /* ============================================
+       CARD
+       ============================================ */
+    .card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(15,37,64,0.06);
+      border: 1px solid var(--border);
+    }
+
+    /* ============================================
+       QUESTIONS
+       ============================================ */
+    .question { margin-bottom: 20px; }
+    .question:last-child { margin-bottom: 0; }
+    .question label {
+      display: block;
+      font-size: 0.92em;
+      font-weight: 500;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    /* ============================================
+       INPUTS
+       ============================================ */
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9em;
+      color: var(--navy);
+      background: var(--light);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26,82,118,0.1);
+      background: white;
+    }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* ============================================
+       RADIO & CHECKBOX OPTIONS
+       ============================================ */
+    .options { display: flex; flex-direction: column; gap: 8px; }
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      font-size: 0.9em;
+    }
+    .option-label:hover {
+      border-color: var(--blue);
+      background: rgba(26,82,118,0.04);
+    }
+    .option-label.selected {
+      border-color: var(--blue);
+      background: rgba(26,82,118,0.06);
+    }
+    .option-label input {
+      width: 18px; height: 18px;
+      accent-color: var(--blue);
+      flex-shrink: 0;
+    }
+
+    /* ============================================
+       STARS
+       ============================================ */
+    .stars { display: flex; gap: 6px; margin-top: 4px; }
+    .star {
+      font-size: 2em;
+      cursor: pointer;
+      color: #ddd;
+      transition: color 0.15s, transform 0.15s;
+      user-select: none;
+    }
+    .star:hover { transform: scale(1.2); }
+    .star.on { color: var(--gold); }
+
+    /* ============================================
+       SUBMIT BUTTON
+       ============================================ */
+    .submit-wrap { margin-top: 32px; text-align: center; }
+    .submit-btn {
+      background: var(--navy);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 16px 48px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(15,37,64,0.2);
+    }
+    .submit-btn:hover {
+      background: var(--blue);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(15,37,64,0.25);
+    }
+
+    /* ============================================
+       SUCCESS SCREEN
+       ============================================ */
+    #success {
+      display: none;
+      text-align: center;
+      padding: 80px 20px;
+      animation: pageIn 0.5s ease forwards;
+    }
+    .success-icon { font-size: 4em; margin-bottom: 20px; }
+    #success h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8em;
+      margin-bottom: 10px;
+    }
+    #success p { color: var(--muted); margin-bottom: 24px; }
+    .again-btn {
+      background: white;
+      color: var(--navy);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 28px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95em;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .again-btn:hover {
+      border-color: var(--blue);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    /* ============================================
+       LOADING & ERROR STATES
+       ============================================ */
+    #loading {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ============================================
+       MOBILE
+       ============================================ */
+    @media (max-width: 600px) {
+      .header { padding: 70px 20px 40px; }
+      .header h1 { font-size: 1.7em; }
+      .card { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span id="progress-label">Chargement...</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- HEADER — title filled by JavaScript from survey data -->
+  <div class="header">
+    <span class="header-tag">Sondage &mdash; Participez !</span>
+    <h1 id="survey-title">Chargement...</h1>
+    <p>Sondage anonyme &mdash; vos r&eacute;ponses sont confidentielles</p>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- Loading spinner -->
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Chargement du sondage...</p>
+    </div>
+
+    <!-- Form — built dynamically by JavaScript -->
+    <div id="form-area" style="display:none">
+      <div id="sections-container"></div>
+      <div class="submit-wrap">
+        <button class="submit-btn" onclick="submitSurvey()">
+          Envoyer mes r&eacute;ponses &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- Success screen -->
+    <div id="success">
+      <div class="success-icon">&#10003;</div>
+      <h2>Merci pour votre participation !</h2>
+      <p>Vos r&eacute;ponses ont bien &eacute;t&eacute; enregistr&eacute;es.</p>
+      <button class="again-btn" onclick="resetForm()">R&eacute;pondre &agrave; nouveau</button>
+    </div>
+
+  </div>
+
+  <script>
+    // Get survey ID from the URL
+    // e.g. /survey/3 → surveyId = 3
+    var surveyId = parseInt(window.location.pathname.split("/").pop());
+    var surveyData = null; // Will hold the questions once loaded
+    var answers = {};      // Will hold the user's answers
+
+    // LOAD SURVEY QUESTIONS from /public-questions/:id
+    async function loadSurvey() {
+      try {
+        var res = await fetch("/public-questions/" + surveyId);
+
+        if (res.status === 404) {
+          document.getElementById("loading").innerHTML =
+            '<p style="color:var(--accent)">Sondage introuvable. V&eacute;rifiez le lien.</p>';
+          return;
+        }
+
+        var data = await res.json();
+        surveyData = data;
+
+        // Update page title with survey title
+        document.getElementById("survey-title").textContent = data.title || "Sondage";
+        document.title = data.title || "Sondage";
+
+        // Build the form
+        buildForm(data.questions);
+
+        // Show form, hide loading
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("form-area").style.display = "block";
+
+        // Trigger scroll animations
+        setupAnimations();
+
+      } catch(e) {
+        document.getElementById("loading").innerHTML =
+          '<p style="color:var(--accent)">Erreur de chargement. R&eacute;essayez plus tard.</p>';
+      }
+    }
+
+    // BUILD THE FORM dynamically from questions JSON
+    function buildForm(questionsData) {
+      var container = document.getElementById("sections-container");
+      container.innerHTML = "";
+
+      if (!questionsData.sections || questionsData.sections.length === 0) {
+        container.innerHTML = '<div class="card" style="text-align:center;color:var(--muted);padding:40px">Ce sondage ne contient pas encore de questions.</div>';
+        return;
+      }
+
+      var total = questionsData.sections.length;
+
+      questionsData.sections.forEach(function(section, si) {
+        var sectionDiv = document.createElement("div");
+        sectionDiv.className = "section";
+        sectionDiv.dataset.section = si + 1;
+        sectionDiv.dataset.total = total;
+
+        // Build questions HTML for this section
+        var questionsHTML = section.questions.map(function(q, qi) {
+          return buildQuestion(q, si, qi);
+        }).join("");
+
+        sectionDiv.innerHTML =
+          '<div class="section-header">' +
+            '<div class="section-num">' + (si + 1) + '</div>' +
+            '<div class="section-title">' + section.title + '</div>' +
+          '</div>' +
+          '<div class="card">' + questionsHTML + '</div>';
+
+        container.appendChild(sectionDiv);
+      });
+
+      // Setup star interactions after building
+      setupStars();
+      setupOptionHighlights();
+    }
+
+    // BUILD A SINGLE QUESTION based on its type
+    function buildQuestion(q, si, qi) {
+      var id = "q_" + si + "_" + qi; // Unique ID for this question's input
+      var html = '<div class="question">';
+      html += '<label>' + q.label + '</label>';
+
+      if (q.type === "text") {
+        html += '<input type="text" id="' + id + '" placeholder="' + (q.placeholder || "") + '">';
+
+      } else if (q.type === "number") {
+        html += '<input type="number" id="' + id + '" placeholder="' + (q.placeholder || "") + '">';
+
+      } else if (q.type === "textarea") {
+        html += '<textarea id="' + id + '" placeholder="' + (q.placeholder || "") + '"></textarea>';
+
+      } else if (q.type === "select") {
+        html += '<select id="' + id + '"><option value="">-- S&eacute;lectionnez --</option>';
+        (q.options || []).forEach(function(opt) {
+          html += '<option>' + opt + '</option>';
+        });
+        html += '</select>';
+
+      } else if (q.type === "radio") {
+        html += '<div class="options" id="' + id + '">';
+        (q.options || []).forEach(function(opt) {
+          html += '<label class="option-label"><input type="radio" name="' + id + '" value="' + opt + '"> ' + opt + '</label>';
+        });
+        html += '</div>';
+
+      } else if (q.type === "checkbox") {
+        html += '<div class="options" id="' + id + '">';
+        (q.options || []).forEach(function(opt) {
+          html += '<label class="option-label"><input type="checkbox" value="' + opt + '"> ' + opt + '</label>';
+        });
+        html += '</div>';
+
+      } else if (q.type === "stars") {
+        html += '<div class="stars" id="stars_' + id + '">';
+        for (var i = 1; i <= 5; i++) {
+          html += '<span class="star" data-val="' + i + '" data-target="' + id + '">&#9733;</span>';
+        }
+        html += '</div>';
+        html += '<input type="hidden" id="' + id + '" value="">';
+      }
+
+      html += '</div>';
+      return html;
+    }
+
+    // SETUP STAR INTERACTIONS
+    function setupStars() {
+      document.querySelectorAll(".stars").forEach(function(group) {
+        var stars = group.querySelectorAll(".star");
+        stars.forEach(function(star) {
+
+          star.addEventListener("click", function() {
+            var val = parseInt(this.dataset.val);
+            var targetId = this.dataset.target;
+            document.getElementById(targetId).value = val;
+            stars.forEach(function(s) {
+              s.classList.toggle("on", parseInt(s.dataset.val) <= val);
+            });
+          });
+
+          star.addEventListener("mouseover", function() {
+            var val = parseInt(this.dataset.val);
+            stars.forEach(function(s) {
+              s.style.color = parseInt(s.dataset.val) <= val ? "#d4a843" : "#ddd";
+            });
+          });
+
+          star.addEventListener("mouseout", function() {
+            var targetId = this.dataset.target;
+            var saved = parseInt(document.getElementById(targetId).value) || 0;
+            stars.forEach(function(s) {
+              s.style.color = parseInt(s.dataset.val) <= saved ? "#d4a843" : "#ddd";
+            });
+          });
+
+        });
+      });
+    }
+
+    // SETUP OPTION HIGHLIGHT on radio/checkbox click
+    function setupOptionHighlights() {
+      document.querySelectorAll(".option-label input").forEach(function(input) {
+        input.addEventListener("change", function() {
+          if (this.type === "radio") {
+            document.querySelectorAll("input[name='" + this.name + "']").forEach(function(r) {
+              r.closest(".option-label").classList.remove("selected");
+            });
+          }
+          if (this.checked) {
+            this.closest(".option-label").classList.add("selected");
+          } else {
+            this.closest(".option-label").classList.remove("selected");
+          }
+        });
+      });
+    }
+
+    // SETUP SCROLL ANIMATIONS
+    function setupAnimations() {
+      var total = document.querySelectorAll(".section").length;
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            setTimeout(function() {
+              entry.target.classList.add("visible");
+              updateProgress();
+            }, 50);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll(".section").forEach(function(s) {
+        observer.observe(s);
+      });
+
+      window.addEventListener("scroll", updateProgress);
+    }
+
+    // UPDATE PROGRESS BAR
+    function updateProgress() {
+      var sections = document.querySelectorAll(".section");
+      var total = sections.length;
+      var visible = 0;
+
+      sections.forEach(function(s) {
+        var rect = s.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.6) {
+          visible = parseInt(s.dataset.section);
+        }
+      });
+
+      var pct = total ? Math.round((visible / total) * 100) : 0;
+      document.getElementById("progress-fill").style.width = pct + "%";
+      document.getElementById("progress-pct").textContent = pct + "%";
+      document.getElementById("progress-label").innerHTML =
+        "Section <strong>" + Math.max(1, visible) + "</strong> sur " + total;
+    }
+
+    // COLLECT ALL ANSWERS from the form
+    function collectAnswers() {
+      var result = {};
+
+      if (!surveyData || !surveyData.questions || !surveyData.questions.sections) return result;
+
+      surveyData.questions.sections.forEach(function(section, si) {
+        section.questions.forEach(function(q, qi) {
+          var id = "q_" + si + "_" + qi;
+
+          if (q.type === "radio") {
+            var checked = document.querySelector("input[name='" + id + "']:checked");
+            result[q.id || id] = checked ? checked.value : "";
+
+          } else if (q.type === "checkbox") {
+            var checked = Array.from(document.querySelectorAll("#" + id + " input:checked"))
+              .map(function(c) { return c.value; });
+            result[q.id || id] = checked.join(", ");
+
+          } else {
+            var el = document.getElementById(id);
+            result[q.id || id] = el ? el.value : "";
+          }
+        });
+      });
+
+      return result;
+    }
+
+    // SUBMIT THE SURVEY
+    async function submitSurvey() {
+      var answers = collectAnswers();
+
+      await fetch("/submit/" + surveyId, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(answers)
+      });
+
+      // Show success screen
+      document.getElementById("form-area").style.display = "none";
+      document.getElementById("success").style.display = "block";
+      window.scrollTo({top: 0, behavior: "smooth"});
+
+      // Reset progress bar
+      document.getElementById("progress-fill").style.width = "0%";
+      document.getElementById("progress-label").textContent = "Termin\u00e9 !";
+      document.getElementById("progress-pct").textContent = "100%";
+    }
+
+    // RESET FORM for a new response
+    function resetForm() {
+      document.getElementById("form-area").style.display = "block";
+      document.getElementById("success").style.display = "none";
+
+      // Clear all inputs
+      document.querySelectorAll("input, textarea, select").forEach(function(el) {
+        if (el.type === "radio" || el.type === "checkbox") el.checked = false;
+        else el.value = "";
+      });
+
+      // Remove highlights
+      document.querySelectorAll(".option-label").forEach(function(l) {
+        l.classList.remove("selected");
+      });
+
+      // Reset stars
+      document.querySelectorAll(".star").forEach(function(s) {
+        s.classList.remove("on");
+        s.style.color = "#ddd";
+      });
+
+      window.scrollTo({top: 0, behavior: "smooth"});
+    }
+
+    // Start loading when page opens
+    loadSurvey();
+  </script>
+</body>
+</html>
