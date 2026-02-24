@@ -259,7 +259,7 @@ def resultats():
     return send_from_directory(".", "resultats.html")
 
 
-    @app.route("/debug-users")
+@app.route("/debug-users")
 def debug_users():
     with sqlite3.connect(DB) as con:
         rows = con.execute("SELECT id, username, role FROM users").fetchall()
