@@ -47,6 +47,17 @@ def init_db():
                 submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (survey_id) REFERENCES surveys(id)
             )
+
+        # Give romain.monnet the admin role if not already set
+with sqlite3.connect(DB) as con:
+    # Add role column if it doesn't exist yet
+    try:
+        con.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'")
+    except:
+        pass  # Column already exists, no problem
+
+    # Make romain.monnet an admin
+    con.execute("UPDATE users SET role='admin' WHERE username='romain.monnet'")
         """)
 
 # ============================================
@@ -58,8 +69,8 @@ def current_user():
     if not user_id:
         return None
     with sqlite3.connect(DB) as con:
-        row = con.execute("SELECT id, username FROM users WHERE id=?", (user_id,)).fetchone()
-    return {"id": row[0], "username": row[1]} if row else None
+        row = con.execute("SELECT id, username, role FROM users WHERE id=?", (user_id,)).fetchone()
+    return {"id": row[0], "username": row[1], "role": row[2]} if row else None
 
 # ============================================
 # HELPER — get or create survey for a user
@@ -233,12 +244,26 @@ def public_questions(survey_id):
 def admin():
     return send_from_directory(".", "admin.html")
 
+@app.route("/is-admin")
+def is_admin():
+    user = current_user()
+    if not user:
+        return jsonify({"admin": False})
+    return jsonify({"admin": user.get("role") == "admin"})
+
 # ============================================
 # STATIC PAGES
 # ============================================
 @app.route("/resultats")
 def resultats():
     return send_from_directory(".", "resultats.html")
+
+
+    @app.route("/debug-users")
+def debug_users():
+    with sqlite3.connect(DB) as con:
+        rows = con.execute("SELECT id, username, role FROM users").fetchall()
+    return jsonify([{"id": r[0], "username": r[1], "role": r[2]} for r in rows])
 
 # ============================================
 # START THE APP
