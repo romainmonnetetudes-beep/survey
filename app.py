@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 # Secret key for sessions — this encrypts the session cookie
 # Sessions let Flask remember who is logged in between requests
-app.secret_key = "millau2026_secret_key_change_this"
+app.secret_key = "@3Co3#zMLCne!onq$f?bo3PQp"
 
 DB = "survey.db"
 
