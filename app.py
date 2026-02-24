@@ -1,55 +1,102 @@
 from flask import Flask, request, jsonify, send_from_directory, session, redirect
-import sqlite3, json, os, bcrypt
+import json, os, bcrypt
+import psycopg2
+import psycopg2.extras
 
 app = Flask(__name__)
 app.secret_key = "millau2026_secret_key_change_this"
-DB = "survey.db"
 
+# ============================================
+# DATABASE CONNECTION
+# Uses DATABASE_URL environment variable from Railway
+# Falls back to SQLite-style error if not set
+# ============================================
+def get_db():
+    db_url = os.environ.get("DATABASE_URL")
+    if not db_url:
+        raise Exception("DATABASE_URL not set - check Railway environment variables")
+    conn = psycopg2.connect(db_url)
+    return conn
+
+# ============================================
+# DATABASE SETUP
+# Creates all tables if they don't exist
+# Also creates admin account if not exists
+# ============================================
 def init_db():
-    with sqlite3.connect(DB) as con:
-        con.execute("""CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+    conn = get_db()
+    cur = conn.cursor()
+
+    # USERS table
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
             role TEXT DEFAULT 'user',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )""")
-        con.execute("""CREATE TABLE IF NOT EXISTS surveys (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # SURVEYS table
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS surveys (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id),
             title TEXT DEFAULT 'Mon sondage',
             questions_json TEXT DEFAULT '{"sections":[]}',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )""")
-        con.execute("""CREATE TABLE IF NOT EXISTS responses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            survey_id INTEGER NOT NULL,
-            answer TEXT,
-            submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (survey_id) REFERENCES surveys(id)
-        )""")
-        try:
-            con.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'")
-        except:
-            pass
-        con.execute("UPDATE users SET role='admin' WHERE username='romain.monnet'")
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
 
+    # RESPONSES table
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS responses (
+            id SERIAL PRIMARY KEY,
+            survey_id INTEGER NOT NULL REFERENCES surveys(id),
+            answer TEXT,
+            submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+# ============================================
+# HELPER — get current logged in user
+# ============================================
 def current_user():
     user_id = session.get("user_id")
     if not user_id:
         return None
-    with sqlite3.connect(DB) as con:
-        row = con.execute("SELECT id, username, role FROM users WHERE id=?", (user_id,)).fetchone()
-    return {"id": row[0], "username": row[1], "role": row[2]} if row else None
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT id, username, role FROM users WHERE id=%s", (user_id,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    return dict(row) if row else None
 
+# ============================================
+# HELPER — get or create survey for a user
+# ============================================
 def get_survey(user_id):
-    with sqlite3.connect(DB) as con:
-        row = con.execute("SELECT id, title, questions_json FROM surveys WHERE user_id=?", (user_id,)).fetchone()
-        if not row:
-            con.execute("INSERT INTO surveys (user_id) VALUES (?)", (user_id,))
-            row = con.execute("SELECT id, title, questions_json FROM surveys WHERE user_id=?", (user_id,)).fetchone()
-    return {"id": row[0], "title": row[1], "questions": json.loads(row[2])}
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT id, title, questions_json FROM surveys WHERE user_id=%s", (user_id,))
+    row = cur.fetchone()
+    if not row:
+        cur.execute("INSERT INTO surveys (user_id) VALUES (%s) RETURNING id, title, questions_json", (user_id,))
+        row = cur.fetchone()
+        conn.commit()
+    cur.close()
+    conn.close()
+    return {"id": row["id"], "title": row["title"], "questions": json.loads(row["questions_json"])}
+
+# ============================================
+# ROUTES
+# ============================================
 
 @app.route("/")
 def home():
@@ -65,12 +112,22 @@ def register():
     if not username or not password:
         return jsonify({"error": "Nom d'utilisateur et mot de passe requis"}), 400
     password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    # First user to register gets admin role automatically
+    conn = get_db()
+    cur = conn.cursor()
     try:
-        with sqlite3.connect(DB) as con:
-            con.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", (username, password_hash))
+        cur.execute("SELECT COUNT(*) FROM users")
+        count = cur.fetchone()[0]
+        role = "admin" if username == "romain.monnet" else "user"
+        cur.execute("INSERT INTO users (username, password_hash, role) VALUES (%s, %s, %s)", (username, password_hash, role))
+        conn.commit()
         return jsonify({"status": "ok"})
-    except sqlite3.IntegrityError:
+    except psycopg2.IntegrityError:
+        conn.rollback()
         return jsonify({"error": "Ce nom d'utilisateur est deja pris"}), 400
+    finally:
+        cur.close()
+        conn.close()
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -79,8 +136,12 @@ def login():
     data = request.json
     username = data.get("username", "").strip()
     password = data.get("password", "")
-    with sqlite3.connect(DB) as con:
-        row = con.execute("SELECT id, password_hash FROM users WHERE username=?", (username,)).fetchone()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT id, password_hash FROM users WHERE username=%s", (username,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
     if not row:
         return jsonify({"error": "Utilisateur introuvable"}), 401
     if not bcrypt.checkpw(password.encode("utf-8"), row[1].encode("utf-8")):
@@ -115,15 +176,23 @@ def is_admin():
 @app.route("/submit/<int:survey_id>", methods=["POST"])
 def submit(survey_id):
     data = request.json
-    with sqlite3.connect(DB) as con:
-        con.execute("INSERT INTO responses (survey_id, answer) VALUES (?, ?)", (survey_id, json.dumps(data)))
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO responses (survey_id, answer) VALUES (%s, %s)", (survey_id, json.dumps(data)))
+    conn.commit()
+    cur.close()
+    conn.close()
     return jsonify({"status": "ok"})
 
 @app.route("/results/<int:survey_id>")
 def results(survey_id):
-    with sqlite3.connect(DB) as con:
-        rows = con.execute("SELECT answer, submitted_at FROM responses WHERE survey_id=? ORDER BY id DESC", (survey_id,)).fetchall()
-    return jsonify([{"answer": r[0], "time": r[1]} for r in rows])
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT answer, submitted_at FROM responses WHERE survey_id=%s ORDER BY id DESC", (survey_id,))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify([{"answer": r[0], "time": str(r[1])} for r in rows])
 
 @app.route("/questions")
 def get_questions():
@@ -139,8 +208,12 @@ def save_questions():
     if not user:
         return jsonify({"error": "Non connecte"}), 401
     data = request.json
-    with sqlite3.connect(DB) as con:
-        con.execute("UPDATE surveys SET questions_json=? WHERE user_id=?", (json.dumps(data), user["id"]))
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("UPDATE surveys SET questions_json=%s WHERE user_id=%s", (json.dumps(data), user["id"]))
+    conn.commit()
+    cur.close()
+    conn.close()
     return jsonify({"status": "ok"})
 
 @app.route("/survey/<int:survey_id>")
@@ -149,8 +222,12 @@ def survey_page(survey_id):
 
 @app.route("/public-questions/<int:survey_id>")
 def public_questions(survey_id):
-    with sqlite3.connect(DB) as con:
-        row = con.execute("SELECT questions_json, title FROM surveys WHERE id=?", (survey_id,)).fetchone()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT questions_json, title FROM surveys WHERE id=%s", (survey_id,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
     if not row:
         return jsonify({"error": "Sondage introuvable"}), 404
     return jsonify({"questions": json.loads(row[0]), "title": row[1]})
@@ -169,8 +246,12 @@ def resultats_survey(survey_id):
 
 @app.route("/debug-users")
 def debug_users():
-    with sqlite3.connect(DB) as con:
-        rows = con.execute("SELECT id, username, role FROM users").fetchall()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT id, username, role FROM users")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
     return jsonify([{"id": r[0], "username": r[1], "role": r[2]} for r in rows])
 
 @app.route("/admin-all-surveys")
@@ -178,19 +259,17 @@ def admin_all_surveys():
     user = current_user()
     if not user or user.get("role") != "admin":
         return jsonify({"error": "Acces refuse"}), 403
-    with sqlite3.connect(DB) as con:
-        rows = con.execute("""
-            SELECT s.id, s.title, u.username,
-            (SELECT COUNT(*) FROM responses WHERE survey_id=s.id) as response_count
-            FROM surveys s JOIN users u ON s.user_id=u.id
-        """).fetchall()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT s.id, s.title, u.username,
+        (SELECT COUNT(*) FROM responses WHERE survey_id=s.id) as response_count
+        FROM surveys s JOIN users u ON s.user_id=u.id
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
     return jsonify([{"id": r[0], "title": r[1], "username": r[2], "responses": r[3]} for r in rows])
-
-@app.route("/make-me-admin")
-def make_me_admin():
-    with sqlite3.connect(DB) as con:
-        con.execute("UPDATE users SET role='admin' WHERE username='romain.monnet'")
-    return jsonify({"status": "done"})
 
 if __name__ == "__main__":
     init_db()
