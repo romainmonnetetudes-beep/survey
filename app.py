@@ -271,6 +271,48 @@ def admin_all_surveys():
     conn.close()
     return jsonify([{"id": r[0], "title": r[1], "username": r[2], "responses": r[3]} for r in rows])
 
+    @app.route("/admin-users")
+    def admin_users():
+        user = current_user()
+    if not user or user.get("role") != "admin":
+        return jsonify({"error": "Acces refuse"}), 403
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT u.id, u.username, u.role, u.created_at,
+        (SELECT COUNT(*) FROM responses r
+         JOIN surveys s ON r.survey_id = s.id
+         WHERE s.user_id = u.id) as response_count,
+        (SELECT id FROM surveys WHERE user_id = u.id LIMIT 1) as survey_id
+        FROM users u ORDER BY u.created_at ASC
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify([{
+        "id": r[0], "username": r[1], "role": r[2],
+        "created_at": str(r[3]), "responses": r[4], "survey_id": r[5]
+    } for r in rows])   
+
+    @app.route("/admin-reset-password", methods=["POST"])
+    def admin_reset_password():
+        user = current_user()
+        if not user or user.get("role") != "admin":
+            return jsonify({"error": "Acces refuse"}), 403
+        data = request.json
+        target_id = data.get("user_id")
+        new_password = data.get("new_password")
+        if not new_password or len(new_password) < 6:
+            return jsonify({"error": "Mot de passe trop court"}), 400
+        password_hash = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("UPDATE users SET password_hash=%s WHERE id=%s", (password_hash, target_id))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return jsonify({"status": "ok"})
+
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
