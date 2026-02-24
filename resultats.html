@@ -2,9 +2,17 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Résultats — Sondage Millau</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>R&eacute;sultats &mdash; Sondage Millau</title>
+
+  <!-- Same fonts as all other pages for consistency -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
   <style>
+
+    /* ============================================
+       CSS VARIABLES — same palette as all pages
+       ============================================ */
     :root {
       --navy: #0f2540;
       --blue: #1a5276;
@@ -13,9 +21,13 @@
       --light: #f7f3ee;
       --white: #ffffff;
       --muted: #7f8c8d;
-      --card-bg: #ffffff;
+      --border: #e0d9d0;
+      --green: #27ae60;
     }
 
+    /* ============================================
+       RESET & BASE
+       ============================================ */
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -23,15 +35,49 @@
       background: var(--light);
       color: var(--navy);
       min-height: 100vh;
+      animation: pageIn 0.4s ease forwards; /* Fade in on load */
     }
 
-    /* Header */
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================
+       BACK BUTTON — fixed top left
+       ============================================ */
+    .back-btn {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      background: white;
+      color: var(--navy);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85em;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 20px;
+      text-decoration: none;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+      z-index: 1000;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    /* ============================================
+       HEADER BANNER
+       ============================================ */
     .header {
       background: var(--navy);
-      padding: 50px 40px 40px;
+      padding: 60px 40px 50px;
       position: relative;
       overflow: hidden;
     }
+
+    /* Decorative circles in background */
     .header::before {
       content: '';
       position: absolute;
@@ -48,7 +94,14 @@
       border-radius: 50%;
       background: rgba(212,168,67,0.08);
     }
-    .header-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1; /* Above the decorative circles */
+    }
+
     .header-tag {
       display: inline-block;
       background: var(--accent);
@@ -61,6 +114,7 @@
       border-radius: 20px;
       margin-bottom: 16px;
     }
+
     .header h1 {
       font-family: 'Playfair Display', serif;
       font-size: 2.4em;
@@ -68,25 +122,69 @@
       line-height: 1.2;
       margin-bottom: 10px;
     }
-    .header p { color: rgba(255,255,255,0.6); font-size: 0.95em; }
-    .header-meta {
-      margin-top: 24px;
-      display: flex; gap: 30px; flex-wrap: wrap;
+
+    .header p {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.95em;
     }
-    .meta-item { text-align: center; }
-    .meta-num {
+
+    /* Stats row inside header */
+    .header-stats {
+      margin-top: 28px;
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap; /* Wraps on small screens */
+    }
+
+    .stat-item { text-align: center; }
+
+    /* The big number */
+    .stat-num {
       font-family: 'Playfair Display', serif;
-      font-size: 2.2em;
+      font-size: 2.4em;
       color: var(--gold);
       display: block;
       line-height: 1;
     }
-    .meta-label { color: rgba(255,255,255,0.5); font-size: 0.8em; margin-top: 4px; }
 
-    /* Main */
-    .main { max-width: 900px; margin: 40px auto; padding: 0 20px 60px; }
+    .stat-label {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.8em;
+      margin-top: 4px;
+    }
 
-    /* Section title */
+    /* Refresh button */
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.1); /* Semi-transparent white */
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88em;
+      cursor: pointer;
+      margin-top: 24px;
+      transition: background 0.2s;
+    }
+    .refresh-btn:hover {
+      background: rgba(255,255,255,0.18);
+    }
+
+    /* ============================================
+       MAIN CONTENT AREA
+       ============================================ */
+    .main {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px 60px;
+    }
+
+    /* ============================================
+       SECTION TITLES
+       ============================================ */
     .section-title {
       font-family: 'Playfair Display', serif;
       font-size: 1.3em;
@@ -94,19 +192,36 @@
       margin: 40px 0 16px;
       padding-bottom: 10px;
       border-bottom: 2px solid var(--navy);
-      display: flex; align-items: center; gap: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      /* Fade in animation — triggered by JavaScript */
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
+    .section-title.visible { opacity: 1; transform: translateY(0); }
 
-    /* Card */
+    /* ============================================
+       CARDS — white boxes holding each chart
+       ============================================ */
     .card {
-      background: var(--card-bg);
+      background: var(--white);
       border-radius: 12px;
       padding: 24px;
       margin-bottom: 16px;
       box-shadow: 0 2px 12px rgba(15,37,64,0.07);
+      border: 1px solid var(--border);
+      /* Fade in animation */
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
+    .card.visible { opacity: 1; transform: translateY(0); }
+
+    /* Small label above each chart */
     .card-title {
-      font-size: 0.8em;
+      font-size: 0.78em;
       font-weight: 500;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -114,340 +229,470 @@
       margin-bottom: 16px;
     }
 
-    /* Bar chart */
+    /* ============================================
+       BAR CHARTS — horizontal bars
+       ============================================ */
     .bar-item { margin-bottom: 14px; }
+    .bar-item:last-child { margin-bottom: 0; }
+
+    /* Row with label on left and count on right */
     .bar-label {
-      display: flex; justify-content: space-between;
-      font-size: 0.9em; margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.88em;
+      margin-bottom: 6px;
     }
-    .bar-label span:last-child { color: var(--muted); font-size: 0.85em; }
+    .bar-label span:last-child {
+      color: var(--muted);
+      font-size: 0.9em;
+    }
+
+    /* The grey track */
     .bar-track {
-      background: #eee;
-      border-radius: 4px;
+      background: var(--light);
+      border-radius: 6px;
       height: 10px;
       overflow: hidden;
+      border: 1px solid var(--border);
     }
+
+    /* The colored fill — width animated by JavaScript */
     .bar-fill {
       height: 100%;
-      border-radius: 4px;
-      background: var(--blue);
-      transition: width 1s ease;
-      width: 0;
+      border-radius: 6px;
+      background: var(--blue); /* Default color */
+      transition: width 1s ease; /* Smooth grow animation */
+      width: 0; /* Starts at 0, JS sets the real width */
     }
-    .bar-fill.gold { background: var(--gold); }
-    .bar-fill.red { background: var(--accent); }
-    .bar-fill.green { background: #27ae60; }
 
-    /* Stars display */
-    .star-display { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
-    .stars-row { font-size: 1.5em; }
-    .stars-row .s { color: #ddd; }
-    .stars-row .s.on { color: var(--gold); }
+    /* Color variants for different sections */
+    .bar-fill.gold  { background: var(--gold); }
+    .bar-fill.red   { background: var(--accent); }
+    .bar-fill.green { background: var(--green); }
+
+    /* ============================================
+       STAR RATING DISPLAY
+       ============================================ */
+    .star-display {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    /* The big average number */
     .star-num {
       font-family: 'Playfair Display', serif;
-      font-size: 2em;
+      font-size: 2.4em;
       color: var(--navy);
+      line-height: 1;
     }
-    .star-sub { font-size: 0.8em; color: var(--muted); }
 
-    /* Grid */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media(max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+    .stars-row { font-size: 1.6em; line-height: 1; }
+    .stars-row .s      { color: #ddd; } /* Empty star */
+    .stars-row .s.on   { color: var(--gold); } /* Filled star */
 
-    /* Verbatims */
-    .verbatim-list { display: flex; flex-direction: column; gap: 12px; }
+    .star-sub {
+      font-size: 0.78em;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ============================================
+       TWO-COLUMN GRID
+       ============================================ */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* Two equal columns */
+      gap: 16px;
+    }
+
+    /* On mobile, stack into one column */
+    @media (max-width: 600px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .header h1 { font-size: 1.7em; }
+      .header { padding: 60px 20px 40px; }
+    }
+
+    /* ============================================
+       CHIP TAGS — for services section
+       ============================================ */
+    .chip-list {
+      display: flex;
+      flex-wrap: wrap; /* Wraps to next line if too many */
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      background: var(--light);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.82em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .chip:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    /* The count badge inside each chip */
+    .chip-count {
+      background: var(--blue);
+      color: white;
+      border-radius: 10px;
+      padding: 2px 8px;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+
+    /* ============================================
+       VERBATIM COMMENTS
+       ============================================ */
+    .verbatim-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
     .verbatim {
       background: var(--light);
-      border-left: 3px solid var(--blue);
-      padding: 12px 16px;
-      border-radius: 0 8px 8px 0;
+      border-left: 3px solid var(--blue); /* Blue left border */
+      padding: 14px 18px;
+      border-radius: 0 10px 10px 0;
       font-size: 0.9em;
-      line-height: 1.6;
+      line-height: 1.7;
       color: #333;
+      /* Fade in animation */
+      opacity: 0;
+      transform: translateX(-10px); /* Slides in from left */
+      transition: opacity 0.4s ease, transform 0.4s ease;
     }
-    .verbatim-meta { font-size: 0.75em; color: var(--muted); margin-top: 6px; }
+    .verbatim.visible { opacity: 1; transform: translateX(0); }
 
-    /* Loading */
+    .verbatim-meta {
+      font-size: 0.75em;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    /* ============================================
+       LOADING STATE
+       ============================================ */
     #loading {
       text-align: center;
       padding: 80px 20px;
       color: var(--muted);
     }
+
+    /* Spinning circle */
     .spinner {
       width: 36px; height: 36px;
-      border: 3px solid #ddd;
-      border-top-color: var(--blue);
+      border: 3px solid var(--border);
+      border-top-color: var(--blue); /* Only top is colored = creates spin effect */
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      animation: spin 0.8s linear infinite; /* Spins forever */
       margin: 0 auto 16px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Refresh button */
-    .refresh-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--navy); color: white;
-      border: none; border-radius: 8px;
-      padding: 10px 20px; font-size: 0.9em;
-      cursor: pointer; margin-top: 8px;
-      transition: background 0.2s;
-    }
-    .refresh-btn:hover { background: var(--blue); }
-
-    /* Empty state */
-    .empty { text-align: center; padding: 40px; color: var(--muted); }
-
-    /* Tag chips */
-    .chip-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-    .chip {
-      background: var(--light);
-      border: 1px solid #ddd;
-      border-radius: 20px;
-      padding: 4px 12px;
-      font-size: 0.82em;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .chip-count {
-      background: var(--blue);
-      color: white;
-      border-radius: 10px;
-      padding: 1px 7px;
-      font-size: 0.85em;
-      font-weight: 500;
+    @keyframes spin {
+      to { transform: rotate(360deg); } /* Full rotation */
     }
 
-    /* Fade in */
-    .fade-in { animation: fadeIn 0.5s ease forwards; opacity: 0; }
-    @keyframes fadeIn { to { opacity: 1; } }
+    /* Empty state when no responses yet */
+    .empty {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+      font-size: 0.95em;
+    }
+
   </style>
 </head>
 <body>
 
-<a href="/" style="
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  background: white;
-  color: #0f2540;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85em;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 20px;
-  text-decoration: none;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
-  z-index: 1000;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'"
-   onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 10px rgba(0,0,0,0.12)'">
-  ← Accueil
-</a>
+  <!-- BACK BUTTON -->
+  <a href="/" class="back-btn">&larr; Accueil</a>
 
-<div class="header">
-  <div class="header-inner">
-    <span class="header-tag">Tableau de bord</span>
-    <h1>Résultats du sondage<br>Conditions de vie à Millau</h1>
-    <p>Analyse des réponses collectées auprès des habitants</p>
-    <div class="header-meta">
-      <div class="meta-item">
-        <span class="meta-num" id="total-count">—</span>
-        <div class="meta-label">Réponses totales</div>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-inner">
+      <span class="header-tag">Tableau de bord</span>
+      <h1>R&eacute;sultats du sondage<br>Conditions de vie &agrave; Millau</h1>
+      <p>Analyse des r&eacute;ponses collect&eacute;es aupr&egrave;s des habitants</p>
+
+      <!-- Live stats — filled by JavaScript -->
+      <div class="header-stats">
+        <div class="stat-item">
+          <span class="stat-num" id="total-count">&mdash;</span>
+          <div class="stat-label">R&eacute;ponses totales</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" id="last-date">&mdash;</span>
+          <div class="stat-label">Derni&egrave;re r&eacute;ponse</div>
+        </div>
       </div>
-      <div class="meta-item">
-        <span class="meta-num" id="last-date">—</span>
-        <div class="meta-label">Dernière réponse</div>
-      </div>
+
+      <!-- Refresh button — calls loadResults() again -->
+      <button class="refresh-btn" onclick="loadResults()">
+        &#8635; Actualiser les donn&eacute;es
+        <!-- &#8635; = ↻ refresh arrow -->
+      </button>
     </div>
-    <button class="refresh-btn" onclick="loadResults()" style="margin-top:24px">
-      ↻ Actualiser les données
-    </button>
   </div>
-</div>
 
-<div class="main">
-  <div id="loading">
-    <div class="spinner"></div>
-    <p>Chargement des résultats...</p>
+  <!-- MAIN DASHBOARD -->
+  <div class="main">
+
+    <!-- Loading spinner — shown while fetching data -->
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Chargement des r&eacute;sultats...</p>
+    </div>
+
+    <!-- Dashboard content — filled by JavaScript -->
+    <div id="dashboard" style="display:none"></div>
+
   </div>
-  <div id="dashboard" style="display:none"></div>
-</div>
 
-<script>
-async function loadResults() {
-  document.getElementById("loading").style.display = "block";
-  document.getElementById("dashboard").style.display = "none";
+  <script>
 
-  try {
-    const res = await fetch("/results");
-    const raw = await res.json();
+    // LOAD AND DISPLAY RESULTS
+    async function loadResults() {
+      // Show loading spinner, hide dashboard
+      document.getElementById("loading").style.display = "block";
+      document.getElementById("dashboard").style.display = "none";
 
-    // Parse each response's answer JSON
-    const data = raw.map(r => {
-      try { return { ...JSON.parse(r.answer), time: r.time }; }
-      catch { return null; }
-    }).filter(Boolean);
+      try {
+        // Fetch data from Flask /results endpoint
+        var res = await fetch("/results");
+        var raw = await res.json(); // Parse JSON response
 
-    document.getElementById("total-count").textContent = data.length;
-    if (data.length > 0) {
-      const d = new Date(data[0].time);
-      document.getElementById("last-date").textContent =
-        d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+        // Parse each response's stored JSON answer
+        var data = raw.map(function(r) {
+          try {
+            return Object.assign(JSON.parse(r.answer), {time: r.time});
+            // Object.assign merges the parsed answer with the time field
+          } catch(e) {
+            return null; // Skip broken entries
+          }
+        }).filter(Boolean); // Remove nulls
+
+        // Update header stats
+        document.getElementById("total-count").textContent = data.length;
+        if (data.length > 0) {
+          var d = new Date(data[0].time);
+          document.getElementById("last-date").textContent =
+            d.toLocaleDateString('fr-FR', {day: 'numeric', month: 'short'});
+        }
+
+        // If no data yet, show empty message
+        if (data.length === 0) {
+          document.getElementById("dashboard").innerHTML =
+            '<div class="card visible empty">Aucune r&eacute;ponse enregistr&eacute;e pour le moment.</div>';
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("dashboard").style.display = "block";
+          return;
+        }
+
+        // Build the dashboard HTML and inject it
+        document.getElementById("dashboard").innerHTML = buildDashboard(data);
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+
+        // Animate bars after a short delay (so CSS transition works)
+        setTimeout(function() {
+          document.querySelectorAll(".bar-fill").forEach(function(b) {
+            b.style.width = b.dataset.w; // data-w was set by buildDashboard()
+          });
+        }, 100);
+
+        // Trigger fade-in animations for visible elements
+        triggerAnimations();
+
+      } catch(e) {
+        document.getElementById("loading").innerHTML =
+          '<p style="color:red">Erreur de chargement. V&eacute;rifiez que le serveur tourne.</p>';
+      }
     }
 
-    if (data.length === 0) {
-      document.getElementById("dashboard").innerHTML = '<div class="empty card">Aucune réponse enregistrée pour le moment.</div>';
-      document.getElementById("loading").style.display = "none";
-      document.getElementById("dashboard").style.display = "block";
-      return;
-    }
+    // TRIGGER SCROLL ANIMATIONS
+    function triggerAnimations() {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry, i) {
+          if (entry.isIntersecting) {
+            setTimeout(function() {
+              entry.target.classList.add("visible");
+            }, i * 80); // Stagger each element by 80ms
+          }
+        });
+      }, { threshold: 0.05 });
 
-    document.getElementById("dashboard").innerHTML = buildDashboard(data);
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-
-    // Animate bars
-    setTimeout(() => {
-      document.querySelectorAll(".bar-fill").forEach(b => {
-        b.style.width = b.dataset.w;
-      });
-    }, 100);
-
-  } catch(e) {
-    document.getElementById("loading").innerHTML = '<p style="color:red">Erreur de chargement. Assurez-vous que le serveur tourne.</p>';
-  }
-}
-
-function pct(count, total) { return total ? Math.round(count/total*100) : 0; }
-
-function countValues(data, key) {
-  const counts = {};
-  data.forEach(r => { const v = r[key]; if (v) counts[v] = (counts[v]||0) + 1; });
-  return Object.entries(counts).sort((a,b) => b[1]-a[1]);
-}
-
-function avgStars(data, key) {
-  const vals = data.map(r => parseInt(r[key])).filter(v => v > 0);
-  return vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : null;
-}
-
-function starsHTML(avg) {
-  if (!avg) return '<span style="color:#aaa">Aucune note</span>';
-  const full = Math.round(avg);
-  let s = '';
-  for (let i=1;i<=5;i++) s += `<span class="s ${i<=full?'on':''}">★</span>`;
-  return `<div class="star-display">
-    <div class="star-num">${avg}</div>
-    <div><div class="stars-row">${s}</div><div class="star-sub">sur 5</div></div>
-  </div>`;
-}
-
-function barChart(entries, total, colorClass='') {
-  if (!entries.length) return '<p style="color:#aaa;font-size:0.9em">Aucune donnée</p>';
-  return entries.map(([label, count]) => `
-    <div class="bar-item">
-      <div class="bar-label"><span>${label}</span><span>${count} (${pct(count,total)}%)</span></div>
-      <div class="bar-track"><div class="bar-fill ${colorClass}" data-w="${pct(count,total)}%" style="width:0"></div></div>
-    </div>`).join('');
-}
-
-function buildDashboard(data) {
-  const n = data.length;
-  let html = '';
-
-  // Satisfaction
-  html += `<div class="section-title">🏡 Satisfaction générale</div>`;
-  const sat = countValues(data, 'satisfaction');
-  html += `<div class="card fade-in"><div class="card-title">Êtes-vous satisfait(e) de vivre à Millau ?</div>${barChart(sat, n)}</div>`;
-
-  // Age & durée
-  html += `<div class="grid-2">`;
-  const ages = countValues(data, 'age');
-  html += `<div class="card fade-in"><div class="card-title">Tranche d'âge</div>${barChart(ages, n, 'gold')}</div>`;
-
-  const durBuckets = {'Moins d\'1 an':0, '1-5 ans':0, '5-15 ans':0, 'Plus de 15 ans':0};
-  data.forEach(r => {
-    const y = parseInt(r.annees);
-    if (!isNaN(y)) {
-      if (y < 1) durBuckets['Moins d\'1 an']++;
-      else if (y <= 5) durBuckets['1-5 ans']++;
-      else if (y <= 15) durBuckets['5-15 ans']++;
-      else durBuckets['Plus de 15 ans']++;
-    }
-  });
-  const durEntries = Object.entries(durBuckets).filter(([,v])=>v>0);
-  html += `<div class="card fade-in"><div class="card-title">Durée de résidence</div>${barChart(durEntries, n, 'gold')}</div>`;
-  html += `</div>`;
-
-  // Notes étoiles
-  html += `<div class="section-title">⭐ Notes moyennes</div>`;
-  html += `<div class="grid-2">`;
-  [['logement','🏠 Logement'],['transports','🚗 Transports'],['environnement','🌿 Environnement']].forEach(([key, label]) => {
-    const avg = avgStars(data, key);
-    html += `<div class="card fade-in"><div class="card-title">${label}</div>${starsHTML(avg)}</div>`;
-  });
-  html += `</div>`;
-
-  // Emploi & securite
-  html += `<div class="section-title">💼 Emploi & Sécurité</div>`;
-  html += `<div class="grid-2">`;
-  const emploi = countValues(data, 'emploi');
-  html += `<div class="card fade-in"><div class="card-title">Opportunités d'emploi</div>${barChart(emploi, n, 'red')}</div>`;
-  const secu = countValues(data, 'securite');
-  html += `<div class="card fade-in"><div class="card-title">Sentiment de sécurité</div>${barChart(secu, n, 'green')}</div>`;
-  html += `</div>`;
-
-  // Services insuffisants
-  html += `<div class="section-title">🏥 Services jugés insuffisants</div>`;
-  const serviceCounts = {};
-  data.forEach(r => {
-    if (r.services_insuffisants) {
-      r.services_insuffisants.split(', ').forEach(s => {
-        if (s) serviceCounts[s] = (serviceCounts[s]||0) + 1;
+      // Observe all animatable elements
+      document.querySelectorAll(".card, .section-title, .verbatim").forEach(function(el) {
+        observer.observe(el);
       });
     }
-  });
-  const serviceEntries = Object.entries(serviceCounts).sort((a,b)=>b[1]-a[1]);
-  html += `<div class="card fade-in"><div class="chip-list">`;
-  serviceEntries.forEach(([label, count]) => {
-    html += `<div class="chip">${label} <span class="chip-count">${count}</span></div>`;
-  });
-  html += `</div></div>`;
 
-  // Avenir
-  html += `<div class="section-title">🔭 Intention de rester à Millau</div>`;
-  const avenir = countValues(data, 'avenir');
-  html += `<div class="card fade-in">${barChart(avenir, n)}</div>`;
+    // HELPER: calculate percentage
+    function pct(count, total) {
+      return total ? Math.round(count / total * 100) : 0;
+    }
 
-  // Communauté
-  html += `<div class="section-title">🤝 Esprit de communauté</div>`;
-  const communaute = countValues(data, 'communaute');
-  html += `<div class="card fade-in">${barChart(communaute, n, 'green')}</div>`;
+    // HELPER: count occurrences of each value for a given key
+    // e.g. countValues(data, "satisfaction") returns [["Satisfait", 5], ["Neutre", 3], ...]
+    function countValues(data, key) {
+      var counts = {};
+      data.forEach(function(r) {
+        var v = r[key];
+        if (v) counts[v] = (counts[v] || 0) + 1;
+      });
+      // Sort by count descending (most common first)
+      return Object.entries(counts).sort(function(a, b) { return b[1] - a[1]; });
+    }
 
-  // Commentaires libres
-  const comments = data.map(r => ({ text: r.commentaire_libre, meta: r.quartier, time: r.time }))
-    .filter(r => r.text && r.text.trim().length > 5);
+    // HELPER: calculate average star rating
+    function avgStars(data, key) {
+      var vals = data.map(function(r) { return parseInt(r[key]); }).filter(function(v) { return v > 0; });
+      return vals.length ? (vals.reduce(function(a, b) { return a + b; }, 0) / vals.length).toFixed(1) : null;
+    }
 
-  if (comments.length > 0) {
-    html += `<div class="section-title">💬 Commentaires libres (${comments.length})</div>`;
-    html += `<div class="verbatim-list">`;
-    comments.slice(0, 20).forEach(c => {
-      const d = new Date(c.time);
-      const dateStr = d.toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' });
-      html += `<div class="verbatim fade-in">
-        "${c.text}"
-        <div class="verbatim-meta">${c.meta ? c.meta + ' · ' : ''}${dateStr}</div>
-      </div>`;
-    });
-    html += `</div>`;
-  }
+    // HELPER: build star display HTML
+    function starsHTML(avg) {
+      if (!avg) return '<span style="color:#aaa;font-size:0.9em">Aucune note</span>';
+      var full = Math.round(avg);
+      var s = '';
+      for (var i = 1; i <= 5; i++) {
+        s += '<span class="s ' + (i <= full ? 'on' : '') + '">&#9733;</span>';
+      }
+      return '<div class="star-display">' +
+        '<div class="star-num">' + avg + '</div>' +
+        '<div><div class="stars-row">' + s + '</div><div class="star-sub">sur 5</div></div>' +
+        '</div>';
+    }
 
-  return html;
-}
+    // HELPER: build a bar chart HTML
+    // entries = [["Label", count], ...], total = total responses, colorClass = css class for color
+    function barChart(entries, total, colorClass) {
+      colorClass = colorClass || '';
+      if (!entries.length) return '<p style="color:#aaa;font-size:0.9em">Aucune donn&eacute;e</p>';
+      return entries.map(function(entry) {
+        var label = entry[0], count = entry[1];
+        var p = pct(count, total);
+        // data-w stores the target width — animated by JavaScript after render
+        return '<div class="bar-item">' +
+          '<div class="bar-label"><span>' + label + '</span><span>' + count + ' (' + p + '%)</span></div>' +
+          '<div class="bar-track"><div class="bar-fill ' + colorClass + '" data-w="' + p + '%" style="width:0"></div></div>' +
+          '</div>';
+      }).join('');
+    }
 
-loadResults();
-</script>
+    // BUILD THE FULL DASHBOARD HTML
+    function buildDashboard(data) {
+      var n = data.length; // Total number of responses
+      var html = '';
+
+      // --- SATISFACTION ---
+      html += '<div class="section-title">&#127968; Satisfaction g&eacute;n&eacute;rale</div>';
+      var sat = countValues(data, 'satisfaction');
+      html += '<div class="card"><div class="card-title">Êtes-vous satisfait(e) de vivre à Millau ?</div>' + barChart(sat, n) + '</div>';
+
+      // --- AGE & DURATION GRID ---
+      html += '<div class="section-title">&#128100; Profil des r&eacute;pondants</div>';
+      html += '<div class="grid-2">';
+
+      var ages = countValues(data, 'age');
+      html += '<div class="card"><div class="card-title">Tranche d\'&acirc;ge</div>' + barChart(ages, n, 'gold') + '</div>';
+
+      // Group years of residence into buckets
+      var dur = {"Moins d'1 an": 0, "1-5 ans": 0, "5-15 ans": 0, "Plus de 15 ans": 0};
+      data.forEach(function(r) {
+        var y = parseInt(r.annees);
+        if (!isNaN(y)) {
+          if (y < 1)       dur["Moins d'1 an"]++;
+          else if (y <= 5) dur["1-5 ans"]++;
+          else if (y <= 15)dur["5-15 ans"]++;
+          else             dur["Plus de 15 ans"]++;
+        }
+      });
+      var durEntries = Object.entries(dur).filter(function(e) { return e[1] > 0; });
+      html += '<div class="card"><div class="card-title">Dur&eacute;e de r&eacute;sidence</div>' + barChart(durEntries, n, 'gold') + '</div>';
+      html += '</div>'; // End grid-2
+
+      // --- STAR RATINGS GRID ---
+      html += '<div class="section-title">&#11088; Notes moyennes</div>';
+      html += '<div class="grid-2">';
+      [['logement','&#127968; Logement'], ['transports','&#128663; Transports'], ['environnement','&#127807; Environnement']].forEach(function(pair) {
+        var avg = avgStars(data, pair[0]);
+        html += '<div class="card"><div class="card-title">' + pair[1] + '</div>' + starsHTML(avg) + '</div>';
+      });
+      html += '</div>';
+
+      // --- EMPLOYMENT & SECURITY GRID ---
+      html += '<div class="section-title">&#128188; Emploi &amp; S&eacute;curit&eacute;</div>';
+      html += '<div class="grid-2">';
+      var emploi = countValues(data, 'emploi');
+      html += '<div class="card"><div class="card-title">Opportunit&eacute;s d\'emploi</div>' + barChart(emploi, n, 'red') + '</div>';
+      var secu = countValues(data, 'securite');
+      html += '<div class="card"><div class="card-title">Sentiment de s&eacute;curit&eacute;</div>' + barChart(secu, n, 'green') + '</div>';
+      html += '</div>';
+
+      // --- SERVICES CHIPS ---
+      html += '<div class="section-title">&#127973; Services jug&eacute;s insuffisants</div>';
+      var serviceCounts = {};
+      data.forEach(function(r) {
+        if (r.services_insuffisants) {
+          r.services_insuffisants.split(', ').forEach(function(s) {
+            if (s) serviceCounts[s] = (serviceCounts[s] || 0) + 1;
+          });
+        }
+      });
+      var serviceEntries = Object.entries(serviceCounts).sort(function(a, b) { return b[1] - a[1]; });
+      html += '<div class="card"><div class="chip-list">';
+      serviceEntries.forEach(function(e) {
+        html += '<div class="chip">' + e[0] + ' <span class="chip-count">' + e[1] + '</span></div>';
+      });
+      html += '</div></div>';
+
+      // --- FUTURE OUTLOOK ---
+      html += '<div class="section-title">&#128301; Intention de rester &agrave; Millau</div>';
+      var avenir = countValues(data, 'avenir');
+      html += '<div class="card">' + barChart(avenir, n) + '</div>';
+
+      // --- COMMUNITY ---
+      html += '<div class="section-title">&#129309; Esprit de communaut&eacute;</div>';
+      var communaute = countValues(data, 'communaute');
+      html += '<div class="card">' + barChart(communaute, n, 'green') + '</div>';
+
+      // --- FREE COMMENTS ---
+      var comments = data.map(function(r) {
+        return {text: r.commentaire_libre, meta: r.quartier, time: r.time};
+      }).filter(function(r) { return r.text && r.text.trim().length > 5; });
+
+      if (comments.length > 0) {
+        html += '<div class="section-title">&#128172; Commentaires libres (' + comments.length + ')</div>';
+        html += '<div class="verbatim-list">';
+        comments.slice(0, 20).forEach(function(c) { // Show max 20 comments
+          var d = new Date(c.time);
+          var dateStr = d.toLocaleDateString('fr-FR', {day: 'numeric', month: 'short', year: 'numeric'});
+          html += '<div class="verbatim">' +
+            '"' + c.text + '"' +
+            '<div class="verbatim-meta">' + (c.meta ? c.meta + ' &middot; ' : '') + dateStr + '</div>' +
+            '</div>';
+        });
+        html += '</div>';
+      }
+
+      return html; // Return the complete HTML string
+    }
+
+    // Start loading when page opens
+    loadResults();
+
+  </script>
 </body>
 </html>
