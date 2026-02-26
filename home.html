@@ -305,6 +305,8 @@
       });
     });
   </script>
+  
+  <script>
 
   fetch("/settings/results-visible")
   .then(function(r) { return r.json(); })
@@ -319,8 +321,9 @@
       card.querySelector("h2").textContent = "Résultats à venir";
       card.querySelector("p").textContent = "Les résultats seront publiés prochainement.";
       card.querySelector(".card-arrow").textContent = "Pas encore disponible";
-    }
-  });
-  
+    }  
+});
+  </script>
+
 </body>
 </html>
