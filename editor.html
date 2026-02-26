@@ -1,84 +1,107 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <title>Éditeur de sondage</title>
-    </head>
+<head>
+  <meta charset="UTF-8">
+  <title>Éditeur de sondage</title>
+</head>
 <body>
 
-    <h1>Éditeur de sondage</h1>
+  <h1>Éditeur de sondage</h1>
 
-    <div id="sections-container">
+  <div id="sections-container">
+    <!-- Sections will appear here, built by JavaScript -->
+  </div>
 
-    </div>
+  <button onclick="addSection()">+ Ajouter une section</button>
+  <button onclick="saveQuestions()">✓ Sauvegarder</button>
 
-    <button onclick="addSection()">+ Ajouter une section</button>
-    <button onclick="saveQuestion()">✓ Sauvegarder</button>
+  <script>
 
-    <script>
+    // Our data — holds all sections and questions in memory
+    var data = { sections: [] };
 
-function renderEditor() {
-    var container = document.getElementById("sections-container");
-    container.innerHTML = "";
+    // RENDER EDITOR — builds the visual editor from data
+    function renderEditor() {
+      var container = document.getElementById("sections-container");
+      container.innerHTML = ""; // Clear whatever was there before
 
-    data.sections.forEach(function(section, si) {
+      // Loop through each section
+      data.sections.forEach(function(section, si) {
         var div = document.createElement("div");
         div.innerHTML =
-            '<h2>' + section.title + '</h2>' +
-            '<button onclick="deleteSection(' + si + ')">Supprimer la section</button>' +
-            '<div id="questions-' + si + '">' +
-                section.questions.map(function(q, qi) {
-                    return '<p>' + q.label + ' <em>(' + q.type + ')</em> ' +
-                        '<button onclick="deleteQuestion(' + si + ',' + qi + ')">✕</button></p>';
-                }).join('') +
-            '</div>' +
-            '<button onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';
+          '<h2>' + section.title + '</h2>' +
+          '<button onclick="deleteSection(' + si + ')">Supprimer la section</button>' +
+          '<div id="questions-' + si + '">' +
+            // Loop through each question in this section
+            section.questions.map(function(q, qi) {
+              return '<p>' + q.label + ' <em>(' + q.type + ')</em> ' +
+                '<button onclick="deleteQuestion(' + si + ',' + qi + ')">✕</button></p>';
+            }).join('') +
+          '</div>' +
+          '<button onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';
         container.appendChild(div);
-    });
-}
+      });
+    }
 
-function addQuestion(si) {
+    // ADD SECTION — adds a new empty section to data
+    function addSection() {
+      data.sections.push({
+        title: "Nouvelle section",
+        questions: []
+      });
+      renderEditor();
+    }
 
-    data.section[si].questions.push({
+    // DELETE SECTION — removes section at index si
+    function deleteSection(si) {
+      data.sections.splice(si, 1);
+      renderEditor();
+    }
+
+    // ADD QUESTION — adds a new empty question to section si
+    function addQuestion(si) {
+      data.sections[si].questions.push({
         label: "Nouvelle question",
         type: "text"
-    });
-}
-
-function deleteQuestion(si, qi) {
-
-    data.sections[si].questions.splice(qi, 1)
-    renderEditor()
-}
-
-
-
-async function loadQuestions() {
-    var res = await fetch("/questions");
-    var json = await res.json();
-    if (json.sections) {
-        data = json;
+      });
+      renderEditor();
     }
-    renderEditor();
-}
 
-async function saveQuestion() {
-    var res = await fetch("/save-questions", {
+    // DELETE QUESTION — removes question qi from section si
+    function deleteQuestion(si, qi) {
+      data.sections[si].questions.splice(qi, 1);
+      renderEditor();
+    }
+
+    // SAVE QUESTIONS — sends data to the database
+    async function saveQuestions() {
+      var res = await fetch("/save-questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
-    });
-    var json = await res.json();
-    if (json.status === "ok") {
+      });
+      var json = await res.json();
+      if (json.status === "ok") {
         alert("Sauvegardé !");
-    } else {
+      } else {
         alert("Erreur lors de la sauvegarde.");
+      }
     }
-}
 
+    // LOAD QUESTIONS — fetches existing questions from database on page open
+    async function loadQuestions() {
+      var res = await fetch("/questions");
+      var json = await res.json();
+      if (json.sections) {
+        data = json;
+      }
+      renderEditor();
+    }
+
+    // Start loading when page opens — always last!
     loadQuestions();
 
-    </script>
+  </script>
 
 </body>
 </html>
