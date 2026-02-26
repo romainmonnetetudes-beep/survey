@@ -272,8 +272,8 @@ def admin_all_surveys():
     return jsonify([{"id": r[0], "title": r[1], "username": r[2], "responses": r[3]} for r in rows])
 
     @app.route("/admin-users")
-    def admin_users():
-        user = current_user()
+def admin_users():
+    user = current_user()
     if not user or user.get("role") != "admin":
         return jsonify({"error": "Acces refuse"}), 403
     conn = get_db()
@@ -292,26 +292,26 @@ def admin_all_surveys():
     return jsonify([{
         "id": r[0], "username": r[1], "role": r[2],
         "created_at": str(r[3]), "responses": r[4], "survey_id": r[5]
-    } for r in rows])   
+    } for r in rows])
 
-    @app.route("/admin-reset-password", methods=["POST"])
-    def admin_reset_password():
-        user = current_user()
-        if not user or user.get("role") != "admin":
-            return jsonify({"error": "Acces refuse"}), 403
-        data = request.json
-        target_id = data.get("user_id")
-        new_password = data.get("new_password")
-        if not new_password or len(new_password) < 6:
-            return jsonify({"error": "Mot de passe trop court"}), 400
-        password_hash = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-        conn = get_db()
-        cur = conn.cursor()
-        cur.execute("UPDATE users SET password_hash=%s WHERE id=%s", (password_hash, target_id))
-        conn.commit()
-        cur.close()
-        conn.close()
-        return jsonify({"status": "ok"})
+@app.route("/admin-reset-password", methods=["POST"])
+def admin_reset_password():
+    user = current_user()
+    if not user or user.get("role") != "admin":
+        return jsonify({"error": "Acces refuse"}), 403
+    data = request.json
+    target_id = data.get("user_id")
+    new_password = data.get("new_password")
+    if not new_password or len(new_password) < 6:
+        return jsonify({"error": "Mot de passe trop court"}), 400
+    password_hash = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET password_hash=%s WHERE id=%s", (password_hash, target_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({"status": "ok"})
 
 if __name__ == "__main__":
     init_db()
