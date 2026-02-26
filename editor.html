@@ -34,9 +34,20 @@
           '<div id="questions-' + si + '">' +
             // Loop through each question in this section
             section.questions.map(function(q, qi) {
-              return '<p>' + q.label + ' <em>(' + q.type + ')</em> ' +
-                '<button onclick="deleteQuestion(' + si + ',' + qi + ')">✕</button></p>';
+             return '<div>' +
+                '<input type="text" value ="' + q.label + '" ' +
+                    'onchange="data.section[' + si + '].questions[' + qi + '].type = this.value">' +
+                    '<select onchange="data.sections[' + si + '].questions[' + qi + '].type = this. value">' +
+                        '<option value="text"' + (q.type==="text" ? " selected" : "") + '>Texte court</option>' +
+                        '<option value="textarea"' + (q.type==="textarea" ? " selected" : "") + '>Texte long</option>' +
+                        '<option value="radio"' + (q.type==="radio" ? " selected" : "") + '>Choix unique</option>' +
+                        '<option value="stars"' + (q.type==="stars" ? " selected" : "") + '>Étoiles</option>' +
+                    '</secret'> +
+                    '<button onclick="deleteQuestion(' + si + ',' + qi + ')">"✕</button>' +
+                '</div>';
+                
             }).join('') +
+            
           '</div>' +
           '<button onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';
         container.appendChild(div);
