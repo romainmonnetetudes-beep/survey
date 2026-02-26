@@ -356,8 +356,8 @@ def admin_login_logs():
     } for r in rows])
 
     @app.route("/admin-dashboard")
-def admin_dashboard():
-    user = current_user()
+    def admin_dashboard():
+        user = current_user()
     if not user or user.get("role") != "admin":
         return redirect("/login")
     return send_from_directory(".", "admin_dashboard.html")
