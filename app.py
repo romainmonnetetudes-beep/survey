@@ -14,6 +14,19 @@ def get_db():
     return conn
 
 def init_db():
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+    )
+""")
+    
+    cur.execute("""
+        INSERT INTO settings (key, value) VALUES ('results_visible', 'true')
+        ON CONFLICT (key) DO NOTHING
+    """)
+
     conn = get_db()
     cur = conn.cursor()
 
@@ -361,6 +374,32 @@ def admin_dashboard():
     if not user or user.get("role") != "admin":
         return redirect("/login")
     return send_from_directory(".", "admin_dashboard.html")
+
+@app.route("/settings/results-visible")
+def results_visible():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT value FROM settings WHERE key='results_visible'")
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    return jsonify({"visible": row[0] == "true" if row else True})
+
+@app.route("/settings/toggle-results", methods=["POST"])
+def toggle_results():
+    user = current_user()
+    if not user or user.get("role") !="admin":
+        return jsonify({"error": "Acces refuse"}), 403
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT value FROM settings WHERE key='results_visible'")
+    row = cur.fetchone()
+    new_value = "false" if row and row[0] == "true" else "true"
+    cur.execute("UPDATE settings SET value=%s WHERE key='results_visible'")
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({"visible": new_value == "true"})
 
 if __name__ == "__main__":
     init_db()
