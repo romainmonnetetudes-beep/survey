@@ -242,7 +242,7 @@
     <p>Donnez votre avis sur votre quotidien à Millau.</p>
     <span class="card-arrow">Accéder →</span>
   </a>
-  <a href="/resultats" class="card green">
+  <a href="/resultats" class="card green" id="card-results">
     <span class="card-icon">📊</span>
     <span class="card-label">Statistiques</span>
     <h2>Voir les résultats</h2>
@@ -306,5 +306,12 @@
     });
   </script>
 
+  fetch("/settings/results-visible")
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.visible) {
+      document.getElementById("card-results").style.display = "none";
+    }
+  });
 </body>
 </html>

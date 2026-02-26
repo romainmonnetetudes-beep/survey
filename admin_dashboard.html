@@ -654,6 +654,11 @@
 
       <div class="nav-label" style="margin-top:16px">Acc&egrave;s rapide</div>
 
+      <button class="nav-item" onclick="toggleResults()" id="btn-results-toggle">
+        <span class="nav-icon">👁️</span>
+        <span id="toggle-label">Résultats: chargement...</span>
+      </button>
+
       <a class="nav-item" href="/dashboard" style="text-decoration:none">
         <span class="nav-icon">🏠</span>
         Mon tableau de bord
@@ -793,6 +798,25 @@
     // ============================================
     // LOAD CURRENT USER INFO — for sidebar
     // ============================================
+    
+    async function loadResultsToggle() {
+      var res = await fetch("/settings/results-visible");
+      var data = await res.json();
+      updateToggleLabel(data.visible);
+    }
+    
+    async function toggleResults() {
+      var res = await fetch("/settings/toggle-results", { method: "POST" });
+      var data = await res.json();
+      updateToggleLabel(data.visible);
+      showToast(data.visible ? "✓ Résultats maintenant visibles" : "✓ Résultats maintenant cachés", "success");
+    }
+
+    function updateToggleLabel(visible) {
+      document.getElementById("toggle-label").textContent = 
+      visible ? "Résultats: visibles 🟢" : "Résultats: cachés 🔴";
+    }
+
     async function loadMe() {
       var res = await fetch("/me");
       if (res.status === 401) {
@@ -1052,7 +1076,8 @@
     // INIT — load everything on page open
     // ============================================
     loadMe();
-    loadUsers(); // Users section is shown by default
+    loadUsers();
+    loadResultsToggle() // Users section is shown by default
   </script>
 </body>
 </html>
