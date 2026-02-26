@@ -310,8 +310,17 @@
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if (!data.visible) {
-      document.getElementById("card-results").style.display = "none";
+      // Don't hide the card — change its content instead
+      var card = document.getElementById("card-results");
+      card.style.pointerEvents = "none"; // Makes it unclickable
+      card.style.opacity = "0.6";        // Dims it slightly
+      card.querySelector(".card-icon").textContent = "🔒";
+      card.querySelector(".card-label").textContent = "Bientôt disponible";
+      card.querySelector("h2").textContent = "Résultats à venir";
+      card.querySelector("p").textContent = "Les résultats seront publiés prochainement.";
+      card.querySelector(".card-arrow").textContent = "Pas encore disponible";
     }
   });
+  
 </body>
 </html>
