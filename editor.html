@@ -21,38 +21,37 @@
     var data = { sections: [] };
 
     // RENDER EDITOR — builds the visual editor from data
-    function renderEditor() {
-      var container = document.getElementById("sections-container");
-      container.innerHTML = ""; // Clear whatever was there before
+   function renderEditor() {
+    var container = document.getElementById("sections-container");
+    container.innerHTML = "";
 
-      // Loop through each section
-      data.sections.forEach(function(section, si) {
+    data.sections.forEach(function(section, si) {
+        var questionsHTML = section.questions.map(function(q, qi) {
+            var typeOptions = ["text", "textarea", "radio", "stars"].map(function(t) {
+                var labels = {text: "Texte court", textarea: "Texte long", radio: "Choix unique", stars: "Étoiles"};
+                var sel = q.type === t ? " selected" : "";
+                return '<option value="' + t + '"' + sel + '>' + labels[t] + '</option>';
+            }).join("");
+
+            return '<div>' +
+                '<input type="text" value="' + q.label + '" ' +
+                    'onchange="data.sections[' + si + '].questions[' + qi + '].label = this.value">' +
+                '<select onchange="data.sections[' + si + '].questions[' + qi + '].type = this.value">' +
+                    typeOptions +
+                '</select>' +
+                '<button onclick="deleteQuestion(' + si + ',' + qi + ')">✕</button>' +
+            '</div>';
+        }).join("");
+
         var div = document.createElement("div");
         div.innerHTML =
-          '<h2>' + section.title + '</h2>' +
-          '<button onclick="deleteSection(' + si + ')">Supprimer la section</button>' +
-          '<div id="questions-' + si + '">' +
-            // Loop through each question in this section
-            section.questions.map(function(q, qi) {
-             return '<div>' +
-                '<input type="text" value ="' + q.label + '" ' +
-                    'onchange="data.section[' + si + '].questions[' + qi + '].type = this.value">' +
-                    '<select onchange="data.sections[' + si + '].questions[' + qi + '].type = this. value">' +
-                        '<option value="text"' + (q.type==="text" ? " selected" : "") + '>Texte court</option>' +
-                        '<option value="textarea"' + (q.type==="textarea" ? " selected" : "") + '>Texte long</option>' +
-                        '<option value="radio"' + (q.type==="radio" ? " selected" : "") + '>Choix unique</option>' +
-                        '<option value="stars"' + (q.type==="stars" ? " selected" : "") + '>Étoiles</option>' +
-                    '</secret'> +
-                    '<button onclick="deleteQuestion(' + si + ',' + qi + ')">"✕</button>' +
-                '</div>';
-                
-            }).join('') +
-            
-          '</div>' +
-          '<button onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';
+            '<h2>' + section.title + '</h2>' +
+            '<button onclick="deleteSection(' + si + ')">Supprimer la section</button>' +
+            '<div>' + questionsHTML + '</div>' +
+            '<button onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';
         container.appendChild(div);
-      });
-    }
+    });
+}
 
     // ADD SECTION — adds a new empty section to data
     function addSection() {
