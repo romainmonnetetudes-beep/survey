@@ -402,6 +402,13 @@ def toggle_results():
     conn.close()
     return jsonify({"visible": new_value == "true"})
 
+@app.route("/editor")
+def editor():
+    user = current_user()
+    if not user:
+        return redirect("/login")
+    return send_from_directory(".", "editor.html")
+
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
