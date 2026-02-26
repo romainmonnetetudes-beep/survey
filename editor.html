@@ -17,33 +17,41 @@
 
     <script>
 
-var data = { sections: [] };
-
 function renderEditor() {
     var container = document.getElementById("sections-container");
     container.innerHTML = "";
 
-    data.sections.forEach(function(section, index) {
+    data.sections.forEach(function(section, si) {
         var div = document.createElement("div");
         div.innerHTML =
             '<h2>' + section.title + '</h2>' +
-            '<button onclick="deleteSection(' + index + ')">Supprimer</button>';
+            '<button onclick="deleteSection(' + si + ')">Supprimer la section</button>' +
+            '<div id="questions-' + si + '">' +
+                section.questions.map(function(q, qi) {
+                    return '<p>' + q.label + ' <em>(' + q.type + ')</em> ' +
+                        '<button onclick="deleteQuestion(' + si + ',' + qi + ')">✕</button></p>';
+                }).join('') +
+            '</div>' +
+            '<button onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';
         container.appendChild(div);
     });
 }
 
-function addSection() {
-    data.sections.push({
-        title: "Nouvelle section",
-        questions: []
+function addQuestion(si) {
+
+    data.section[si].questions.push({
+        label: "Nouvelle question",
+        type: "text"
     });
-    renderEditor();
 }
 
-function deleteSection(index) {
-    data.sections.splice(index, 1);
-    renderEditor();
+function deleteQuestion(si, qi) {
+
+    data.sections[si].questions.splice(qi, 1)
+    renderEditor()
 }
+
+
 
 async function loadQuestions() {
     var res = await fetch("/questions");
@@ -68,7 +76,7 @@ async function saveQuestion() {
     }
 }
 
-loadQuestions();
+    loadQuestions();
 
     </script>
 
