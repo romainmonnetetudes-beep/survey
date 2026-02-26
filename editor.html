@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Éditeur de sondage</title>
+    </head>
+<body>
+
+    <h1>Éditeur de sondage</h1>
+
+    <div id="sections-container">
+
+    </div>
+
+    <button onclick="addsection()">+ Ajouter une section</button>
+    <button onclick="saveQuestions()">✓ Sauvegarder</button>
+
+    <script>
+
+var data = { sections: [] };
+
+function renderEditor() {
+    var container = document.getElementById("sections-container");
+    container.innerHTML = "";
+
+    data.sections.forEach(function(section, index) {
+        var div = document.createElement("div");
+        div.innerHTML =
+            '<h2>' + section.title + '</h2>' +
+            '<button onclick="deleteSection(' + index + ')">Supprimer</button>';
+        container.appendChild(div);
+    });
+}
+
+function addSection() {
+    data.sections.push({
+        title: "Nouvelle section",
+        questions: []
+    });
+    renderEditor();
+}
+
+function deleteSection(index) {
+    data.sections.splice(index, 1);
+    renderEditor();
+}
+
+async function loadQuestions() {
+    var res = await fetch("/questions");
+    var json = await res.json();
+    if (json.sections) {
+        data = json;
+    }
+    renderEditor();
+}
+
+async function saveQuestion() {
+    var res = await fetch("/save-questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+    var json = await res.json();
+    if (json.status === "ok") {
+        alert("Sauvegardé !");
+    } else {
+        alert("Erreur lors de la sauvegarde.");
+    }
+}
+
+loadQuestions();
+
+    </script>
+
+</body>
+</html>
