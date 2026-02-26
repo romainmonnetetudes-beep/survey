@@ -15,6 +15,9 @@ def get_db():
 
 def init_db():
 
+    conn = get_db()
+    cur = conn.cursor()
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
@@ -27,8 +30,6 @@ def init_db():
         ON CONFLICT (key) DO NOTHING
     """)
 
-    conn = get_db()
-    cur = conn.cursor()
 
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
