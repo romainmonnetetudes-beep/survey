@@ -145,8 +145,32 @@ def login():
     if not bcrypt.checkpw(password.encode("utf-8"), row[1].encode("utf-8")):
         return jsonify({"error": "Mot de passe incorrect"}), 401
     session["user_id"] = row[0]
-    return jsonify({"status": "ok"})
+    
+    try:
+        conn2 = get_db()
+        cur2 = conn2.cursor()
 
+        cur2.execute("""
+            CREATE TABLE IF NOT EXISTS login_logs (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id),
+                username TEXT,
+                ip_address TEXT,
+                logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        cur2.execute(
+            "INSERT INTO login_logs (user_id, username, ip_address) VALUES (%s, %s, %s)",
+            (row[0], username, request.remote_addr)
+        )    
+        conn2.commit()
+        cur2.close()
+        conn.close()
+    except:
+        pass
+
+    return jsonify({"status": "ok"})
 # ============================================
 # LOGOUT
 # ============================================
@@ -381,6 +405,28 @@ def admin_all_surveys():
     conn.close()
     return jsonify([{"id": r[0], "title": r[1], "username": r[2], "responses": r[3]} for r in rows])
 
+    @app.route("/admin-login-logs")
+    def admin_login_logs():
+        user = current_user()
+        if not user or user.get("role") !="admin":
+            return jsonify({"error": "Acces refuse"}), 403
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT username, ip_address, logged_at
+            FROM login_logs
+            ORDER BY logged_at DESC
+            LIMIT 50
+        """)
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        return jsonify([{
+            "username": r[0],
+            "ip": r[1],
+            "time": str(r[2])
+        } for r in rows])
+    
 # ============================================
 # START THE APP
 # THIS MUST ALWAYS BE THE VERY LAST THING
