@@ -388,14 +388,14 @@ def results_visible():
 @app.route("/settings/toggle-results", methods=["POST"])
 def toggle_results():
     user = current_user()
-    if not user or user.get("role") !="admin":
+    if not user or user.get("role") != "admin":
         return jsonify({"error": "Acces refuse"}), 403
     conn = get_db()
     cur = conn.cursor()
     cur.execute("SELECT value FROM settings WHERE key='results_visible'")
     row = cur.fetchone()
     new_value = "false" if row and row[0] == "true" else "true"
-    cur.execute("UPDATE settings SET value=%s WHERE key='results_visible'")
+    cur.execute("UPDATE settings SET value=%s WHERE key='results_visible'", (new_value,))
     conn.commit()
     cur.close()
     conn.close()
