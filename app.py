@@ -459,7 +459,7 @@ def create_survey():
     conn.close()
     return jsonify({"status": "ok", "id": survey_id})
 
-@app.route("/delete-survey/<int:survey_id", methods=["DELETE"])
+@app.route("/delete-survey/<int:survey_id>", methods=["DELETE"])
 def delete_survey(survey_id):
     user = current_user()
     if not user:
