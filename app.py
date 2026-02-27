@@ -525,6 +525,21 @@ def choose():
         return redirect("/dashboard")
     return send_from_directory(".", "choose.html")
 
+@app.route("/questions/<int:survey_id>")
+def get_questions_by_id(survey_id):
+    user = current_user()
+    if not user:
+        return jsonify({"error": "Non connecte"}), 401
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT questions_json FROM surveys WHERE id=%s AND user_id=%s", (survey_id, user["id"]))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    if not row:
+        return jsonify({"error": "Introuvable"}), 404
+    return jsonify(json.loads(row[0]))
+
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
