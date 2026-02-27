@@ -48,7 +48,7 @@ function renderEditor() {
             return '<div>' +
                 '<input type="text" value="' + q.label + '" ' +
                     'onchange="data.sections[' + si + '].questions[' + qi + '].label = this.value">' +
-                '<select onchange="data.sections[' + si + '].questions[' + qi + '].type = this.value">' +
+                '<select onchange="data.sections[' + si + '].questions[' + qi + '].type = this.value; renderEditor()">' +
                     typeOptions +
                 '</select>' +
                 optionsHTML +
@@ -58,7 +58,7 @@ function renderEditor() {
 
         var div = document.createElement("div");
         div.innerHTML =
-            '<h2>' + section.title + '</h2>' +
+            '<input type="text" value="' + section.title + '" onchange="data.sections[' + si + '].title = this.value">' +
             '<button onclick="deleteSection(' + si + ')">Supprimer la section</button>' +
             '<div>' + questionsHTML + '</div>' +
             '<button onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';

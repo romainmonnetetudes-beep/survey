@@ -63,13 +63,24 @@ def init_db():
     # Login logs table — records every successful login
     cur.execute("""
         CREATE TABLE IF NOT EXISTS login_logs (
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER REFERENCES users(id),
-            username TEXT,
-            ip_address TEXT,
-            logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+           id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id),
+            title TEXT DEFAULT 'Nouveau sondage',
+            questions_json TEXT DEFAULT '{"sections":[]}',
+            status TEXT DEFAULT 'draft',
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    try:
+        cur.execute("ALTER TABLE surveys ADD COLUMN status TEXT DEFAULT 'draft'")
+    except:
+        pass
+    try:
+        cur.execute("ALTER TABLE surveys ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    except:
+        pass
 
     conn.commit()
     cur.close()
@@ -408,6 +419,83 @@ def editor():
     if not user:
         return redirect("/login")
     return send_from_directory(".", "editor.html")
+
+@app.route("/my-surveys")
+def my_surveys():
+    user = current_user()
+    if not user:
+        return jsonify({"error": "Non connecte"}), 401
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id, title, status, updated_at, created_at,
+        (SELECT COUNT(*) FROM responses WHERE survey_id=surveys.id) as reponses
+        FROM survey WHERE user_id=%s ORDER BY updated_at DESC
+    """, (user["id"],))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify([{
+        "id": r[0], "title": r[1], "status": r[2],
+        "updated_at": str(r[3]), "created_at": str(r[4]), "responses": r[5]
+    } for r in rows])
+
+@app.route("/create-survey", methods=["POST"])
+def create_survey():
+    user = current_user()
+    if not user:
+        return jsonify({"error": "Non connecte"}), 401
+    data = request.json
+    title = data.get("title", "Nouveau sondage")
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO surveys (user_id, title) VALUES (%s, %s) RETURNING id",
+        (user["id"], title)
+    )
+    survey_id = cur.fetchone()[0]
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({"status": "ok", "id": survey_id})
+
+@app.route("/delete-survey/<int:survey_id", methods=["DELETE"])
+def delete_survey(survey_id):
+    user = current_user()
+    if not user:
+        return jsonify({"error": "Non connecte"}), 401
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT user_id FROM surveys WHERE id=%s", (survey_id,))
+    row = cur.fetchone()
+    if not row or row[0] != user["id"]:
+        return jsonify({"error": "Acces refuse"}), 403
+    cur.execute("DELETE FROM responses WHERE survey_id=%s", (survey_id,))
+    cur.execute("DELETE FROM surveys WHERE id=%s", (survey_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({"status": "ok"})
+
+# Publish or unpublish a survey
+@app.route("/toggle-survey-status/<int:survey_id>", methods=["POST"])
+def toggle_survey_status(survey_id):
+    user = current_user()
+    if not user:
+        return jsonify({"error": "Non connecte"}), 401
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT user_id, status FROM surveys WHERE id=%s", (survey_id,))
+    row = cur.fetchone()
+    if not row or row[0] != user["id"]:
+        return jsonify({"error": "Acces refuse"}), 403
+    new_status = "published" if row[1] == "draft" else "draft"
+    cur.execute("UPDATE surveys SET status=%s WHERE id=%s", (new_status, survey_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({"status": "ok", "new_status": new_status})                
 
 if __name__ == "__main__":
     init_db()
