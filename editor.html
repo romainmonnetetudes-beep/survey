@@ -32,6 +32,18 @@ function renderEditor() {
                 var sel = q.type === t ? " selected" : "";
                 return '<option value="' + t + '"' + sel + '>' + labels[t] + '</option>';
             }).join("");
+              
+            var optionsHTML = "";
+            if (q.type === "radio") {
+                optionsHTML = '<div>' +
+                  (q.options || []).map(function(opt, oi) {
+                      return '<input type="text" value="' + opt + '" ' +
+                          'onchange="data.sections[' + si + '].questions[' + qi + '].options[' + oi + '] = this.value">' +
+                          '<button onclick="deleteOption(' + si + ',' + qi + ',' + oi + ')">✕</button>';
+                  }).join("") +
+                  '<button onclick="addOption(' + si + ',' + qi + ')">+ Ajouter une option</button>' +
+              '</div>';
+          }
 
             return '<div>' +
                 '<input type="text" value="' + q.label + '" ' +
@@ -39,6 +51,7 @@ function renderEditor() {
                 '<select onchange="data.sections[' + si + '].questions[' + qi + '].type = this.value">' +
                     typeOptions +
                 '</select>' +
+                optionsHTML +
                 '<button onclick="deleteQuestion(' + si + ',' + qi + ')">✕</button>' +
             '</div>';
         }).join("");
@@ -71,7 +84,8 @@ function renderEditor() {
     function addQuestion(si) {
       data.sections[si].questions.push({
         label: "Nouvelle question",
-        type: "text"
+        type: "text",
+        options: []
       });
       renderEditor();
     }
@@ -105,6 +119,16 @@ function renderEditor() {
         data = json;
       }
       renderEditor();
+    }
+
+    function addOption(si, qi) {
+      data.sections[si].questions[qi].options.push("Nouvelle option");
+      renderEditor();
+    }
+    
+    function deleteOption(si, qi, oi) {
+      data.sections[si].questions[qi].options.splice(oi, 1);
+      renderEditor()
     }
 
     // Start loading when page opens — always last!
