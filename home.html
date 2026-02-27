@@ -334,7 +334,7 @@
     if (data.user) {
 
       var card = document.getElementById("card-login");
-      card.href = "/dashboard";
+      card.href = data.user.role === "admin" ? "/choose" : "/dashboard";
       card.querySelector(".card-icon").textContent = "🏠";
       card.querySelector(".card-label").textContent = "Connecté";
       card.querySelector("h2").textContent = "Mon tableau de bord";
