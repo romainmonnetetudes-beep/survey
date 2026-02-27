@@ -14,7 +14,6 @@ def get_db():
     return conn
 
 def init_db():
-
     conn = get_db()
     cur = conn.cursor()
 
@@ -22,14 +21,13 @@ def init_db():
         CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
             value TEXT NOT NULL
-    )
-""")
-    
+        )
+    """)
+
     cur.execute("""
         INSERT INTO settings (key, value) VALUES ('results_visible', 'true')
         ON CONFLICT (key) DO NOTHING
     """)
-
 
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
@@ -45,8 +43,10 @@ def init_db():
         CREATE TABLE IF NOT EXISTS surveys (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL REFERENCES users(id),
-            title TEXT DEFAULT 'Mon sondage',
+            title TEXT DEFAULT 'Nouveau sondage',
             questions_json TEXT DEFAULT '{"sections":[]}',
+            status TEXT DEFAULT 'draft',
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -60,27 +60,25 @@ def init_db():
         )
     """)
 
-    # Login logs table — records every successful login
     cur.execute("""
         CREATE TABLE IF NOT EXISTS login_logs (
-           id SERIAL PRIMARY KEY,
-            user_id INTEGER NOT NULL REFERENCES users(id),
-            title TEXT DEFAULT 'Nouveau sondage',
-            questions_json TEXT DEFAULT '{"sections":[]}',
-            status TEXT DEFAULT 'draft',
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            username TEXT,
+            ip_address TEXT,
+            logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
+    # Add new columns to existing surveys table if they don't exist yet
     try:
         cur.execute("ALTER TABLE surveys ADD COLUMN status TEXT DEFAULT 'draft'")
     except:
-        pass
+        conn.rollback()
     try:
         cur.execute("ALTER TABLE surveys ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     except:
-        pass
+        conn.rollback()
 
     conn.commit()
     cur.close()
@@ -101,7 +99,7 @@ def current_user():
 def get_survey(user_id):
     conn = get_db()
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT id, title, questions_json FROM surveys WHERE user_id=%s", (user_id,))
+    cur.execute("SELECT id, title, questions_json FROM surveys WHERE user_id=%s LIMIT 1", (user_id,))
     row = cur.fetchone()
     if not row:
         cur.execute("INSERT INTO surveys (user_id) VALUES (%s) RETURNING id, title, questions_json", (user_id,))
@@ -156,10 +154,8 @@ def login():
     if not bcrypt.checkpw(password.encode("utf-8"), row[1].encode("utf-8")):
         return jsonify({"error": "Mot de passe incorrect"}), 401
 
-    # Save user in session
     session["user_id"] = row[0]
 
-    # Log this login — never crash if logging fails
     try:
         conn2 = get_db()
         cur2 = conn2.cursor()
@@ -236,7 +232,10 @@ def save_questions():
     data = request.json
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("UPDATE surveys SET questions_json=%s WHERE user_id=%s", (json.dumps(data), user["id"]))
+    cur.execute(
+        "UPDATE surveys SET questions_json=%s, updated_at=CURRENT_TIMESTAMP WHERE user_id=%s",
+        (json.dumps(data), user["id"])
+    )
     conn.commit()
     cur.close()
     conn.close()
@@ -279,7 +278,7 @@ def all_surveys():
 
 @app.route("/admin")
 def admin():
-    return send_from_directory(".", "admin.html")
+    return redirect("/admin-dashboard")
 
 @app.route("/resultats")
 def resultats():
@@ -428,16 +427,16 @@ def my_surveys():
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
-        SELECT id, title, status, updated_at, created_at,
-        (SELECT COUNT(*) FROM responses WHERE survey_id=surveys.id) as reponses
-        FROM survey WHERE user_id=%s ORDER BY updated_at DESC
+        SELECT id, title, status, created_at,
+        (SELECT COUNT(*) FROM responses WHERE survey_id=surveys.id) as responses
+        FROM surveys WHERE user_id=%s ORDER BY created_at DESC
     """, (user["id"],))
     rows = cur.fetchall()
     cur.close()
     conn.close()
     return jsonify([{
         "id": r[0], "title": r[1], "status": r[2],
-        "updated_at": str(r[3]), "created_at": str(r[4]), "responses": r[5]
+        "updated_at": str(r[3]), "created_at": str(r[3]), "responses": r[4]
     } for r in rows])
 
 @app.route("/create-survey", methods=["POST"])
@@ -466,7 +465,6 @@ def delete_survey(survey_id):
         return jsonify({"error": "Non connecte"}), 401
     conn = get_db()
     cur = conn.cursor()
-
     cur.execute("SELECT user_id FROM surveys WHERE id=%s", (survey_id,))
     row = cur.fetchone()
     if not row or row[0] != user["id"]:
@@ -478,7 +476,6 @@ def delete_survey(survey_id):
     conn.close()
     return jsonify({"status": "ok"})
 
-# Publish or unpublish a survey
 @app.route("/toggle-survey-status/<int:survey_id>", methods=["POST"])
 def toggle_survey_status(survey_id):
     user = current_user()
@@ -495,7 +492,7 @@ def toggle_survey_status(survey_id):
     conn.commit()
     cur.close()
     conn.close()
-    return jsonify({"status": "ok", "new_status": new_status})                
+    return jsonify({"status": "ok", "new_status": new_status})
 
 if __name__ == "__main__":
     init_db()
