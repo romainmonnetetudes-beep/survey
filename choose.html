@@ -329,11 +329,11 @@
 
     // Generate right orbs (warm blobs)
     var oContainer = document.getElementById("orbs-right");
-    var orbColors = ["rgba(201,168,76,0.15)", "rgba(245,240,232,0.4)", "rgba(201,168,76,0.1)", "rgba(237,231,217,0.5)"];
+    var orbColors = ["rgba(201,168,76,0.4)", "rgba(180,140,60,0.35)", "rgba(220,170,80,0.3)", "rgba(150,100,30,0.25)", "rgba(201,168,76,0.45)"];
     for (var j = 0; j < 5; j++) {
       var o = document.createElement("div");
       o.className = "orb";
-      var oSize = Math.random() * 200 + 100;
+      var oSize = Math.random() * 300 + 200;
       o.style.cssText =
         "width:" + oSize + "px;" +
         "height:" + oSize + "px;" +
