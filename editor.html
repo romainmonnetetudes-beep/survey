@@ -21,7 +21,7 @@
     var data = { sections: [] };
 
     // RENDER EDITOR — builds the visual editor from data
-   function renderEditor() {
+function renderEditor() {
     var container = document.getElementById("sections-container");
     container.innerHTML = "";
 
@@ -45,25 +45,21 @@
 
         var div = document.createElement("div");
         div.innerHTML =
-            '<input type="text" value="' + section.title + '" ' +
-            'onchange="data.sections[' + si + '].title = this.value">'
-            
+            '<h2>' + section.title + '</h2>' +
             '<button onclick="deleteSection(' + si + ')">Supprimer la section</button>' +
             '<div>' + questionsHTML + '</div>' +
             '<button onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';
         container.appendChild(div);
     });
 }
-
     // ADD SECTION — adds a new empty section to data
     function addSection() {
       data.sections.push({
         title: "Nouvelle section",
         questions: []
       });
-    }
-
       renderEditor();
+    }
 
     // DELETE SECTION — removes section at index si
     function deleteSection(si) {
