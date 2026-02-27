@@ -98,7 +98,7 @@ function renderEditor() {
 
     // SAVE QUESTIONS — sends data to the database
     async function saveQuestions() {
-      var res = await fetch("/save-questions", {
+      var res = await fetch("/save-questions-by-id/" + window.surveyId, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
@@ -113,13 +113,21 @@ function renderEditor() {
 
     // LOAD QUESTIONS — fetches existing questions from database on page open
     async function loadQuestions() {
-      var res = await fetch("/questions");
-      var json = await res.json();
-      if (json.sections) {
-        data = json;
-      }
-      renderEditor();
+    var params = new URLSearchParams(window.location.search);
+    var surveyId = params.get("survey");
+    if (!surveyId) {
+        alert("Aucun sondage sélectionné !");
+        window.location.href = "/workspace";
+        return;
     }
+    window.surveyId = surveyId;
+    var res = await fetch("/questions/" + surveyId);
+    var json = await res.json();
+    if (json.sections) {
+        data = json;
+    }
+    renderEditor();
+}
 
     function addOption(si, qi) {
       data.sections[si].questions[qi].options.push("Nouvelle option");
