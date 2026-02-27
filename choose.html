@@ -3,67 +3,347 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vers quel menu souhaitez vous allez ?</title>
-
+  <title>Choisir un espace</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Syne:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
       height: 100vh;
+      overflow: hidden;
       display: flex;
-      justify-content: center;   /* horizontal center */
-      align-items: center;       /* vertical center */
-      background-color: #f4f4f4;
-      font-family: Arial, sans-serif;
+      font-family: 'Syne', sans-serif;
+      cursor: default;
     }
 
-    .container {
+    /* ============ SIDES ============ */
+    .side {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+      transition: flex 0.6s cubic-bezier(0.77, 0, 0.18, 1);
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .side-left {
+      background: #0a1628;
+      flex: 1;
+    }
+
+    .side-right {
+      background: #f5f0e8;
+      flex: 1;
+    }
+
+    /* Hover states — expand hovered side */
+    body:has(.side-left:hover) .side-left { flex: 1.6; }
+    body:has(.side-left:hover) .side-right { flex: 0.4; }
+    body:has(.side-right:hover) .side-right { flex: 1.6; }
+    body:has(.side-right:hover) .side-left { flex: 0.4; }
+
+    /* ============ DIVIDER ============ */
+    .divider {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 1px;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+      background: linear-gradient(to bottom,
+        transparent,
+        rgba(201,168,76,0.6) 30%,
+        rgba(201,168,76,0.9) 50%,
+        rgba(201,168,76,0.6) 70%,
+        transparent
+      );
+      transform: translateX(-50%);
+      transition: left 0.6s cubic-bezier(0.77, 0, 0.18, 1);
+    }
+
+    /* ============ CONTENT ============ */
+    .side-content {
+      position: relative;
+      z-index: 5;
       text-align: center;
+      padding: 40px;
+      transition: opacity 0.3s, transform 0.4s;
     }
 
-    .card {
-      background: white;
-      padding: 30px;
-      margin: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      display: inline-block;
-      width: 250px;
+    .side-left .side-content { color: #f5f0e8; }
+    .side-right .side-content { color: #0a1628; }
+
+    .side-label {
+      font-size: 0.7em;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      margin-bottom: 16px;
+      transition: opacity 0.3s;
     }
 
-    .btn {
+    .side:hover .side-label { opacity: 0.8; }
+
+    .side-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2em, 4vw, 3.2em);
+      font-weight: 600;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .side:hover .side-title {
+      transform: scale(1.04);
+    }
+
+    .side-title .accent {
+      display: block;
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    .side-left .accent { color: #c9a84c; }
+    .side-right .accent { color: #c9a84c; }
+
+    .side-desc {
+      font-size: 0.88em;
+      opacity: 0.5;
+      max-width: 240px;
+      line-height: 1.6;
+      margin: 0 auto 32px;
+      transition: opacity 0.3s, transform 0.4s;
+      transform: translateY(4px);
+    }
+
+    .side:hover .side-desc {
+      opacity: 0.8;
+      transform: translateY(0);
+    }
+
+    .side-btn {
       display: inline-block;
-      margin-top: 10px;
-      padding: 8px 14px;
       text-decoration: none;
-      border-radius: 5px;
-      border: 1px solid #007bff;
-      color: #007bff;
-      transition: 0.3s;
+      padding: 13px 32px;
+      border-radius: 40px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.88em;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform: translateY(8px);
+      opacity: 0;
     }
 
-    .btn:hover {
-      background-color: #007bff;
-      color: white;
+    .side:hover .side-btn {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .side-left .side-btn {
+      background: #c9a84c;
+      color: #0a1628;
+    }
+
+    .side-left .side-btn:hover {
+      background: #e8c97a;
+      transform: translateY(-2px) scale(1.04);
+    }
+
+    .side-right .side-btn {
+      background: #0a1628;
+      color: #f5f0e8;
+    }
+
+    .side-right .side-btn:hover {
+      background: #1a2f42;
+      transform: translateY(-2px) scale(1.04);
+    }
+
+    /* ============ LEFT PARTICLES ============ */
+    .particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.4s;
+      animation: float linear infinite;
+    }
+
+    .side-left:hover .particle { opacity: 1; }
+
+    @keyframes float {
+      0% { transform: translateY(110vh) scale(0); opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.3; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    /* ============ RIGHT SHIMMER ORBS ============ */
+    .orbs {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+      filter: blur(40px);
+      transition: opacity 0.6s;
+      animation: drift ease-in-out infinite;
+    }
+
+    .side-right:hover .orb { opacity: 1; }
+
+    @keyframes drift {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(20px, -15px) scale(1.1); }
+      66% { transform: translate(-10px, 10px) scale(0.95); }
+    }
+
+    /* ============ CENTER HINT ============ */
+    .center-hint {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      pointer-events: none;
+      text-align: center;
+      transition: opacity 0.4s;
+    }
+
+    body:has(.side:hover) .center-hint { opacity: 0; }
+
+    .hint-text {
+      font-size: 0.72em;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(201,168,76,0.8);
+      white-space: nowrap;
+    }
+
+    .hint-line {
+      width: 1px;
+      height: 30px;
+      background: rgba(201,168,76,0.4);
+      margin: 8px auto;
+    }
+
+    /* ============ CORNER BACK LINK ============ */
+    .back-link {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      z-index: 30;
+      font-size: 0.78em;
+      color: rgba(201,168,76,0.7);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #c9a84c; }
+
+    /* ============ ICON ============ */
+    .side-icon {
+      font-size: 2.8em;
+      margin-bottom: 20px;
+      display: block;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .side:hover .side-icon {
+      transform: scale(1.15) rotate(-3deg);
     }
   </style>
 </head>
-
 <body>
 
-  <div class="container">
+  <a href="/" class="back-link">← Accueil</a>
 
-    <div class="card">
-      <h5>Admin Dashboard</h5>
-    <a href="/admin-dashboard" class="btn">Go to Admin Dashboard</a>
-    </div>
-
-    <div class="card">
-      <h5>Workspace</h5>
-      <a href="/workspace" class="btn">Go to Workspace</a>
-      </a>
-    </div>
-
+  <!-- CENTER HINT -->
+  <div class="center-hint">
+    <div class="hint-line"></div>
+    <div class="hint-text">Choisir</div>
+    <div class="hint-line"></div>
   </div>
 
+  <!-- LEFT: ADMIN -->
+  <div class="side side-left">
+    <div class="particles" id="particles-left"></div>
+    <div class="side-content">
+      <span class="side-icon">⚙️</span>
+      <div class="side-label">Panneau de contrôle</div>
+      <div class="side-title">
+        Admin
+        <span class="accent">Dashboard</span>
+      </div>
+      <div class="side-desc">Gérez les utilisateurs, consultez les logs de connexion et administrez la plateforme.</div>
+      <a href="/admin-dashboard" class="side-btn">Accéder →</a>
+    </div>
+  </div>
+
+  <!-- RIGHT: WORKSPACE -->
+  <div class="side side-right">
+    <div class="orbs" id="orbs-right"></div>
+    <div class="side-content">
+      <span class="side-icon">✏️</span>
+      <div class="side-label">Espace créatif</div>
+      <div class="side-title">
+        Mon
+        <span class="accent">Workspace</span>
+      </div>
+      <div class="side-desc">Créez et modifiez vos sondages, explorez les modèles et gérez vos projets.</div>
+      <a href="/workspace" class="side-btn">Accéder →</a>
+    </div>
+  </div>
+
+  <script>
+    // Generate left particles (gold dots floating up)
+    var pContainer = document.getElementById("particles-left");
+    for (var i = 0; i < 18; i++) {
+      var p = document.createElement("div");
+      p.className = "particle";
+      var size = Math.random() * 4 + 2;
+      p.style.cssText =
+        "width:" + size + "px;" +
+        "height:" + size + "px;" +
+        "left:" + (Math.random() * 100) + "%;" +
+        "background:" + (Math.random() > 0.5 ? "#c9a84c" : "#e8c97a") + ";" +
+        "animation-duration:" + (Math.random() * 6 + 5) + "s;" +
+        "animation-delay:" + (Math.random() * 5) + "s;";
+      pContainer.appendChild(p);
+    }
+
+    // Generate right orbs (warm blobs)
+    var oContainer = document.getElementById("orbs-right");
+    var orbColors = ["rgba(201,168,76,0.15)", "rgba(245,240,232,0.4)", "rgba(201,168,76,0.1)", "rgba(237,231,217,0.5)"];
+    for (var j = 0; j < 5; j++) {
+      var o = document.createElement("div");
+      o.className = "orb";
+      var oSize = Math.random() * 200 + 100;
+      o.style.cssText =
+        "width:" + oSize + "px;" +
+        "height:" + oSize + "px;" +
+        "left:" + (Math.random() * 80) + "%;" +
+        "top:" + (Math.random() * 80) + "%;" +
+        "background:" + orbColors[j % orbColors.length] + ";" +
+        "animation-duration:" + (Math.random() * 6 + 6) + "s;" +
+        "animation-delay:" + (Math.random() * 3) + "s;";
+      oContainer.appendChild(o);
+    }
+  </script>
 </body>
 </html>
