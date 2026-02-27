@@ -2,147 +2,566 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Éditeur de sondage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Syne:wght@300;400;500;600&family=Inter:wght@300;400;500&family=Lato:wght@300;400;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0f1e2d; --navy-light: #1a2f42; --cream: #f5f0e8; --cream-dark: #ede7d9;
+      --gold: #c9a84c; --gold-light: #e8c97a; --muted: #7a8a96; --white: #ffffff;
+      --red: #8b2635; --red-light: #faeaea;
+      --shadow: 0 2px 12px rgba(15,30,45,0.08); --shadow-md: 0 6px 24px rgba(15,30,45,0.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Syne', sans-serif; background: var(--cream); color: var(--navy); height: 100vh; display: flex; overflow: hidden; }
+
+    /* SIDEBAR */
+    .sidebar { width: 240px; background: var(--navy); height: 100vh; display: flex; flex-direction: column; flex-shrink: 0; }
+    .sidebar-top { padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .sidebar-brand { font-family: 'Playfair Display', serif; font-size: 0.9em; color: var(--cream); margin-bottom: 2px; }
+    .sidebar-survey-title { font-size: 0.72em; color: var(--gold); letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* SIDEBAR TABS */
+    .sidebar-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .sidebar-tab { flex: 1; padding: 10px 8px; font-size: 0.72em; font-family: 'Syne', sans-serif; color: rgba(245,240,232,0.4); background: none; border: none; cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; transition: all 0.15s; border-bottom: 2px solid transparent; }
+    .sidebar-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .sidebar-tab:hover:not(.active) { color: var(--cream); }
+
+    /* SIDEBAR PANELS */
+    .sidebar-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+    .sidebar-panel.active { display: flex; }
+
+    /* SECTIONS PANEL */
+    .sidebar-sections { flex: 1; padding: 12px 8px; overflow-y: auto; }
+    .sidebar-label { font-size: 0.62em; color: rgba(245,240,232,0.3); letter-spacing: 0.14em; text-transform: uppercase; padding: 0 8px 8px; }
+    .section-nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 7px; font-size: 0.78em; color: rgba(245,240,232,0.5); cursor: pointer; transition: all 0.15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .section-nav-item:hover { background: rgba(255,255,255,0.05); color: var(--cream); }
+    .section-nav-item.active { background: rgba(201,168,76,0.15); color: var(--gold); }
+    .section-nav-num { font-size: 0.7em; color: var(--gold); opacity: 0.6; flex-shrink: 0; width: 16px; }
+    .section-nav-item.active .section-nav-num { opacity: 1; }
+    .sidebar-add-section { margin: 8px; padding: 8px 10px; border-radius: 7px; font-size: 0.75em; color: rgba(201,168,76,0.5); cursor: pointer; border: 1px dashed rgba(201,168,76,0.25); background: none; text-align: left; font-family: 'Syne', sans-serif; transition: all 0.15s; width: calc(100% - 16px); }
+    .sidebar-add-section:hover { color: var(--gold); border-color: rgba(201,168,76,0.5); background: rgba(201,168,76,0.05); }
+
+    /* CUSTOMISE PANEL */
+    .customize-panel { flex: 1; overflow-y: auto; padding: 12px; }
+    .customize-panel::-webkit-scrollbar { width: 3px; }
+    .customize-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    .c-group { margin-bottom: 20px; }
+    .c-group-label { font-size: 0.62em; color: rgba(245,240,232,0.3); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; padding: 0 4px; }
+    .c-row { margin-bottom: 10px; }
+    .c-label { font-size: 0.75em; color: rgba(245,240,232,0.6); margin-bottom: 6px; display: block; padding: 0 4px; }
+    .c-input { width: 100%; padding: 8px 10px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06); color: var(--cream); font-family: 'Syne', sans-serif; font-size: 0.82em; outline: none; transition: border-color 0.2s; }
+    .c-input:focus { border-color: rgba(201,168,76,0.5); }
+    .c-textarea { min-height: 60px; resize: vertical; }
+    .c-color-row { display: flex; gap: 8px; align-items: center; }
+    .c-color-input { width: 36px; height: 36px; border-radius: 7px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; padding: 2px; background: none; flex-shrink: 0; }
+    .c-color-hex { flex: 1; padding: 8px 10px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06); color: var(--cream); font-family: 'Syne', sans-serif; font-size: 0.82em; outline: none; }
+    .c-select { width: 100%; padding: 8px 10px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06); color: var(--cream); font-family: 'Syne', sans-serif; font-size: 0.82em; outline: none; cursor: pointer; }
+    .c-select option { background: var(--navy); }
+
+    /* THEME PRESETS */
+    .theme-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .theme-preset { padding: 8px 6px; border-radius: 7px; border: 1.5px solid rgba(255,255,255,0.08); cursor: pointer; text-align: center; transition: all 0.15s; background: none; font-family: 'Syne', sans-serif; }
+    .theme-preset:hover { border-color: rgba(201,168,76,0.4); }
+    .theme-preset.active { border-color: var(--gold); background: rgba(201,168,76,0.1); }
+    .theme-preset-swatch { height: 20px; border-radius: 4px; margin-bottom: 5px; }
+    .theme-preset-name { font-size: 0.68em; color: rgba(245,240,232,0.6); }
+
+    /* DARK/LIGHT TOGGLE */
+    .c-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 4px; }
+    .c-toggle-label { font-size: 0.78em; color: rgba(245,240,232,0.6); }
+    .c-toggle { width: 36px; height: 20px; border-radius: 20px; background: rgba(255,255,255,0.15); border: none; cursor: pointer; position: relative; transition: background 0.2s; flex-shrink: 0; }
+    .c-toggle.on { background: var(--gold); }
+    .c-toggle::after { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: left 0.2s; }
+    .c-toggle.on::after { left: 19px; }
+
+    /* SAVE THEME BTN */
+    .btn-save-theme { width: 100%; padding: 9px; border-radius: 7px; background: var(--gold); color: var(--navy); border: none; font-family: 'Syne', sans-serif; font-size: 0.82em; font-weight: 600; cursor: pointer; margin-top: 8px; transition: all 0.15s; }
+    .btn-save-theme:hover { background: var(--gold-light); }
+
+    /* SIDEBAR FOOTER */
+    .sidebar-footer { padding: 12px 8px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 4px; }
+    .sidebar-nav-link { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 6px; font-size: 0.75em; color: rgba(245,240,232,0.4); text-decoration: none; transition: all 0.15s; }
+    .sidebar-nav-link:hover { background: rgba(255,255,255,0.05); color: var(--cream); }
+
+    /* MAIN */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar { background: var(--white); border-bottom: 1px solid var(--cream-dark); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 16px; }
+    .topbar-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+    .section-title-input { font-family: 'Playfair Display', serif; font-size: 1.05em; font-weight: 600; color: var(--navy); border: none; background: none; outline: none; border-bottom: 2px solid transparent; transition: border-color 0.2s; padding-bottom: 2px; min-width: 0; flex: 1; }
+    .section-title-input:focus { border-bottom-color: var(--gold); }
+    .section-count-badge { font-size: 0.7em; color: var(--muted); background: var(--cream); padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+    .topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .btn-ghost { padding: 7px 14px; border-radius: 7px; font-family: 'Syne', sans-serif; font-size: 0.78em; cursor: pointer; border: 1px solid var(--cream-dark); background: var(--cream); color: var(--muted); transition: all 0.15s; }
+    .btn-ghost:hover { background: var(--cream-dark); color: var(--navy); }
+    .btn-danger { padding: 7px 14px; border-radius: 7px; font-family: 'Syne', sans-serif; font-size: 0.78em; cursor: pointer; border: 1px solid rgba(139,38,53,0.2); background: none; color: var(--red); transition: all 0.15s; }
+    .btn-danger:hover { background: var(--red-light); }
+    .btn-save { padding: 8px 20px; border-radius: 7px; font-family: 'Syne', sans-serif; font-size: 0.82em; font-weight: 500; cursor: pointer; border: none; background: var(--navy); color: var(--gold); transition: all 0.15s; }
+    .btn-save:hover { background: var(--navy-light); transform: translateY(-1px); }
+
+    /* CONTENT */
+    .content { flex: 1; overflow-y: auto; padding: 24px 32px; }
+    .content::-webkit-scrollbar { width: 4px; }
+    .content::-webkit-scrollbar-thumb { background: var(--cream-dark); border-radius: 4px; }
+    .no-section { text-align: center; padding: 100px 40px; color: var(--muted); }
+    .no-section .icon { font-size: 3em; opacity: 0.2; margin-bottom: 16px; }
+    .empty-section { text-align: center; padding: 60px 40px; color: var(--muted); }
+    .empty-section .icon { font-size: 2.5em; opacity: 0.3; margin-bottom: 12px; }
+    .empty-section h3 { font-family: 'Playfair Display', serif; font-size: 1.1em; color: var(--navy); margin-bottom: 6px; font-weight: 500; }
+
+    /* QUESTION CARDS */
+    .questions-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .question-card { background: var(--white); border-radius: 10px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; box-shadow: var(--shadow); border: 1.5px solid transparent; transition: border-color 0.2s, box-shadow 0.2s; animation: cardIn 0.25s ease forwards; }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .question-card:focus-within { border-color: var(--gold); box-shadow: var(--shadow-md); }
+    .q-number { font-size: 0.7em; color: var(--gold); background: rgba(201,168,76,0.1); padding: 3px 8px; border-radius: 10px; flex-shrink: 0; margin-top: 2px; }
+    .q-body { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .q-label-input { font-family: 'Syne', sans-serif; font-size: 0.9em; color: var(--navy); border: none; background: none; outline: none; width: 100%; border-bottom: 1px solid transparent; transition: border-color 0.2s; padding-bottom: 2px; }
+    .q-label-input:focus { border-bottom-color: var(--cream-dark); }
+    .q-meta { display: flex; align-items: center; gap: 8px; }
+    .q-type-select { padding: 4px 10px; border-radius: 6px; font-family: 'Syne', sans-serif; font-size: 0.72em; color: var(--muted); border: 1px solid var(--cream-dark); background: var(--cream); outline: none; cursor: pointer; }
+
+    /* QUESTION PREVIEW */
+    .q-preview { margin-top: 8px; padding: 10px 12px; background: var(--cream); border-radius: 7px; border: 1px dashed var(--cream-dark); }
+    .q-preview-text { width: 100%; padding: 7px 10px; border: 1.5px solid var(--cream-dark); border-radius: 6px; font-family: 'Syne', sans-serif; font-size: 0.8em; color: var(--muted); background: white; pointer-events: none; }
+    .q-preview-textarea { width: 100%; padding: 7px 10px; border: 1.5px solid var(--cream-dark); border-radius: 6px; font-family: 'Syne', sans-serif; font-size: 0.8em; color: var(--muted); background: white; pointer-events: none; height: 56px; resize: none; }
+    .q-preview-stars { display: flex; gap: 4px; font-size: 1.4em; color: var(--cream-dark); }
+    .q-preview-stars span { transition: color 0.1s; }
+    .q-preview-label { font-size: 0.68em; color: var(--muted); margin-bottom: 5px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .q-preview-option { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1.5px solid var(--cream-dark); border-radius: 6px; margin-bottom: 5px; font-size: 0.8em; color: var(--muted); background: white; }
+    .q-preview-option-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--cream-dark); flex-shrink: 0; }
+
+    /* OPTIONS */
+    .q-options { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .q-option-item { display: flex; align-items: center; gap: 4px; background: var(--cream); border: 1px solid var(--cream-dark); border-radius: 6px; padding: 3px 4px 3px 8px; }
+    .q-option-input { font-family: 'Syne', sans-serif; font-size: 0.72em; color: var(--navy); border: none; background: none; outline: none; width: 80px; }
+    .q-option-del { width: 16px; height: 16px; border-radius: 4px; background: none; color: var(--muted); border: none; cursor: pointer; font-size: 0.75em; transition: all 0.15s; }
+    .q-option-del:hover { background: var(--red-light); color: var(--red); }
+    .q-add-option { font-size: 0.7em; color: var(--gold); background: none; border: 1px dashed rgba(201,168,76,0.4); border-radius: 6px; padding: 3px 10px; cursor: pointer; font-family: 'Syne', sans-serif; transition: all 0.15s; }
+    .q-add-option:hover { background: rgba(201,168,76,0.08); }
+    .q-delete { width: 28px; height: 28px; border-radius: 7px; background: none; color: var(--muted); border: none; cursor: pointer; font-size: 0.85em; transition: all 0.15s; flex-shrink: 0; }
+    .q-delete:hover { background: var(--red-light); color: var(--red); }
+
+    .add-question-btn { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1.5px dashed var(--cream-dark); background: none; font-family: 'Syne', sans-serif; font-size: 0.82em; color: var(--muted); cursor: pointer; text-align: left; transition: all 0.15s; }
+    .add-question-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.04); }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 10px; font-size: 0.85em; font-weight: 500; z-index: 1000; display: none; box-shadow: var(--shadow-md); }
+    .toast.success { background: var(--navy); color: var(--cream); }
+    .toast.error { background: var(--red); color: white; }
+  </style>
 </head>
 <body>
 
-  <h1>Éditeur de sondage</h1>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-brand">Éditeur</div>
+      <div class="sidebar-survey-title" id="sidebar-survey-name">Chargement...</div>
+    </div>
 
-  <div id="sections-container">
-    <!-- Sections will appear here, built by JavaScript -->
+    <!-- TABS -->
+    <div class="sidebar-tabs">
+      <button class="sidebar-tab active" onclick="switchTab('sections')" id="tab-sections">Sections</button>
+      <button class="sidebar-tab" onclick="switchTab('customize')" id="tab-customize">🎨 Style</button>
+    </div>
+
+    <!-- SECTIONS PANEL -->
+    <div class="sidebar-panel active" id="panel-sections">
+      <div class="sidebar-sections">
+        <div class="sidebar-label">Sections</div>
+        <div id="sections-nav"></div>
+      </div>
+      <button class="sidebar-add-section" onclick="addSection()">+ Nouvelle section</button>
+    </div>
+
+    <!-- CUSTOMIZE PANEL -->
+    <div class="sidebar-panel" id="panel-customize">
+      <div class="customize-panel">
+
+        <!-- THEME PRESETS -->
+        <div class="c-group">
+          <div class="c-group-label">Thèmes prêts</div>
+          <div class="theme-presets">
+            <button class="theme-preset active" id="preset-classic" onclick="applyPreset('classic')">
+              <div class="theme-preset-swatch" style="background:linear-gradient(90deg,#0f2540,#c9a84c)"></div>
+              <div class="theme-preset-name">Classique</div>
+            </button>
+            <button class="theme-preset" id="preset-ocean" onclick="applyPreset('ocean')">
+              <div class="theme-preset-swatch" style="background:linear-gradient(90deg,#1a3a5c,#48cae4)"></div>
+              <div class="theme-preset-name">Océan</div>
+            </button>
+            <button class="theme-preset" id="preset-forest" onclick="applyPreset('forest')">
+              <div class="theme-preset-swatch" style="background:linear-gradient(90deg,#1b4332,#95d5b2)"></div>
+              <div class="theme-preset-name">Forêt</div>
+            </button>
+            <button class="theme-preset" id="preset-dark" onclick="applyPreset('dark')">
+              <div class="theme-preset-swatch" style="background:linear-gradient(90deg,#1a1a2e,#e94560)"></div>
+              <div class="theme-preset-name">Sombre</div>
+            </button>
+            <button class="theme-preset" id="preset-soft" onclick="applyPreset('soft')">
+              <div class="theme-preset-swatch" style="background:linear-gradient(90deg,#f8e1e7,#f4a261)"></div>
+              <div class="theme-preset-name">Doux</div>
+            </button>
+            <button class="theme-preset" id="preset-custom" onclick="applyPreset('custom')">
+              <div class="theme-preset-swatch" style="background:linear-gradient(90deg,#667eea,#764ba2)"></div>
+              <div class="theme-preset-name">Personnalisé</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- COLORS -->
+        <div class="c-group">
+          <div class="c-group-label">Couleurs</div>
+          <div class="c-row">
+            <div class="c-label">Fond du header</div>
+            <div class="c-color-row">
+              <input type="color" class="c-color-input" id="color-header" value="#0f2540" oninput="syncColor('header', this.value)">
+              <input type="text" class="c-color-hex" id="hex-header" value="#0f2540" oninput="syncColorFromHex('header', this.value)">
+            </div>
+          </div>
+          <div class="c-row">
+            <div class="c-label">Couleur d'accent</div>
+            <div class="c-color-row">
+              <input type="color" class="c-color-input" id="color-accent" value="#c9a84c" oninput="syncColor('accent', this.value)">
+              <input type="text" class="c-color-hex" id="hex-accent" value="#c9a84c" oninput="syncColorFromHex('accent', this.value)">
+            </div>
+          </div>
+          <div class="c-row">
+            <div class="c-label">Fond de la page</div>
+            <div class="c-color-row">
+              <input type="color" class="c-color-input" id="color-bg" value="#f7f3ee" oninput="syncColor('bg', this.value)">
+              <input type="text" class="c-color-hex" id="hex-bg" value="#f7f3ee" oninput="syncColorFromHex('bg', this.value)">
+            </div>
+          </div>
+        </div>
+
+        <!-- TYPOGRAPHY -->
+        <div class="c-group">
+          <div class="c-group-label">Typographie</div>
+          <div class="c-row">
+            <div class="c-label">Police</div>
+            <select class="c-select" id="font-select" onchange="theme.font = this.value">
+              <option value="DM Sans">DM Sans (défaut)</option>
+              <option value="Syne">Syne</option>
+              <option value="Inter">Inter</option>
+              <option value="Lato">Lato</option>
+              <option value="Merriweather">Merriweather</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="c-group">
+          <div class="c-group-label">Contenu</div>
+          <div class="c-row">
+            <div class="c-label">Message d'accueil</div>
+            <textarea class="c-input c-textarea" id="welcome-msg" placeholder="ex: Merci de prendre le temps de répondre à ce sondage..." oninput="theme.welcome = this.value"></textarea>
+          </div>
+          <div class="c-row">
+            <div class="c-label">URL de l'image header</div>
+            <input type="text" class="c-input" id="header-image" placeholder="https://..." oninput="theme.headerImage = this.value">
+          </div>
+          <div class="c-row">
+            <div class="c-label">URL du logo</div>
+            <input type="text" class="c-input" id="logo-url" placeholder="https://..." oninput="theme.logo = this.value">
+          </div>
+        </div>
+
+        <!-- DARK MODE -->
+        <div class="c-group">
+          <div class="c-group-label">Options</div>
+          <div class="c-toggle-row">
+            <span class="c-toggle-label">Mode sombre</span>
+            <button class="c-toggle" id="dark-toggle" onclick="toggleDarkMode()"></button>
+          </div>
+        </div>
+
+        <button class="btn-save-theme" onclick="saveTheme()">✓ Sauvegarder le style</button>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="/workspace" class="sidebar-nav-link">← Mes projets</a>
+      <a href="/" class="sidebar-nav-link">🏠 Accueil</a>
+    </div>
   </div>
 
-  <button onclick="addSection()">+ Ajouter une section</button>
-  <button onclick="saveQuestions()">✓ Sauvegarder</button>
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <input type="text" class="section-title-input" id="section-title-input" placeholder="Titre de la section..." oninput="updateSectionTitle(this.value)">
+        <span class="section-count-badge" id="section-count-badge"></span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-danger" id="delete-section-btn" onclick="deleteCurrentSection()" style="display:none">🗑 Supprimer</button>
+        <button class="btn-ghost" onclick="addSection()">+ Section</button>
+        <button class="btn-save" onclick="saveQuestions()">✓ Sauvegarder</button>
+      </div>
+    </div>
+    <div class="content" id="content">
+      <div class="no-section"><div class="icon">📋</div><p>Sélectionnez une section ou créez-en une nouvelle</p></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
 
   <script>
-
-    // Our data — holds all sections and questions in memory
     var data = { sections: [] };
+    var currentSectionIndex = null;
+    var surveyId = null;
+    var theme = { headerColor: '#0f2540', accentColor: '#c9a84c', bgColor: '#f7f3ee', font: 'DM Sans', welcome: '', headerImage: '', logo: '', darkMode: false };
 
-    // RENDER EDITOR — builds the visual editor from data
-function renderEditor() {
-    var container = document.getElementById("sections-container");
-    container.innerHTML = "";
+    var PRESETS = {
+      classic: { headerColor: '#0f2540', accentColor: '#c9a84c', bgColor: '#f7f3ee', darkMode: false },
+      ocean:   { headerColor: '#1a3a5c', accentColor: '#48cae4', bgColor: '#f0f8ff', darkMode: false },
+      forest:  { headerColor: '#1b4332', accentColor: '#95d5b2', bgColor: '#f0fff4', darkMode: false },
+      dark:    { headerColor: '#1a1a2e', accentColor: '#e94560', bgColor: '#16213e', darkMode: true  },
+      soft:    { headerColor: '#f4a261', accentColor: '#e76f51', bgColor: '#fdf6f0', darkMode: false },
+      custom:  { headerColor: '#667eea', accentColor: '#764ba2', bgColor: '#f8f4ff', darkMode: false }
+    };
 
-    data.sections.forEach(function(section, si) {
-        var questionsHTML = section.questions.map(function(q, qi) {
-            var typeOptions = ["text", "textarea", "radio", "stars"].map(function(t) {
-                var labels = {text: "Texte court", textarea: "Texte long", radio: "Choix unique", stars: "Étoiles"};
-                var sel = q.type === t ? " selected" : "";
-                return '<option value="' + t + '"' + sel + '>' + labels[t] + '</option>';
-            }).join("");
-              
-            var optionsHTML = "";
-            if (q.type === "radio") {
-                optionsHTML = '<div>' +
-                  (q.options || []).map(function(opt, oi) {
-                      return '<input type="text" value="' + opt + '" ' +
-                          'onchange="data.sections[' + si + '].questions[' + qi + '].options[' + oi + '] = this.value">' +
-                          '<button onclick="deleteOption(' + si + ',' + qi + ',' + oi + ')">✕</button>';
-                  }).join("") +
-                  '<button onclick="addOption(' + si + ',' + qi + ')">+ Ajouter une option</button>' +
-              '</div>';
-          }
-
-            return '<div>' +
-                '<input type="text" value="' + q.label + '" ' +
-                    'onchange="data.sections[' + si + '].questions[' + qi + '].label = this.value">' +
-                '<select onchange="data.sections[' + si + '].questions[' + qi + '].type = this.value; renderEditor()">' +
-                    typeOptions +
-                '</select>' +
-                optionsHTML +
-                '<button onclick="deleteQuestion(' + si + ',' + qi + ')">✕</button>' +
-            '</div>';
-        }).join("");
-
-        var div = document.createElement("div");
-        div.innerHTML =
-            '<input type="text" value="' + section.title + '" onchange="data.sections[' + si + '].title = this.value">' +
-            '<button onclick="deleteSection(' + si + ')">Supprimer la section</button>' +
-            '<div>' + questionsHTML + '</div>' +
-            '<button onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';
-        container.appendChild(div);
-    });
-}
-    // ADD SECTION — adds a new empty section to data
-    function addSection() {
-      data.sections.push({
-        title: "Nouvelle section",
-        questions: []
-      });
-      renderEditor();
+    // ============ TABS ============
+    function switchTab(name) {
+      document.querySelectorAll('.sidebar-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.sidebar-panel').forEach(function(p) { p.classList.remove('active'); });
+      document.getElementById('tab-' + name).classList.add('active');
+      document.getElementById('panel-' + name).classList.add('active');
     }
 
-    // DELETE SECTION — removes section at index si
-    function deleteSection(si) {
-      data.sections.splice(si, 1);
-      renderEditor();
-    }
-
-    // ADD QUESTION — adds a new empty question to section si
-    function addQuestion(si) {
-      data.sections[si].questions.push({
-        label: "Nouvelle question",
-        type: "text",
-        options: []
-      });
-      renderEditor();
-    }
-
-    // DELETE QUESTION — removes question qi from section si
-    function deleteQuestion(si, qi) {
-      data.sections[si].questions.splice(qi, 1);
-      renderEditor();
-    }
-
-    // SAVE QUESTIONS — sends data to the database
-    async function saveQuestions() {
-      var res = await fetch("/save-questions-by-id/" + window.surveyId, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
+    // ============ INIT ============
+    async function loadQuestions() {
+      var params = new URLSearchParams(window.location.search);
+      surveyId = params.get("survey");
+      if (!surveyId) { alert("Aucun sondage sélectionné !"); window.location.href = "/workspace"; return; }
+      var res = await fetch("/questions/" + surveyId);
+      if (res.status === 401) { window.location.href = "/login"; return; }
       var json = await res.json();
-      if (json.status === "ok") {
-        alert("Sauvegardé !");
-      } else {
-        alert("Erreur lors de la sauvegarde.");
+      if (json.sections) { data = json; }
+      var surveysRes = await fetch("/my-surveys");
+      var surveys = await surveysRes.json();
+      var survey = surveys.find(function(s) { return s.id == surveyId; });
+      if (survey) { document.getElementById("sidebar-survey-name").textContent = survey.title; }
+      // Load theme
+      var themeRes = await fetch("/get-theme/" + surveyId);
+      var themeData = await themeRes.json();
+      if (themeData && Object.keys(themeData).length > 0) {
+        theme = Object.assign(theme, themeData);
+        applyThemeToUI();
+      }
+      renderSidebar();
+      if (data.sections.length > 0) { selectSection(0); }
+    }
+
+    // ============ THEME UI ============
+    function applyThemeToUI() {
+      document.getElementById('color-header').value = theme.headerColor || '#0f2540';
+      document.getElementById('hex-header').value = theme.headerColor || '#0f2540';
+      document.getElementById('color-accent').value = theme.accentColor || '#c9a84c';
+      document.getElementById('hex-accent').value = theme.accentColor || '#c9a84c';
+      document.getElementById('color-bg').value = theme.bgColor || '#f7f3ee';
+      document.getElementById('hex-bg').value = theme.bgColor || '#f7f3ee';
+      document.getElementById('font-select').value = theme.font || 'DM Sans';
+      document.getElementById('welcome-msg').value = theme.welcome || '';
+      document.getElementById('header-image').value = theme.headerImage || '';
+      document.getElementById('logo-url').value = theme.logo || '';
+      var toggle = document.getElementById('dark-toggle');
+      if (theme.darkMode) { toggle.classList.add('on'); } else { toggle.classList.remove('on'); }
+    }
+
+    function syncColor(key, val) {
+      document.getElementById('hex-' + key).value = val;
+      if (key === 'header') theme.headerColor = val;
+      if (key === 'accent') theme.accentColor = val;
+      if (key === 'bg') theme.bgColor = val;
+    }
+
+    function syncColorFromHex(key, val) {
+      if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+        document.getElementById('color-' + key).value = val;
+        if (key === 'header') theme.headerColor = val;
+        if (key === 'accent') theme.accentColor = val;
+        if (key === 'bg') theme.bgColor = val;
       }
     }
 
-    // LOAD QUESTIONS — fetches existing questions from database on page open
-    async function loadQuestions() {
-    var params = new URLSearchParams(window.location.search);
-    var surveyId = params.get("survey");
-    if (!surveyId) {
-        alert("Aucun sondage sélectionné !");
-        window.location.href = "/workspace";
+    function toggleDarkMode() {
+      theme.darkMode = !theme.darkMode;
+      var toggle = document.getElementById('dark-toggle');
+      if (theme.darkMode) { toggle.classList.add('on'); } else { toggle.classList.remove('on'); }
+    }
+
+    function applyPreset(name) {
+      var p = PRESETS[name];
+      if (!p) return;
+      theme = Object.assign(theme, p);
+      applyThemeToUI();
+      document.querySelectorAll('.theme-preset').forEach(function(b) { b.classList.remove('active'); });
+      document.getElementById('preset-' + name).classList.add('active');
+    }
+
+    async function saveTheme() {
+      var res = await fetch("/save-theme/" + surveyId, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(theme)
+      });
+      var json = await res.json();
+      if (json.status === "ok") { showToast("🎨 Style sauvegardé !", "success"); }
+      else { showToast("Erreur lors de la sauvegarde", "error"); }
+    }
+
+    // ============ SIDEBAR ============
+    function renderSidebar() {
+      var nav = document.getElementById("sections-nav");
+      if (data.sections.length === 0) {
+        nav.innerHTML = '<div style="font-size:0.75em;color:rgba(245,240,232,0.25);padding:8px 10px;">Aucune section</div>';
         return;
+      }
+      nav.innerHTML = data.sections.map(function(section, si) {
+        return '<button class="section-nav-item' + (si === currentSectionIndex ? ' active' : '') + '" onclick="selectSection(' + si + ')">' +
+          '<span class="section-nav-num">' + String(si + 1).padStart(2, '0') + '</span>' +
+          (section.title || 'Sans titre') + '</button>';
+      }).join("");
     }
-    window.surveyId = surveyId;
-    var res = await fetch("/questions/" + surveyId);
-    var json = await res.json();
-    if (json.sections) {
-        data = json;
+
+    // ============ SELECT SECTION ============
+    function selectSection(si) {
+      currentSectionIndex = si;
+      var section = data.sections[si];
+      document.getElementById("section-title-input").value = section.title || "";
+      document.getElementById("section-count-badge").textContent = section.questions.length + " question" + (section.questions.length !== 1 ? "s" : "");
+      document.getElementById("delete-section-btn").style.display = "flex";
+      renderSidebar();
+      renderQuestions();
     }
-    renderEditor();
-}
+
+    function updateSectionTitle(val) {
+      if (currentSectionIndex === null) return;
+      data.sections[currentSectionIndex].title = val;
+      renderSidebar();
+    }
+
+    // ============ RENDER QUESTIONS ============
+    function renderQuestions() {
+      var content = document.getElementById("content");
+      if (currentSectionIndex === null) {
+        content.innerHTML = '<div class="no-section"><div class="icon">📋</div><p>Sélectionnez une section dans le menu</p></div>';
+        return;
+      }
+      var section = data.sections[currentSectionIndex];
+      var si = currentSectionIndex;
+      if (section.questions.length === 0) {
+        content.innerHTML = '<div class="empty-section"><div class="icon">✏️</div><h3>Section vide</h3><p>Ajoutez votre première question.</p></div>' +
+          '<button class="add-question-btn" onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';
+        return;
+      }
+      var questionsHTML = section.questions.map(function(q, qi) {
+        var typeOptions = [["text","Texte court"],["textarea","Texte long"],["radio","Choix unique"],["stars","Étoiles"]].map(function(t) {
+          return '<option value="' + t[0] + '"' + (q.type === t[0] ? ' selected' : '') + '>' + t[1] + '</option>';
+        }).join("");
+
+        // PREVIEW based on type
+        var previewHTML = '<div class="q-preview"><div class="q-preview-label">Aperçu</div>';
+        if (q.type === "text") {
+          previewHTML += '<input class="q-preview-text" placeholder="Réponse courte..." disabled>';
+        } else if (q.type === "textarea") {
+          previewHTML += '<textarea class="q-preview-textarea" placeholder="Réponse longue..." disabled></textarea>';
+        } else if (q.type === "stars") {
+          previewHTML += '<div class="q-preview-stars">★★★★★</div>';
+        } else if (q.type === "radio") {
+          var opts = q.options && q.options.length > 0 ? q.options : ["Option 1", "Option 2"];
+          previewHTML += opts.map(function(o) {
+            return '<div class="q-preview-option"><div class="q-preview-option-dot"></div>' + o + '</div>';
+          }).join("");
+        }
+        previewHTML += '</div>';
+
+        // Options editor for radio
+        var optionsHTML = "";
+        if (q.type === "radio") {
+          optionsHTML = '<div class="q-options">' +
+            (q.options || []).map(function(opt, oi) {
+              return '<div class="q-option-item"><input class="q-option-input" type="text" value="' + opt + '" onchange="data.sections[' + si + '].questions[' + qi + '].options[' + oi + '] = this.value; renderQuestions()"><button class="q-option-del" onclick="deleteOption(' + si + ',' + qi + ',' + oi + ')">✕</button></div>';
+            }).join("") +
+            '<button class="q-add-option" onclick="addOption(' + si + ',' + qi + ')">+ option</button></div>';
+        }
+
+        return '<div class="question-card"><span class="q-number">' + String(qi + 1).padStart(2, '0') + '</span>' +
+          '<div class="q-body"><input class="q-label-input" type="text" value="' + (q.label || '') + '" placeholder="Votre question..." onchange="data.sections[' + si + '].questions[' + qi + '].label = this.value">' +
+          '<div class="q-meta"><select class="q-type-select" onchange="data.sections[' + si + '].questions[' + qi + '].type = this.value; renderQuestions()">' + typeOptions + '</select></div>' +
+          optionsHTML + previewHTML + '</div>' +
+          '<button class="q-delete" onclick="deleteQuestion(' + si + ',' + qi + ')">✕</button></div>';
+      }).join("");
+
+      content.innerHTML = '<div class="questions-list">' + questionsHTML + '</div><button class="add-question-btn" onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';
+      document.getElementById("section-count-badge").textContent = section.questions.length + " question" + (section.questions.length !== 1 ? "s" : "");
+    }
+
+    // ============ ACTIONS ============
+    function addSection() {
+      data.sections.push({ title: "Nouvelle section", questions: [] });
+      renderSidebar();
+      selectSection(data.sections.length - 1);
+      setTimeout(function() { var i = document.getElementById("section-title-input"); i.focus(); i.select(); }, 50);
+    }
+
+    function deleteCurrentSection() {
+      if (currentSectionIndex === null) return;
+      if (!confirm("Supprimer cette section et toutes ses questions ?")) return;
+      data.sections.splice(currentSectionIndex, 1);
+      currentSectionIndex = null;
+      document.getElementById("delete-section-btn").style.display = "none";
+      document.getElementById("section-title-input").value = "";
+      document.getElementById("section-count-badge").textContent = "";
+      renderSidebar();
+      if (data.sections.length > 0) { selectSection(0); } else { renderQuestions(); }
+    }
+
+    function addQuestion(si) {
+      data.sections[si].questions.push({ label: "Nouvelle question", type: "text", options: [] });
+      renderQuestions();
+    }
+
+    function deleteQuestion(si, qi) {
+      data.sections[si].questions.splice(qi, 1);
+      renderQuestions();
+    }
 
     function addOption(si, qi) {
-      data.sections[si].questions[qi].options.push("Nouvelle option");
-      renderEditor();
+      if (!data.sections[si].questions[qi].options) data.sections[si].questions[qi].options = [];
+      data.sections[si].questions[qi].options.push("Option");
+      renderQuestions();
     }
-    
+
     function deleteOption(si, qi, oi) {
       data.sections[si].questions[qi].options.splice(oi, 1);
-      renderEditor()
+      renderQuestions();
     }
 
-    // Start loading when page opens — always last!
+    async function saveQuestions() {
+      try {
+        var res = await fetch("/save-questions-by-id/" + surveyId, {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data)
+        });
+        var json = await res.json();
+        if (json.status === "ok") { showToast("✓ Sauvegardé !", "success"); }
+        else { showToast("Erreur lors de la sauvegarde", "error"); }
+      } catch(e) { showToast("Erreur de connexion", "error"); }
+    }
+
+    function showToast(msg, type) {
+      var t = document.getElementById("toast");
+      t.textContent = msg; t.className = "toast " + type; t.style.display = "block";
+      setTimeout(function() { t.style.display = "none"; }, 3000);
+    }
+
+    setInterval(function() {
+      if (surveyId) fetch("/save-questions-by-id/" + surveyId, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+    }, 5 * 60 * 1000);
+
     loadQuestions();
-
   </script>
-
 </body>
 </html>
