@@ -1071,6 +1071,34 @@
       setTimeout(function() { t.style.display = "none"; }, 3000);
     }
 
+    <!-- AUTOSAVE INDICATOR -->
+<div id="autosave-bar" style="
+  position: fixed;
+  bottom: 20px; left: 280px;
+  background: white;
+  border: 1px solid var(--cream-dark);
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8em;
+  color: var(--muted);
+  box-shadow: var(--shadow);
+  z-index: 500;
+  font-family: 'Syne', sans-serif;
+">
+  <span id="autosave-dot" style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span>
+  <span id="autosave-text">Sauvegarde auto: Activée</span>
+  <span style="color:var(--cream-dark)">|</span>
+  <select id="autosave-interval" onchange="updateInterval()" style="border:none;background:none;font-family:'Syne',sans-serif;font-size:1em;color:var(--muted);cursor:pointer;outline:none">
+    <option value="1">1 min</option>
+    <option value="5" selected>5 min</option>
+    <option value="10">10 min</option>
+    <option value="0">Désactivée</option>
+  </select>
+</div>
+
     // ============================================
     // INIT
     // ============================================
