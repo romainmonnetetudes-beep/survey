@@ -1071,6 +1071,12 @@
       setTimeout(function() { t.style.display = "none"; }, 3000);
     }
 
+    // ============================================
+    // INIT
+    // ============================================
+    loadUser();
+    loadSurveys();
+
     <!-- AUTOSAVE INDICATOR -->
 <div id="autosave-bar" style="
   position: fixed;
@@ -1086,8 +1092,8 @@
   color: var(--muted);
   box-shadow: var(--shadow);
   z-index: 500;
-  font-family: 'Syne', sans-serif;
-">
+  font-family: 'Syne', sans-serif;">
+  
   <span id="autosave-dot" style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span>
   <span id="autosave-text">Sauvegarde auto: Activée</span>
   <span style="color:var(--cream-dark)">|</span>
@@ -1099,11 +1105,6 @@
   </select>
 </div>
 
-    // ============================================
-    // INIT
-    // ============================================
-    loadUser();
-    loadSurveys();
   </script>
 </body>
 </html>
