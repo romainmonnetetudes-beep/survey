@@ -494,6 +494,30 @@ def toggle_survey_status(survey_id):
     conn.close()
     return jsonify({"status": "ok", "new_status": new_status})
 
+@app.route("/workspace")
+def workspace():
+    user = current_user()
+    if not user:
+        return redirect("/login")
+    return send_from_directory(".", "workspace.html")
+
+@app.route("/save-questions-by-id/<int:survey_id>", methods=["POST"])
+def save_questions_by_id(survey_id):
+    user = current_user()
+    if not user:
+        return jsonify({"error": "Non connecte"}), 401
+    data = request.json
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE surveys SET questions_json=%s, updated_at=CURRENT_TIMESTAMP WHERE id=%s AND user_id=%s",
+        (json.dumps(data), survey_id, user["id"])
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({"status": "ok"})
+
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

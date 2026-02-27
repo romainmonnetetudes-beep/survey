@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes Sondages</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Syne:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0f1e2d;
+      --navy-light: #1a2f42;
+      --cream: #f5f0e8;
+      --cream-dark: #ede7d9;
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --text: #0f1e2d;
+      --muted: #7a8a96;
+      --green: #2d6a4f;
+      --green-light: #e8f4ee;
+      --red: #8b2635;
+      --red-light: #faeaea;
+      --white: #ffffff;
+      --shadow: 0 4px 24px rgba(15,30,45,0.08);
+      --shadow-hover: 0 12px 40px rgba(15,30,45,0.16);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ============================================
+       SIDEBAR
+       ============================================ */
+    .sidebar {
+      width: 260px;
+      background: var(--navy);
+      min-height: 100vh;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .sidebar-top {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .sidebar-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1em;
+      color: var(--cream);
+      letter-spacing: 0.02em;
+      margin-bottom: 4px;
+    }
+
+    .sidebar-sub {
+      font-size: 0.72em;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .sidebar-user {
+      padding: 16px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar {
+      width: 34px; height: 34px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78em;
+      font-weight: 500;
+      color: var(--navy);
+      flex-shrink: 0;
+    }
+
+    .user-name {
+      font-size: 0.85em;
+      color: var(--cream);
+      font-weight: 400;
+    }
+
+    .user-role {
+      font-size: 0.7em;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .sidebar-nav {
+      padding: 20px 12px;
+      flex: 1;
+    }
+
+    .nav-section-label {
+      font-size: 0.65em;
+      color: var(--muted);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0 12px 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      color: rgba(245,240,232,0.6);
+      font-size: 0.88em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      margin-bottom: 2px;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.06);
+      color: var(--cream);
+    }
+
+    .nav-item.active {
+      background: rgba(201,168,76,0.12);
+      color: var(--gold-light);
+    }
+
+    .nav-icon { font-size: 1em; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 16px 12px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+
+    /* ============================================
+       MAIN
+       ============================================ */
+    .main {
+      margin-left: 260px;
+      flex: 1;
+      padding: 40px 48px;
+      min-height: 100vh;
+    }
+
+    /* Page header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--cream-dark);
+    }
+
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2em;
+      font-weight: 500;
+      line-height: 1.1;
+      color: var(--navy);
+    }
+
+    .page-title span {
+      color: var(--gold);
+    }
+
+    .page-count {
+      font-size: 0.8em;
+      color: var(--muted);
+      margin-top: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    /* New survey button */
+    .btn-new {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--navy);
+      color: var(--cream);
+      border: none;
+      border-radius: 10px;
+      padding: 12px 22px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: var(--shadow);
+    }
+
+    .btn-new:hover {
+      background: var(--navy-light);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .btn-new .plus {
+      font-size: 1.2em;
+      line-height: 1;
+    }
+
+    /* ============================================
+       SECTIONS
+       ============================================ */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ============================================
+       SURVEYS GRID
+       ============================================ */
+    .section-label {
+      font-size: 0.72em;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .surveys-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+
+    /* Survey card */
+    .survey-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 0;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: cardIn 0.4s ease forwards;
+      position: relative;
+    }
+
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .survey-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* Colored top bar — draft=gold, published=green */
+    .card-bar {
+      height: 4px;
+      width: 100%;
+    }
+    .card-bar.draft { background: var(--gold); }
+    .card-bar.published { background: var(--green); }
+
+    .card-body {
+      padding: 20px 22px 16px;
+    }
+
+    .card-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.7em;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+
+    .card-status.draft {
+      background: rgba(201,168,76,0.1);
+      color: #9a7a2a;
+    }
+
+    .card-status.published {
+      background: var(--green-light);
+      color: var(--green);
+    }
+
+    .card-status-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15em;
+      font-weight: 500;
+      color: var(--navy);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .card-meta {
+      font-size: 0.78em;
+      color: var(--muted);
+      display: flex;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      padding: 14px 22px;
+      background: var(--cream);
+      border-top: 1px solid var(--cream-dark);
+    }
+
+    .card-btn {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: 7px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.78em;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .card-btn-edit {
+      background: var(--navy);
+      color: var(--cream);
+    }
+    .card-btn-edit:hover { background: var(--navy-light); }
+
+    .card-btn-publish {
+      background: transparent;
+      color: var(--green);
+      border-color: rgba(45,106,79,0.3);
+    }
+    .card-btn-publish:hover { background: var(--green-light); }
+
+    .card-btn-unpublish {
+      background: transparent;
+      color: var(--muted);
+      border-color: var(--cream-dark);
+    }
+    .card-btn-unpublish:hover { background: var(--cream-dark); }
+
+    .card-btn-delete {
+      background: transparent;
+      color: var(--red);
+      border-color: rgba(139,38,53,0.2);
+      flex: 0;
+      padding: 7px 12px;
+    }
+    .card-btn-delete:hover { background: var(--red-light); }
+
+    /* ============================================
+       TEMPLATES SECTION
+       ============================================ */
+    .templates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .template-card {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: cardIn 0.4s ease forwards;
+    }
+
+    .template-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .template-preview {
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5em;
+    }
+
+    .template-info {
+      padding: 14px 16px;
+      border-top: 1px solid var(--cream-dark);
+      background: var(--cream);
+    }
+
+    .template-name {
+      font-size: 0.88em;
+      font-weight: 500;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+
+    .template-desc {
+      font-size: 0.74em;
+      color: var(--muted);
+    }
+
+    /* ============================================
+       EMPTY STATE
+       ============================================ */
+    .empty-state {
+      text-align: center;
+      padding: 80px 40px;
+      color: var(--muted);
+    }
+
+    .empty-state .icon {
+      font-size: 3em;
+      margin-bottom: 16px;
+      opacity: 0.4;
+    }
+
+    .empty-state h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3em;
+      color: var(--navy);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .empty-state p {
+      font-size: 0.88em;
+      margin-bottom: 24px;
+    }
+
+    /* ============================================
+       MODAL — create new survey
+       ============================================ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,30,45,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      animation: fadeIn 0.2s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 24px 80px rgba(15,30,45,0.25);
+      animation: slideUp 0.25s ease forwards;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4em;
+      font-weight: 500;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .modal-sub {
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .modal label {
+      display: block;
+      font-size: 0.78em;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .modal input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--cream-dark);
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95em;
+      color: var(--navy);
+      background: var(--cream);
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 24px;
+    }
+
+    .modal input:focus {
+      border-color: var(--navy);
+      background: var(--white);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn-cancel {
+      padding: 10px 20px;
+      background: var(--cream);
+      color: var(--muted);
+      border: 1px solid var(--cream-dark);
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.88em;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-cancel:hover { background: var(--cream-dark); }
+
+    .btn-create {
+      padding: 10px 24px;
+      background: var(--navy);
+      color: var(--cream);
+      border: none;
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.88em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-create:hover { background: var(--navy-light); transform: translateY(-1px); }
+
+    /* ============================================
+       TOAST
+       ============================================ */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88em;
+      font-weight: 500;
+      z-index: 2000;
+      display: none;
+      box-shadow: var(--shadow-hover);
+      animation: slideInRight 0.3s ease forwards;
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(20px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .toast.success { background: var(--navy); color: var(--cream); }
+    .toast.error { background: var(--red); color: white; }
+
+    /* ============================================
+       CONFIRM DELETE
+       ============================================ */
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,30,45,0.5);
+      z-index: 1001;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+    .confirm-overlay.open { display: flex; }
+
+    .confirm-box {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 28px 32px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 80px rgba(15,30,45,0.25);
+      animation: slideUp 0.2s ease forwards;
+    }
+
+    .confirm-box .warn-icon { font-size: 2.5em; margin-bottom: 12px; }
+
+    .confirm-box h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2em;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .confirm-box p {
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .confirm-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .btn-confirm-delete {
+      padding: 10px 24px;
+      background: var(--red);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.88em;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-confirm-delete:hover { opacity: 0.85; }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: var(--muted);
+      font-size: 0.88em;
+    }
+
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2px solid var(--cream-dark);
+      border-top-color: var(--navy);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Stagger animation delays for cards */
+    .survey-card:nth-child(1) { animation-delay: 0.05s; }
+    .survey-card:nth-child(2) { animation-delay: 0.1s; }
+    .survey-card:nth-child(3) { animation-delay: 0.15s; }
+    .survey-card:nth-child(4) { animation-delay: 0.2s; }
+    .survey-card:nth-child(5) { animation-delay: 0.25s; }
+    .survey-card:nth-child(6) { animation-delay: 0.3s; }
+
+    .template-card:nth-child(1) { animation-delay: 0.05s; }
+    .template-card:nth-child(2) { animation-delay: 0.1s; }
+    .template-card:nth-child(3) { animation-delay: 0.15s; }
+    .template-card:nth-child(4) { animation-delay: 0.2s; }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-brand">Sondage Millau</div>
+      <div class="sidebar-sub">Espace de travail</div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="avatar">?</div>
+      <div>
+        <div class="user-name" id="username">Chargement...</div>
+        <div class="user-role" id="user-role">utilisateur</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Mes sondages</div>
+
+      <button class="nav-item active" onclick="showSection('surveys')" id="nav-surveys">
+        <span class="nav-icon">📋</span> Mes projets
+      </button>
+
+      <button class="nav-item" onclick="showSection('templates')" id="nav-templates">
+        <span class="nav-icon">✨</span> Modèles
+      </button>
+
+      <div class="nav-section-label" style="margin-top:20px">Navigation</div>
+
+      <a class="nav-item" href="/">
+        <span class="nav-icon">🏠</span> Accueil
+      </a>
+
+      <a class="nav-item" href="/dashboard">
+        <span class="nav-icon">⚡</span> Tableau de bord
+      </a>
+
+      <span class="nav-item" id="nav-admin" style="display:none">
+        <a href="/admin-dashboard" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:10px;width:100%">
+          <span class="nav-icon">⚙️</span> Admin
+        </a>
+      </span>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="/logout" class="nav-item" style="color:rgba(245,240,232,0.5)">
+        <span class="nav-icon">→</span> Se déconnecter
+      </a>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- SECTION: MY SURVEYS -->
+    <div class="section active" id="section-surveys">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Mes <span>projets</span></div>
+          <div class="page-count" id="surveys-count">Chargement...</div>
+        </div>
+        <button class="btn-new" onclick="openNewModal()">
+          <span class="plus">+</span> Nouveau sondage
+        </button>
+      </div>
+
+      <div class="section-label">Récents</div>
+      <div class="surveys-grid" id="surveys-grid">
+        <div class="loading"><div class="spinner"></div>Chargement de vos sondages...</div>
+      </div>
+    </div>
+
+    <!-- SECTION: TEMPLATES -->
+    <div class="section" id="section-templates">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Modèles <span>prêts</span></div>
+          <div class="page-count">Démarrez rapidement avec un modèle</div>
+        </div>
+      </div>
+
+      <div class="section-label">Tous les modèles</div>
+      <div class="templates-grid" id="templates-grid"></div>
+    </div>
+
+  </div>
+
+  <!-- MODAL: NEW SURVEY -->
+  <div class="modal-overlay" id="new-modal">
+    <div class="modal">
+      <div class="modal-title">Nouveau sondage</div>
+      <div class="modal-sub">Donnez un titre à votre sondage pour commencer.</div>
+      <label>Titre du sondage</label>
+      <input type="text" id="new-title" placeholder="ex: Sondage de satisfaction 2026"
+        onkeydown="if(event.key==='Enter') createSurvey()">
+      <div class="modal-buttons">
+        <button class="btn-cancel" onclick="closeNewModal()">Annuler</button>
+        <button class="btn-create" onclick="createSurvey()">Créer →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM DELETE -->
+  <div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-box">
+      <div class="warn-icon">🗑️</div>
+      <h3>Supprimer ce sondage ?</h3>
+      <p>Cette action est irréversible. Toutes les réponses seront également supprimées.</p>
+      <div class="confirm-buttons">
+        <button class="btn-cancel" onclick="closeConfirm()">Annuler</button>
+        <button class="btn-confirm-delete" onclick="confirmDelete()">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    var deleteTargetId = null;
+
+    // Templates data
+    var TEMPLATES = [
+      {
+        icon: "😊", color: "#fff8e7",
+        name: "Satisfaction quotidienne",
+        desc: "Humeur, qualité de vie, bien-être",
+        sections: [{
+          title: "Votre journée",
+          questions: [
+            { label: "Comment vous sentez-vous aujourd'hui ?", type: "stars", options: [] },
+            { label: "Qu'est-ce qui a bien fonctionné ?", type: "textarea", options: [] },
+            { label: "Qu'est-ce qui pourrait être amélioré ?", type: "textarea", options: [] }
+          ]
+        }]
+      },
+      {
+        icon: "🏙️", color: "#f0f4ff",
+        name: "Vie en ville",
+        desc: "Services, mobilité, environnement",
+        sections: [{
+          title: "Votre quotidien à Millau",
+          questions: [
+            { label: "Êtes-vous satisfait des transports ?", type: "stars", options: [] },
+            { label: "Comment évaluez-vous la propreté de la ville ?", type: "stars", options: [] },
+            { label: "Quel service manque le plus ?", type: "radio", options: ["Transport", "Commerces", "Espaces verts", "Culture"] }
+          ]
+        }]
+      },
+      {
+        icon: "📚", color: "#f0fff4",
+        name: "Éducation & jeunesse",
+        desc: "Écoles, activités, formation",
+        sections: [{
+          title: "Éducation",
+          questions: [
+            { label: "Êtes-vous satisfait des écoles ?", type: "stars", options: [] },
+            { label: "Quelles activités jeunesse souhaiteriez-vous ?", type: "textarea", options: [] }
+          ]
+        }]
+      },
+      {
+        icon: "🌿", color: "#f5fff0",
+        name: "Environnement",
+        desc: "Nature, énergie, développement durable",
+        sections: [{
+          title: "Environnement & durabilité",
+          questions: [
+            { label: "Triez-vous vos déchets régulièrement ?", type: "radio", options: ["Toujours", "Souvent", "Rarement", "Jamais"] },
+            { label: "Quelles actions écologiques vous semblent prioritaires ?", type: "textarea", options: [] }
+          ]
+        }]
+      }
+    ];
+
+    // ============================================
+    // NAV
+    // ============================================
+    function showSection(name) {
+      document.querySelectorAll(".section").forEach(function(s) { s.classList.remove("active"); });
+      document.querySelectorAll(".nav-item").forEach(function(n) { n.classList.remove("active"); });
+      document.getElementById("section-" + name).classList.add("active");
+      document.getElementById("nav-" + name).classList.add("active");
+      if (name === "templates") renderTemplates();
+    }
+
+    // ============================================
+    // LOAD USER
+    // ============================================
+    async function loadUser() {
+      var res = await fetch("/me");
+      if (res.status === 401) { window.location.href = "/login"; return; }
+      var data = await res.json();
+      var u = data.user;
+      document.getElementById("username").textContent = u.username;
+      document.getElementById("avatar").textContent = u.username.substring(0, 2).toUpperCase();
+      document.getElementById("user-role").textContent = u.role;
+      if (u.role === "admin") {
+        document.getElementById("nav-admin").style.display = "block";
+      }
+    }
+
+    // ============================================
+    // LOAD SURVEYS
+    // ============================================
+    async function loadSurveys() {
+      var res = await fetch("/my-surveys");
+      var surveys = await res.json();
+
+      var count = surveys.length;
+      document.getElementById("surveys-count").textContent =
+        count === 0 ? "Aucun sondage pour l'instant" :
+        count === 1 ? "1 sondage" : count + " sondages";
+
+      var grid = document.getElementById("surveys-grid");
+
+      if (surveys.length === 0) {
+        grid.innerHTML =
+          '<div class="empty-state" style="grid-column:1/-1">' +
+            '<div class="icon">📋</div>' +
+            '<h3>Aucun sondage pour l\'instant</h3>' +
+            '<p>Créez votre premier sondage ou utilisez un modèle pour démarrer rapidement.</p>' +
+            '<button class="btn-new" onclick="openNewModal()" style="margin:0 auto">+ Nouveau sondage</button>' +
+          '</div>';
+        return;
+      }
+
+      grid.innerHTML = surveys.map(function(s) {
+        var date = new Date(s.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+        var statusLabel = s.status === "published" ? "Publié" : "Brouillon";
+        var publishBtn = s.status === "published"
+          ? '<button class="card-btn card-btn-unpublish" onclick="toggleStatus(' + s.id + ')">⏸ Dépublier</button>'
+          : '<button class="card-btn card-btn-publish" onclick="toggleStatus(' + s.id + ')">🚀 Publier</button>';
+
+        return '<div class="survey-card">' +
+          '<div class="card-bar ' + s.status + '"></div>' +
+          '<div class="card-body">' +
+            '<span class="card-status ' + s.status + '">' +
+              '<span class="card-status-dot"></span>' + statusLabel +
+            '</span>' +
+            '<div class="card-title">' + s.title + '</div>' +
+            '<div class="card-meta">' +
+              '<span>📅 ' + date + '</span>' +
+              '<span>💬 ' + s.responses + ' réponse' + (s.responses !== 1 ? 's' : '') + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card-actions">' +
+            '<a href="/editor?survey=' + s.id + '" class="card-btn card-btn-edit">✏️ Éditer</a>' +
+            publishBtn +
+            '<a href="/resultats/' + s.id + '" class="card-btn card-btn-publish" target="_blank" style="flex:0;padding:7px 10px">📊</a>' +
+            '<button class="card-btn card-btn-delete" onclick="askDelete(' + s.id + ')">🗑</button>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+    }
+
+    // ============================================
+    // TEMPLATES
+    // ============================================
+    function renderTemplates() {
+      var grid = document.getElementById("templates-grid");
+      grid.innerHTML = TEMPLATES.map(function(t, i) {
+        return '<div class="template-card" onclick="useTemplate(' + i + ')" style="animation-delay:' + (i * 0.06) + 's">' +
+          '<div class="template-preview" style="background:' + t.color + '">' + t.icon + '</div>' +
+          '<div class="template-info">' +
+            '<div class="template-name">' + t.name + '</div>' +
+            '<div class="template-desc">' + t.desc + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+    }
+
+    async function useTemplate(index) {
+      var t = TEMPLATES[index];
+      var res = await fetch("/create-survey", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: t.name })
+      });
+      var data = await res.json();
+      if (data.id) {
+        // Save the template questions
+        await fetch("/save-questions-by-id/" + data.id, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sections: t.sections })
+        });
+        showToast("✓ Modèle créé !", "success");
+        window.location.href = "/editor?survey=" + data.id;
+      }
+    }
+
+    // ============================================
+    // CREATE SURVEY
+    // ============================================
+    function openNewModal() {
+      document.getElementById("new-modal").classList.add("open");
+      setTimeout(function() { document.getElementById("new-title").focus(); }, 100);
+    }
+
+    function closeNewModal() {
+      document.getElementById("new-modal").classList.remove("open");
+      document.getElementById("new-title").value = "";
+    }
+
+    async function createSurvey() {
+      var title = document.getElementById("new-title").value.trim();
+      if (!title) { document.getElementById("new-title").focus(); return; }
+      var res = await fetch("/create-survey", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: title })
+      });
+      var data = await res.json();
+      if (data.id) {
+        closeNewModal();
+        showToast("✓ Sondage créé !", "success");
+        window.location.href = "/editor?survey=" + data.id;
+      }
+    }
+
+    // Close modal on overlay click
+    document.getElementById("new-modal").addEventListener("click", function(e) {
+      if (e.target === this) closeNewModal();
+    });
+
+    // ============================================
+    // TOGGLE STATUS
+    // ============================================
+    async function toggleStatus(id) {
+      var res = await fetch("/toggle-survey-status/" + id, { method: "POST" });
+      var data = await res.json();
+      showToast(data.new_status === "published" ? "🚀 Sondage publié !" : "⏸ Sondage dépublié", "success");
+      loadSurveys();
+    }
+
+    // ============================================
+    // DELETE
+    // ============================================
+    function askDelete(id) {
+      deleteTargetId = id;
+      document.getElementById("confirm-overlay").classList.add("open");
+    }
+
+    function closeConfirm() {
+      document.getElementById("confirm-overlay").classList.remove("open");
+      deleteTargetId = null;
+    }
+
+    async function confirmDelete() {
+      if (!deleteTargetId) return;
+      var res = await fetch("/delete-survey/" + deleteTargetId, { method: "DELETE" });
+      var data = await res.json();
+      closeConfirm();
+      if (data.status === "ok") {
+        showToast("🗑 Sondage supprimé", "success");
+        loadSurveys();
+      } else {
+        showToast("Erreur lors de la suppression", "error");
+      }
+    }
+
+    document.getElementById("confirm-overlay").addEventListener("click", function(e) {
+      if (e.target === this) closeConfirm();
+    });
+
+    // ============================================
+    // TOAST
+    // ============================================
+    function showToast(msg, type) {
+      var t = document.getElementById("toast");
+      t.textContent = msg;
+      t.className = "toast " + type;
+      t.style.display = "block";
+      setTimeout(function() { t.style.display = "none"; }, 3000);
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+    loadUser();
+    loadSurveys();
+  </script>
+</body>
+</html>
