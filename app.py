@@ -79,6 +79,10 @@ def init_db():
         cur.execute("ALTER TABLE surveys ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     except:
         conn.rollback()
+    try:
+        cur.execute("ALTER TABLE surveys ADD COLUMN theme_json TEXT DEFAULT '{}'")
+    except:
+        conn.rollback()
 
     conn.commit()
     cur.close()
@@ -539,6 +543,38 @@ def get_questions_by_id(survey_id):
     if not row:
         return jsonify({"error": "Introuvable"}), 404
     return jsonify(json.loads(row[0]))
+
+@app.route("/get-theme/<int:survey_id>")
+def get_theme(survey_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT theme_json FROM surveys WHERE id=%s", (survey_id,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    if not row:
+        return jsonify({})
+    try:
+        return jsonify(json.loads(row[0] or "{}"))
+    except:
+        return jsonify({})
+    
+@app.route("/save-theme/<int:survey_id>", methods=["POST"])
+def save_theme(survey_id):
+    user = current_user()
+    if not user:
+        return jsonify({"error": "Non connecte"}), 401
+    data = request.json
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE surveys SET theme_json=%s WHERE id=%s AND user_id=%s",
+        (json.dumps(data), survey_id, user["id"])
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({"status": "ok"})
 
 if __name__ == "__main__":
     init_db()
