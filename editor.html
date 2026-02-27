@@ -344,15 +344,14 @@
       var survey = surveys.find(function(s) { return s.id == surveyId; });
       if (survey) { document.getElementById("sidebar-survey-name").textContent = survey.title; }
       // Load theme
+    }
+      
       var themeRes = await fetch("/get-theme/" + surveyId);
       var themeData = await themeRes.json();
       if (themeData && Object.keys(themeData).length > 0) {
-        theme = Object.assign(theme, themeData);
-        applyThemeToUI();
+          theme = Object.assign(theme, themeData);
+          setTimeout(function() { applyThemeToUI(); }, 100);
       }
-      renderSidebar();
-      if (data.sections.length > 0) { selectSection(0); }
-    }
 
     // ============ THEME UI ============
     function applyThemeToUI() {
