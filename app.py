@@ -518,6 +518,13 @@ def save_questions_by_id(survey_id):
     conn.close()
     return jsonify({"status": "ok"})
 
+@app.route("/choose")
+def choose():
+    user = current_user()
+    if not user or user.get("role") != "admin":
+        return redirect("/dashboard")
+    return send_from_directory(".", "choose.html")
+
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
