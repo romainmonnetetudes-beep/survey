@@ -407,37 +407,83 @@
 
     // LOAD SURVEY QUESTIONS from /public-questions/:id
     async function loadSurvey() {
-      try {
-        var res = await fetch("/public-questions/" + surveyId);
+  try {
+    var res = await fetch("/public-questions/" + surveyId);
 
-        if (res.status === 404) {
-          document.getElementById("loading").innerHTML =
-            '<p style="color:var(--accent)">Sondage introuvable. V&eacute;rifiez le lien.</p>';
-          return;
-        }
-
-        var data = await res.json();
-        surveyData = data;
-
-        // Update page title with survey title
-        document.getElementById("survey-title").textContent = data.title || "Sondage";
-        document.title = data.title || "Sondage";
-
-        // Build the form
-        buildForm(data.questions);
-
-        // Show form, hide loading
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("form-area").style.display = "block";
-
-        // Trigger scroll animations
-        setupAnimations();
-
-      } catch(e) {
-        document.getElementById("loading").innerHTML =
-          '<p style="color:var(--accent)">Erreur de chargement. R&eacute;essayez plus tard.</p>';
-      }
+    if (res.status === 404) {
+      document.getElementById("loading").innerHTML =
+        '<p style="color:var(--accent)">Sondage introuvable. Vérifiez le lien.</p>';
+      return;
     }
+
+    var data = await res.json();
+    surveyData = data;
+
+    // Load and apply theme
+    try {
+      var themeRes = await fetch("/get-theme/" + surveyId);
+      var theme = await themeRes.json();
+      if (theme && Object.keys(theme).length > 0) {
+        applyTheme(theme);
+      }
+    } catch(e) {}
+
+    // Update page title
+    document.getElementById("survey-title").textContent = data.title || "Sondage";
+    document.title = data.title || "Sondage";
+
+    // Build the form
+    buildForm(data.questions);
+
+    // Show form, hide loading
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("form-area").style.display = "block";
+
+    // Trigger scroll animations
+    setupAnimations();
+
+  } catch(e) {
+    document.getElementById("loading").innerHTML =
+      '<p style="color:var(--accent)">Erreur de chargement. Réessayez plus tard.</p>';
+  }
+}
+
+function applyTheme(theme) {
+  var root = document.documentElement;
+  if (theme.headerColor) root.style.setProperty('--navy', theme.headerColor);
+  if (theme.accentColor) {
+    root.style.setProperty('--gold', theme.accentColor);
+    root.style.setProperty('--blue', theme.accentColor);
+    root.style.setProperty('--accent', theme.accentColor);
+  }
+  if (theme.bgColor) {
+    root.style.setProperty('--light', theme.bgColor);
+    document.body.style.background = theme.bgColor;
+  }
+  if (theme.font) {
+    document.body.style.fontFamily = "'" + theme.font + "', sans-serif";
+  }
+  if (theme.darkMode) {
+    document.body.style.color = '#f0f0f0';
+  }
+  if (theme.welcome) {
+    var el = document.querySelector('.header p');
+    if (el) el.textContent = theme.welcome;
+  }
+  if (theme.headerImage) {
+    var header = document.querySelector('.header');
+    header.style.backgroundImage = 'url(' + theme.headerImage + ')';
+    header.style.backgroundSize = 'cover';
+    header.style.backgroundPosition = 'center';
+  }
+  if (theme.logo) {
+    var logo = document.createElement('img');
+    logo.src = theme.logo;
+    logo.style.cssText = 'height:40px;margin-bottom:12px;border-radius:6px;position:relative;z-index:1;display:block;margin-left:auto;margin-right:auto;';
+    var header = document.querySelector('.header');
+    header.insertBefore(logo, header.firstChild);
+  }
+}
 
     // BUILD THE FORM dynamically from questions JSON
     function buildForm(questionsData) {

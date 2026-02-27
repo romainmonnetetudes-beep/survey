@@ -2,290 +2,147 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Éditeur de sondage</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Syne:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --navy: #0f1e2d;
-      --navy-light: #1a2f42;
-      --cream: #f5f0e8;
-      --cream-dark: #ede7d9;
-      --gold: #c9a84c;
-      --gold-light: #e8c97a;
-      --muted: #7a8a96;
-      --white: #ffffff;
-      --green: #2d6a4f;
-      --red: #8b2635;
-      --red-light: #faeaea;
-      --shadow: 0 2px 12px rgba(15,30,45,0.08);
-      --shadow-md: 0 6px 24px rgba(15,30,45,0.12);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Syne', sans-serif; background: var(--cream); color: var(--navy); height: 100vh; display: flex; overflow: hidden; }
-    .sidebar { width: 220px; background: var(--navy); height: 100vh; display: flex; flex-direction: column; flex-shrink: 0; }
-    .sidebar-top { padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); }
-    .sidebar-brand { font-family: 'Playfair Display', serif; font-size: 0.9em; color: var(--cream); margin-bottom: 2px; }
-    .sidebar-survey-title { font-size: 0.72em; color: var(--gold); letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sidebar-sections { flex: 1; padding: 12px 8px; overflow-y: auto; }
-    .sidebar-label { font-size: 0.62em; color: rgba(245,240,232,0.3); letter-spacing: 0.14em; text-transform: uppercase; padding: 0 8px 8px; }
-    .section-nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 7px; font-size: 0.78em; color: rgba(245,240,232,0.5); cursor: pointer; transition: all 0.15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .section-nav-item:hover { background: rgba(255,255,255,0.05); color: var(--cream); }
-    .section-nav-item.active { background: rgba(201,168,76,0.15); color: var(--gold); }
-    .section-nav-num { font-size: 0.7em; color: var(--gold); opacity: 0.6; flex-shrink: 0; width: 16px; }
-    .section-nav-item.active .section-nav-num { opacity: 1; }
-    .sidebar-add-section { margin: 8px; padding: 8px 10px; border-radius: 7px; font-size: 0.75em; color: rgba(201,168,76,0.5); cursor: pointer; border: 1px dashed rgba(201,168,76,0.25); background: none; text-align: left; font-family: 'Syne', sans-serif; transition: all 0.15s; width: calc(100% - 16px); }
-    .sidebar-add-section:hover { color: var(--gold); border-color: rgba(201,168,76,0.5); background: rgba(201,168,76,0.05); }
-    .sidebar-footer { padding: 12px 8px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 4px; }
-    .sidebar-nav-link { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 6px; font-size: 0.75em; color: rgba(245,240,232,0.4); text-decoration: none; transition: all 0.15s; }
-    .sidebar-nav-link:hover { background: rgba(255,255,255,0.05); color: var(--cream); }
-    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    .topbar { background: var(--white); border-bottom: 1px solid var(--cream-dark); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 16px; }
-    .topbar-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
-    .section-title-input { font-family: 'Playfair Display', serif; font-size: 1.05em; font-weight: 600; color: var(--navy); border: none; background: none; outline: none; border-bottom: 2px solid transparent; transition: border-color 0.2s; padding-bottom: 2px; min-width: 0; flex: 1; }
-    .section-title-input:focus { border-bottom-color: var(--gold); }
-    .section-count-badge { font-size: 0.7em; color: var(--muted); background: var(--cream); padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
-    .topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    .btn-ghost { padding: 7px 14px; border-radius: 7px; font-family: 'Syne', sans-serif; font-size: 0.78em; cursor: pointer; border: 1px solid var(--cream-dark); background: var(--cream); color: var(--muted); transition: all 0.15s; }
-    .btn-ghost:hover { background: var(--cream-dark); color: var(--navy); }
-    .btn-danger { padding: 7px 14px; border-radius: 7px; font-family: 'Syne', sans-serif; font-size: 0.78em; cursor: pointer; border: 1px solid rgba(139,38,53,0.2); background: none; color: var(--red); transition: all 0.15s; }
-    .btn-danger:hover { background: var(--red-light); }
-    .btn-save { padding: 8px 20px; border-radius: 7px; font-family: 'Syne', sans-serif; font-size: 0.82em; font-weight: 500; cursor: pointer; border: none; background: var(--navy); color: var(--gold); transition: all 0.15s; letter-spacing: 0.04em; }
-    .btn-save:hover { background: var(--navy-light); transform: translateY(-1px); }
-    .content { flex: 1; overflow-y: auto; padding: 24px 32px; }
-    .empty-section { text-align: center; padding: 80px 40px; color: var(--muted); }
-    .empty-section .icon { font-size: 3em; margin-bottom: 16px; opacity: 0.3; }
-    .empty-section h3 { font-family: 'Playfair Display', serif; font-size: 1.2em; color: var(--navy); margin-bottom: 8px; font-weight: 500; }
-    .empty-section p { font-size: 0.85em; margin-bottom: 24px; }
-    .no-section { text-align: center; padding: 100px 40px; color: var(--muted); }
-    .no-section .icon { font-size: 3em; opacity: 0.2; margin-bottom: 16px; }
-    .no-section p { font-size: 0.85em; }
-    .questions-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-    .question-card { background: var(--white); border-radius: 10px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; box-shadow: var(--shadow); border: 1.5px solid transparent; transition: border-color 0.2s, box-shadow 0.2s; animation: cardIn 0.25s ease forwards; }
-    @keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .question-card:focus-within { border-color: var(--gold); box-shadow: var(--shadow-md); }
-    .q-number { font-family: 'Syne', sans-serif; font-size: 0.7em; color: var(--gold); background: rgba(201,168,76,0.1); padding: 3px 8px; border-radius: 10px; flex-shrink: 0; margin-top: 2px; }
-    .q-body { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-    .q-label-input { font-family: 'Syne', sans-serif; font-size: 0.9em; color: var(--navy); border: none; background: none; outline: none; width: 100%; border-bottom: 1px solid transparent; transition: border-color 0.2s; padding-bottom: 2px; }
-    .q-label-input:focus { border-bottom-color: var(--cream-dark); }
-    .q-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .q-type-select { padding: 4px 10px; border-radius: 6px; font-family: 'Syne', sans-serif; font-size: 0.72em; color: var(--muted); border: 1px solid var(--cream-dark); background: var(--cream); outline: none; cursor: pointer; transition: border-color 0.2s; }
-    .q-type-select:focus { border-color: var(--gold); }
-    .q-options { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-    .q-option-item { display: flex; align-items: center; gap: 4px; background: var(--cream); border: 1px solid var(--cream-dark); border-radius: 6px; padding: 3px 4px 3px 8px; }
-    .q-option-input { font-family: 'Syne', sans-serif; font-size: 0.72em; color: var(--navy); border: none; background: none; outline: none; width: 80px; }
-    .q-option-del { width: 16px; height: 16px; border-radius: 4px; background: none; color: var(--muted); border: none; cursor: pointer; font-size: 0.75em; transition: all 0.15s; }
-    .q-option-del:hover { background: var(--red-light); color: var(--red); }
-    .q-add-option { font-size: 0.7em; color: var(--gold); background: none; border: 1px dashed rgba(201,168,76,0.4); border-radius: 6px; padding: 3px 10px; cursor: pointer; font-family: 'Syne', sans-serif; transition: all 0.15s; }
-    .q-add-option:hover { background: rgba(201,168,76,0.08); }
-    .q-delete { width: 28px; height: 28px; border-radius: 7px; background: none; color: var(--muted); border: none; cursor: pointer; font-size: 0.85em; transition: all 0.15s; flex-shrink: 0; margin-top: 1px; }
-    .q-delete:hover { background: var(--red-light); color: var(--red); }
-    .add-question-btn { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1.5px dashed var(--cream-dark); background: none; font-family: 'Syne', sans-serif; font-size: 0.82em; color: var(--muted); cursor: pointer; text-align: left; transition: all 0.15s; }
-    .add-question-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.04); }
-    .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 10px; font-size: 0.85em; font-weight: 500; z-index: 1000; display: none; box-shadow: var(--shadow-md); animation: slideIn 0.3s ease forwards; }
-    @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    .toast.success { background: var(--navy); color: var(--cream); }
-    .toast.error { background: var(--red); color: white; }
-    .content::-webkit-scrollbar { width: 4px; }
-    .content::-webkit-scrollbar-track { background: transparent; }
-    .content::-webkit-scrollbar-thumb { background: var(--cream-dark); border-radius: 4px; }
-  </style>
 </head>
 <body>
-  <div class="sidebar">
-    <div class="sidebar-top">
-      <div class="sidebar-brand">Éditeur</div>
-      <div class="sidebar-survey-title" id="sidebar-survey-name">Chargement...</div>
-    </div>
-    <div class="sidebar-sections">
-      <div class="sidebar-label">Sections</div>
-      <div id="sections-nav"></div>
-    </div>
-    <button class="sidebar-add-section" onclick="addSection()">+ Nouvelle section</button>
-    <div class="sidebar-footer">
-      <a href="/workspace" class="sidebar-nav-link">← Mes projets</a>
-      <a href="/" class="sidebar-nav-link">🏠 Accueil</a>
-    </div>
+
+  <h1>Éditeur de sondage</h1>
+
+  <div id="sections-container">
+    <!-- Sections will appear here, built by JavaScript -->
   </div>
 
-  <div class="main">
-    <div class="topbar">
-      <div class="topbar-left">
-        <input type="text" class="section-title-input" id="section-title-input"
-          placeholder="Titre de la section..."
-          oninput="updateSectionTitle(this.value)">
-        <span class="section-count-badge" id="section-count-badge"></span>
-      </div>
-      <div class="topbar-right">
-        <button class="btn-danger" id="delete-section-btn" onclick="deleteCurrentSection()" style="display:none">🗑 Supprimer</button>
-        <button class="btn-ghost" onclick="addSection()">+ Section</button>
-        <button class="btn-save" onclick="saveQuestions()">✓ Sauvegarder</button>
-      </div>
-    </div>
-    <div class="content" id="content">
-      <div class="no-section">
-        <div class="icon">📋</div>
-        <p>Sélectionnez une section ou créez-en une nouvelle</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"></div>
+  <button onclick="addSection()">+ Ajouter une section</button>
+  <button onclick="saveQuestions()">✓ Sauvegarder</button>
 
   <script>
+
+    // Our data — holds all sections and questions in memory
     var data = { sections: [] };
-    var currentSectionIndex = null;
-    var surveyId = null;
 
-    async function loadQuestions() {
-      var params = new URLSearchParams(window.location.search);
-      surveyId = params.get("survey");
-      if (!surveyId) { alert("Aucun sondage sélectionné !"); window.location.href = "/workspace"; return; }
-      var res = await fetch("/questions/" + surveyId);
-      if (res.status === 401) { window.location.href = "/login"; return; }
-      var json = await res.json();
-      if (json.sections) { data = json; }
-      var surveysRes = await fetch("/my-surveys");
-      var surveys = await surveysRes.json();
-      var survey = surveys.find(function(s) { return s.id == surveyId; });
-      if (survey) { document.getElementById("sidebar-survey-name").textContent = survey.title; }
-      renderSidebar();
-      if (data.sections.length > 0) { selectSection(0); }
-    }
+    // RENDER EDITOR — builds the visual editor from data
+function renderEditor() {
+    var container = document.getElementById("sections-container");
+    container.innerHTML = "";
 
-    function renderSidebar() {
-      var nav = document.getElementById("sections-nav");
-      if (data.sections.length === 0) {
-        nav.innerHTML = '<div style="font-size:0.75em;color:rgba(245,240,232,0.25);padding:8px 10px;">Aucune section</div>';
-        return;
-      }
-      nav.innerHTML = data.sections.map(function(section, si) {
-        return '<button class="section-nav-item' + (si === currentSectionIndex ? ' active' : '') + '" onclick="selectSection(' + si + ')">' +
-          '<span class="section-nav-num">' + String(si + 1).padStart(2, '0') + '</span>' +
-          (section.title || 'Sans titre') +
-        '</button>';
-      }).join("");
-    }
+    data.sections.forEach(function(section, si) {
+        var questionsHTML = section.questions.map(function(q, qi) {
+            var typeOptions = ["text", "textarea", "radio", "stars"].map(function(t) {
+                var labels = {text: "Texte court", textarea: "Texte long", radio: "Choix unique", stars: "Étoiles"};
+                var sel = q.type === t ? " selected" : "";
+                return '<option value="' + t + '"' + sel + '>' + labels[t] + '</option>';
+            }).join("");
+              
+            var optionsHTML = "";
+            if (q.type === "radio") {
+                optionsHTML = '<div>' +
+                  (q.options || []).map(function(opt, oi) {
+                      return '<input type="text" value="' + opt + '" ' +
+                          'onchange="data.sections[' + si + '].questions[' + qi + '].options[' + oi + '] = this.value">' +
+                          '<button onclick="deleteOption(' + si + ',' + qi + ',' + oi + ')">✕</button>';
+                  }).join("") +
+                  '<button onclick="addOption(' + si + ',' + qi + ')">+ Ajouter une option</button>' +
+              '</div>';
+          }
 
-    function selectSection(si) {
-      currentSectionIndex = si;
-      var section = data.sections[si];
-      document.getElementById("section-title-input").value = section.title || "";
-      document.getElementById("section-count-badge").textContent = section.questions.length + " question" + (section.questions.length !== 1 ? "s" : "");
-      document.getElementById("delete-section-btn").style.display = "flex";
-      renderSidebar();
-      renderQuestions();
-    }
-
-    function updateSectionTitle(val) {
-      if (currentSectionIndex === null) return;
-      data.sections[currentSectionIndex].title = val;
-      renderSidebar();
-    }
-
-    function renderQuestions() {
-      var content = document.getElementById("content");
-      if (currentSectionIndex === null) {
-        content.innerHTML = '<div class="no-section"><div class="icon">📋</div><p>Sélectionnez une section dans le menu</p></div>';
-        return;
-      }
-      var section = data.sections[currentSectionIndex];
-      var si = currentSectionIndex;
-      if (section.questions.length === 0) {
-        content.innerHTML = '<div class="empty-section"><div class="icon">✏️</div><h3>Section vide</h3><p>Ajoutez votre première question.</p></div>' +
-          '<button class="add-question-btn" onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';
-        return;
-      }
-      var questionsHTML = section.questions.map(function(q, qi) {
-        var typeOptions = [["text","Texte court"],["textarea","Texte long"],["radio","Choix unique"],["stars","Étoiles"]].map(function(t) {
-          return '<option value="' + t[0] + '"' + (q.type === t[0] ? ' selected' : '') + '>' + t[1] + '</option>';
+            return '<div>' +
+                '<input type="text" value="' + q.label + '" ' +
+                    'onchange="data.sections[' + si + '].questions[' + qi + '].label = this.value">' +
+                '<select onchange="data.sections[' + si + '].questions[' + qi + '].type = this.value; renderEditor()">' +
+                    typeOptions +
+                '</select>' +
+                optionsHTML +
+                '<button onclick="deleteQuestion(' + si + ',' + qi + ')">✕</button>' +
+            '</div>';
         }).join("");
-        var optionsHTML = "";
-        if (q.type === "radio") {
-          optionsHTML = '<div class="q-options">' +
-            (q.options || []).map(function(opt, oi) {
-              return '<div class="q-option-item"><input class="q-option-input" type="text" value="' + opt + '" onchange="data.sections[' + si + '].questions[' + qi + '].options[' + oi + '] = this.value"><button class="q-option-del" onclick="deleteOption(' + si + ',' + qi + ',' + oi + ')">✕</button></div>';
-            }).join("") +
-            '<button class="q-add-option" onclick="addOption(' + si + ',' + qi + ')">+ option</button></div>';
-        }
-        return '<div class="question-card"><span class="q-number">' + String(qi + 1).padStart(2, '0') + '</span>' +
-          '<div class="q-body"><input class="q-label-input" type="text" value="' + (q.label || '') + '" placeholder="Votre question..." onchange="data.sections[' + si + '].questions[' + qi + '].label = this.value">' +
-          '<div class="q-meta"><select class="q-type-select" onchange="data.sections[' + si + '].questions[' + qi + '].type = this.value; renderQuestions()">' + typeOptions + '</select></div>' +
-          optionsHTML + '</div>' +
-          '<button class="q-delete" onclick="deleteQuestion(' + si + ',' + qi + ')">✕</button></div>';
-      }).join("");
-      content.innerHTML = '<div class="questions-list">' + questionsHTML + '</div><button class="add-question-btn" onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';
-      document.getElementById("section-count-badge").textContent = section.questions.length + " question" + (section.questions.length !== 1 ? "s" : "");
-    }
 
+        var div = document.createElement("div");
+        div.innerHTML =
+            '<input type="text" value="' + section.title + '" onchange="data.sections[' + si + '].title = this.value">' +
+            '<button onclick="deleteSection(' + si + ')">Supprimer la section</button>' +
+            '<div>' + questionsHTML + '</div>' +
+            '<button onclick="addQuestion(' + si + ')">+ Ajouter une question</button>';
+        container.appendChild(div);
+    });
+}
+    // ADD SECTION — adds a new empty section to data
     function addSection() {
-      data.sections.push({ title: "Nouvelle section", questions: [] });
-      renderSidebar();
-      selectSection(data.sections.length - 1);
-      setTimeout(function() { var i = document.getElementById("section-title-input"); i.focus(); i.select(); }, 50);
+      data.sections.push({
+        title: "Nouvelle section",
+        questions: []
+      });
+      renderEditor();
     }
 
-    function deleteCurrentSection() {
-      if (currentSectionIndex === null) return;
-      if (!confirm("Supprimer cette section et toutes ses questions ?")) return;
-      data.sections.splice(currentSectionIndex, 1);
-      currentSectionIndex = null;
-      document.getElementById("delete-section-btn").style.display = "none";
-      document.getElementById("section-title-input").value = "";
-      document.getElementById("section-count-badge").textContent = "";
-      renderSidebar();
-      if (data.sections.length > 0) { selectSection(0); } else { renderQuestions(); }
+    // DELETE SECTION — removes section at index si
+    function deleteSection(si) {
+      data.sections.splice(si, 1);
+      renderEditor();
     }
 
+    // ADD QUESTION — adds a new empty question to section si
     function addQuestion(si) {
-      data.sections[si].questions.push({ label: "Nouvelle question", type: "text", options: [] });
-      renderQuestions();
+      data.sections[si].questions.push({
+        label: "Nouvelle question",
+        type: "text",
+        options: []
+      });
+      renderEditor();
     }
 
+    // DELETE QUESTION — removes question qi from section si
     function deleteQuestion(si, qi) {
       data.sections[si].questions.splice(qi, 1);
-      renderQuestions();
+      renderEditor();
     }
+
+    // SAVE QUESTIONS — sends data to the database
+    async function saveQuestions() {
+      var res = await fetch("/save-questions-by-id/" + window.surveyId, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      var json = await res.json();
+      if (json.status === "ok") {
+        alert("Sauvegardé !");
+      } else {
+        alert("Erreur lors de la sauvegarde.");
+      }
+    }
+
+    // LOAD QUESTIONS — fetches existing questions from database on page open
+    async function loadQuestions() {
+    var params = new URLSearchParams(window.location.search);
+    var surveyId = params.get("survey");
+    if (!surveyId) {
+        alert("Aucun sondage sélectionné !");
+        window.location.href = "/workspace";
+        return;
+    }
+    window.surveyId = surveyId;
+    var res = await fetch("/questions/" + surveyId);
+    var json = await res.json();
+    if (json.sections) {
+        data = json;
+    }
+    renderEditor();
+}
 
     function addOption(si, qi) {
-      if (!data.sections[si].questions[qi].options) data.sections[si].questions[qi].options = [];
-      data.sections[si].questions[qi].options.push("Option");
-      renderQuestions();
+      data.sections[si].questions[qi].options.push("Nouvelle option");
+      renderEditor();
     }
-
+    
     function deleteOption(si, qi, oi) {
       data.sections[si].questions[qi].options.splice(oi, 1);
-      renderQuestions();
+      renderEditor()
     }
 
-    async function saveQuestions() {
-      try {
-        var res = await fetch("/save-questions-by-id/" + surveyId, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-        var json = await res.json();
-        if (json.status === "ok") { showToast("✓ Sauvegardé !", "success"); }
-        else { showToast("Erreur lors de la sauvegarde", "error"); }
-      } catch(e) { showToast("Erreur de connexion", "error"); }
-    }
-
-    function showToast(msg, type) {
-      var t = document.getElementById("toast");
-      t.textContent = msg;
-      t.className = "toast " + type;
-      t.style.display = "block";
-      setTimeout(function() { t.style.display = "none"; }, 3000);
-    }
-
-    setInterval(function() {
-      if (surveyId) {
-        fetch("/save-questions-by-id/" + surveyId, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-      }
-    }, 5 * 60 * 1000);
-
+    // Start loading when page opens — always last!
     loadQuestions();
+
   </script>
+
 </body>
 </html>
