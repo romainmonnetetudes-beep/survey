@@ -237,10 +237,19 @@
 
   <div class="header">
     <div class="header-inner">
+
       <div class="header-nav">
-        <a href="/workspace" class="back-link">← Mes projets</a>
-        <button class="refresh-btn" onclick="loadResults()">↻ Actualiser</button>
-      </div>
+  <a href="/workspace" class="back-link">← Mes projets</a>
+  <div style="display:flex;gap:8px;align-items:center">
+    <select id="survey-selector" onchange="window.location.href='/resultats/'+this.value"
+      style="padding:7px 12px;border-radius:20px;background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.12);color:rgba(245,240,232,0.7);
+      font-family:'Syne',sans-serif;font-size:0.78em;outline:none;cursor:pointer;">
+      <option value="">Changer de sondage...</option>
+    </select>
+    <button class="refresh-btn" onclick="loadResults()">↻ Actualiser</button>
+  </div>
+</div>                                    
       <div class="header-tag">Résultats</div>
       <h1 id="survey-title">Chargement...</h1>
       <div class="header-sub" id="survey-sub"></div>
@@ -287,6 +296,17 @@
         try {
           var sRes = await fetch("/my-surveys");
           surveys = await sRes.json();
+
+          // Populate survey selector
+    var selector = document.getElementById("survey-selector");
+    surveys.forEach(function(s) {
+      var opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = s.title;
+      if (s.id == surveyId) opt.selected = true;
+      selector.appendChild(opt);
+    });
+
         } catch(e) {}
         var survey = surveys.find(function(s) { return s.id == surveyId; });
 
