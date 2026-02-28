@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon profil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0f1e2d; --navy-light: #1a2f42;
+      --cream: #f5f0e8; --cream-dark: #ede7d9;
+      --gold: #c9a84c; --gold-light: #e8c97a;
+      --muted: #7a8a96; --white: #ffffff;
+      --red: #8b2635; --red-light: #faeaea;
+      --green: #2d6a4f; --green-light: #e8f4ee;
+      --shadow: 0 4px 24px rgba(15,30,45,0.08);
+      --shadow-md: 0 8px 40px rgba(15,30,45,0.14);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Lexend', sans-serif;
+      background: var(--cream);
+      color: var(--navy);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    .header {
+      background: var(--navy);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1em;
+      color: var(--cream);
+    }
+    .header-links { display: flex; gap: 8px; }
+    .header-link {
+      font-size: 0.78em;
+      color: rgba(245,240,232,0.4);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+    .header-link:hover { background: rgba(255,255,255,0.06); color: var(--cream); }
+
+    /* MAIN */
+    .main {
+      flex: 1;
+      max-width: 600px;
+      width: 100%;
+      margin: 48px auto;
+      padding: 0 24px 80px;
+    }
+
+    /* PAGE TITLE */
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2em;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .page-title em { color: var(--gold); font-style: italic; font-weight: 400; }
+    .page-sub { font-size: 0.85em; color: var(--muted); margin-bottom: 36px; }
+
+    /* AVATAR SECTION */
+    .avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      background: var(--white);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      border: 1px solid var(--cream-dark);
+    }
+    .avatar-preview {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8em;
+      color: var(--gold);
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 3px solid var(--cream-dark);
+    }
+    .avatar-preview img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .avatar-info { flex: 1; }
+    .avatar-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15em;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .avatar-username { font-size: 0.78em; color: var(--muted); margin-bottom: 10px; }
+    .avatar-url-input {
+      width: 100%;
+      padding: 7px 12px;
+      border: 1.5px solid var(--cream-dark);
+      border-radius: 7px;
+      font-family: 'Lexend', sans-serif;
+      font-size: 0.78em;
+      color: var(--navy);
+      background: var(--cream);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .avatar-url-input:focus { border-color: var(--gold); background: var(--white); }
+    .avatar-url-input::placeholder { color: var(--muted); }
+
+    /* FORM CARD */
+    .form-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--cream-dark);
+      margin-bottom: 20px;
+    }
+    .form-card-title {
+      font-size: 0.68em;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .form-group { margin-bottom: 18px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label {
+      display: block;
+      font-size: 0.78em;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-bottom: 7px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--cream-dark);
+      border-radius: 9px;
+      font-family: 'Lexend', sans-serif;
+      font-size: 0.9em;
+      color: var(--navy);
+      background: var(--cream);
+      outline: none;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--gold);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+    }
+    .form-input::placeholder { color: #b0b8c0; }
+    textarea.form-input { resize: vertical; min-height: 90px; }
+    .form-hint { font-size: 0.72em; color: var(--muted); margin-top: 5px; }
+
+    /* SAVE BUTTON */
+    .btn-save {
+      width: 100%;
+      padding: 14px;
+      background: var(--navy);
+      color: var(--gold);
+      border: none;
+      border-radius: 10px;
+      font-family: 'Lexend', sans-serif;
+      font-size: 0.92em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.04em;
+    }
+    .btn-save:hover { background: var(--navy-light); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .btn-save:active { transform: translateY(0); }
+
+    /* DANGER ZONE */
+    .danger-zone {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(139,38,53,0.2);
+      margin-bottom: 20px;
+    }
+    .danger-title {
+      font-size: 0.68em;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 10px;
+    }
+    .danger-desc { font-size: 0.82em; color: var(--muted); margin-bottom: 14px; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.85em;
+      font-weight: 500;
+      z-index: 1000;
+      display: none;
+      box-shadow: var(--shadow-md);
+    }
+    .toast.success { background: var(--navy); color: var(--cream); }
+    .toast.error { background: var(--red); color: white; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-brand">Sondage Millau</div>
+    <div class="header-links">
+      <a href="/workspace" class="header-link">← Workspace</a>
+      <a href="/" class="header-link">🏠 Accueil</a>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <div class="page-title">Mon <em>profil</em></div>
+    <div class="page-sub">Personnalisez votre identité sur la plateforme</div>
+
+    <!-- AVATAR -->
+    <div class="avatar-section">
+      <div class="avatar-preview" id="avatar-preview">?</div>
+      <div class="avatar-info">
+        <div class="avatar-name" id="avatar-name">Chargement...</div>
+        <div class="avatar-username" id="avatar-username">@...</div>
+        <input type="text" class="avatar-url-input" id="avatar-url"
+          placeholder="URL de votre photo de profil (https://...)"
+          oninput="previewAvatar(this.value)">
+      </div>
+    </div>
+
+    <!-- PROFILE INFO -->
+    <div class="form-card">
+      <div class="form-card-title">Informations</div>
+
+      <div class="form-group">
+        <label class="form-label" for="display-name">Nom affiché</label>
+        <input type="text" class="form-input" id="display-name"
+          placeholder="ex: Romain M." oninput="updatePreviewName(this.value)">
+        <div class="form-hint">C'est ce nom qui sera visible par les autres utilisateurs</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="bio">Bio</label>
+        <textarea class="form-input" id="bio"
+          placeholder="Parlez-nous de vous en quelques mots..."></textarea>
+      </div>
+    </div>
+
+    <!-- SAVE -->
+    <button class="btn-save" onclick="saveProfile()">✓ Enregistrer les modifications</button>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // PREVIEW AVATAR
+    function previewAvatar(url) {
+      var preview = document.getElementById("avatar-preview");
+      if (url && url.startsWith("http")) {
+        preview.innerHTML = '<img src="' + url + '" onerror="this.parentElement.innerHTML=initials">';
+      } else {
+        var name = document.getElementById("display-name").value ||
+                   document.getElementById("avatar-username").textContent.replace("@", "");
+        preview.textContent = name.substring(0, 2).toUpperCase();
+      }
+    }
+
+    function updatePreviewName(val) {
+      if (val) document.getElementById("avatar-name").textContent = val;
+    }
+
+    // LOAD PROFILE
+    async function loadProfile() {
+      var res = await fetch("/get-profile");
+      if (res.status === 401) { window.location.href = "/login"; return; }
+      var data = await res.json();
+
+      document.getElementById("display-name").value = data.display_name || "";
+      document.getElementById("bio").value = data.bio || "";
+      document.getElementById("avatar-url").value = data.avatar_url || "";
+      document.getElementById("avatar-username").textContent = "@" + data.username;
+      document.getElementById("avatar-name").textContent = data.display_name || data.username;
+
+      // Avatar preview
+      if (data.avatar_url) {
+        previewAvatar(data.avatar_url);
+      } else {
+        document.getElementById("avatar-preview").textContent =
+          (data.display_name || data.username).substring(0, 2).toUpperCase();
+      }
+    }
+
+    // SAVE PROFILE
+    async function saveProfile() {
+      var display_name = document.getElementById("display-name").value.trim();
+      var bio = document.getElementById("bio").value.trim();
+      var avatar_url = document.getElementById("avatar-url").value.trim();
+
+      var res = await fetch("/save-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ display_name, bio, avatar_url })
+      });
+      var json = await res.json();
+      if (json.status === "ok") {
+        showToast("✓ Profil sauvegardé !", "success");
+        // Update preview
+        document.getElementById("avatar-name").textContent = display_name || json.username;
+        previewAvatar(avatar_url);
+      } else {
+        showToast("Erreur lors de la sauvegarde", "error");
+      }
+    }
+
+    function showToast(msg, type) {
+      var t = document.getElementById("toast");
+      t.textContent = msg; t.className = "toast " + type;
+      t.style.display = "block";
+      setTimeout(function() { t.style.display = "none"; }, 3000);
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>
