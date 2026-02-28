@@ -277,7 +277,7 @@
     // PREVIEW AVATAR
     function previewAvatar(url) {
       var preview = document.getElementById("avatar-preview");
-      if (url && url.startsWith("http")) {
+      if (url && url.startsWith("http") || url.startsWith("data:")) {
         preview.innerHTML = '<img src="' + url + '" onerror="this.parentElement.innerHTML=initials">';
       } else {
         var name = document.getElementById("display-name").value ||
