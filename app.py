@@ -589,6 +589,48 @@ def save_theme(survey_id):
     conn.close()
     return jsonify({"status": "ok"})
 
+@app.route("/profile")
+def profile():
+    user = current_user()
+    if not user:
+        return redirect("/login")
+    return send_from_directory(".", "profile_customization.html")
+
+@app.route("/get-profile")
+def get_profile():
+    user = current_user()
+    if not user:
+        return jsonify({"error": "Non connecte"}), 401
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT username, display_name, bio, avatar_url FROM users WHERE id=%s", (user["id"],))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    return jsonify({
+        "username": row[0],
+        "display_name": row[1] or "",
+        "bio": row[2] or "",
+        "avatar_url": row[3] or ""
+    })
+
+@app.route("/save-profile", methods=["POST"])
+def save_profile():
+    user = current_user()
+    if not user:
+        return jsonify({"error": "Non connecte"}), 401
+    data = request.json
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE users SET display_name=%s, bio=%s, avatar_url=%s WHERE id=%s",
+        (data.get("display_name", ""), data.get("bio", ""), data.get("avatar_url", ""), user["id"])
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({"status": "ok"})
+
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
