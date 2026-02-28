@@ -242,11 +242,13 @@
   <a href="/workspace" class="back-link">← Mes projets</a>
   <div style="display:flex;gap:8px;align-items:center">
     <select id="survey-selector" onchange="window.location.href='/resultats/'+this.value"
-      style="padding:7px 12px;border-radius:20px;background:rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.12);color: var(--cream);
+      style="padding:7px 12px;border-radius:20px;
+      background:#1a2f42;
+      border:1px solid rgba(255,255,255,0.2);
+      color:#f5f0e8;
       font-family:'Syne',sans-serif;font-size:0.78em;outline:none;cursor:pointer;">
       <option value="">Changer de sondage...</option>
-      
+
     </select>
     <button class="refresh-btn" onclick="loadResults()">↻ Actualiser</button>
   </div>
