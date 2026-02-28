@@ -240,12 +240,32 @@
 
       <div class="header-nav">
   <a href="/workspace" class="back-link">← Mes projets</a>
+
   <div style="display:flex;gap:8px;align-items:center">
-    <select id="survey-selector" onchange="window.location.href='/resultats/'+this.value"
-      style="padding:7px 12px;border-radius:20px;background:rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.12);color: var(--cream); text-emphasis-color: black;
-      font-family:'Syne',sans-serif;font-size:0.78em;outline:none;cursor:pointer;">
-      <option value="">Changer de sondage...</option>
+    <select id="survey-selector"
+      onchange="if(this.value) window.location.href='/resultats/'+this.value"
+      style="
+        padding:8px 14px;
+        border-radius:20px;
+        background:rgba(255,255,255,0.14);
+        border:1px solid rgba(255,255,255,0.25);
+        color:#f5f1e8;
+        font-family:'Syne',sans-serif;
+        font-size:0.85em;
+        outline:none;
+        cursor:pointer;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        transition:all 0.2s ease;
+      ">
+
+      <option value="" style="color:#222;background:#fff;">
+        Changer de sondage...
+      </option>
+
+    </select>
+  </div>
+</div>
     </select>
     <button class="refresh-btn" onclick="loadResults()">↻ Actualiser</button>
   </div>
