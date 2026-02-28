@@ -3,696 +3,497 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>R&eacute;sultats &mdash; Sondage Millau</title>
-
-  <!-- Same fonts as all other pages for consistency -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-
+  <title>Résultats — Sondage Millau</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Syne:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-
-    /* ============================================
-       CSS VARIABLES — same palette as all pages
-       ============================================ */
     :root {
-      --navy: #0f2540;
-      --blue: #1a5276;
-      --accent: #c0392b;
-      --gold: #d4a843;
-      --light: #f7f3ee;
-      --white: #ffffff;
-      --muted: #7f8c8d;
-      --border: #e0d9d0;
-      --green: #27ae60;
+      --navy: #0f1e2d; --navy-light: #1a2f42;
+      --cream: #f5f0e8; --cream-dark: #ede7d9;
+      --gold: #c9a84c; --gold-light: #e8c97a;
+      --muted: #7a8a96; --white: #ffffff;
+      --green: #2d6a4f; --green-light: #e8f4ee;
+      --red: #8b2635; --blue: #1a3a5c;
+      --shadow: 0 2px 12px rgba(15,30,45,0.08);
+      --shadow-md: 0 8px 32px rgba(15,30,45,0.12);
     }
-
-    /* ============================================
-       RESET & BASE
-       ============================================ */
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Syne', sans-serif; background: var(--cream); color: var(--navy); min-height: 100vh; }
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--light);
-      color: var(--navy);
-      min-height: 100vh;
-      animation: pageIn 0.4s ease forwards; /* Fade in on load */
-    }
-
-    @keyframes pageIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ============================================
-       BACK BUTTON — fixed top left
-       ============================================ */
-    .back-btn {
-      position: fixed;
-      top: 16px;
-      left: 16px;
-      background: white;
-      color: var(--navy);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.85em;
-      font-weight: 500;
-      padding: 8px 16px;
-      border-radius: 20px;
-      text-decoration: none;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
-      z-index: 1000;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .back-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    }
-
-    /* ============================================
-       HEADER BANNER
-       ============================================ */
+    /* HEADER */
     .header {
       background: var(--navy);
-      padding: 60px 40px 50px;
+      padding: 48px 40px 40px;
       position: relative;
       overflow: hidden;
     }
-
-    /* Decorative circles in background */
     .header::before {
-      content: '';
-      position: absolute;
-      top: -60px; right: -60px;
-      width: 300px; height: 300px;
+      content: ''; position: absolute;
+      top: -80px; right: -80px;
+      width: 320px; height: 320px;
       border-radius: 50%;
-      background: rgba(192,57,43,0.12);
+      background: rgba(201,168,76,0.08);
     }
     .header::after {
-      content: '';
-      position: absolute;
-      bottom: -80px; left: 20%;
+      content: ''; position: absolute;
+      bottom: -60px; left: 10%;
       width: 200px; height: 200px;
       border-radius: 50%;
-      background: rgba(212,168,67,0.08);
+      background: rgba(201,168,76,0.05);
     }
-
-    .header-inner {
-      max-width: 900px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 1; /* Above the decorative circles */
+    .header-inner { max-width: 960px; margin: 0 auto; position: relative; z-index: 1; }
+    .header-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 32px;
     }
-
+    .back-link {
+      font-size: 0.8em; color: rgba(245,240,232,0.5);
+      text-decoration: none; letter-spacing: 0.08em;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--gold); }
+    .refresh-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 16px; border-radius: 20px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(245,240,232,0.7);
+      font-family: 'Syne', sans-serif; font-size: 0.78em;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .refresh-btn:hover { background: rgba(255,255,255,0.14); color: var(--cream); }
     .header-tag {
       display: inline-block;
-      background: var(--accent);
-      color: white;
-      font-size: 0.7em;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      padding: 4px 12px;
-      border-radius: 20px;
-      margin-bottom: 16px;
+      background: rgba(201,168,76,0.2);
+      color: var(--gold);
+      font-size: 0.68em; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 20px;
+      margin-bottom: 14px;
     }
-
     .header h1 {
       font-family: 'Playfair Display', serif;
-      font-size: 2.4em;
-      color: white;
-      line-height: 1.2;
-      margin-bottom: 10px;
+      font-size: clamp(1.8em, 3vw, 2.6em);
+      color: var(--cream); line-height: 1.15;
+      margin-bottom: 8px;
     }
+    .header h1 em { color: var(--gold); font-style: italic; font-weight: 400; }
+    .header-sub { color: rgba(245,240,232,0.45); font-size: 0.88em; }
 
-    .header p {
-      color: rgba(255,255,255,0.6);
-      font-size: 0.95em;
+    /* STATS ROW */
+    .stats-row {
+      display: flex; gap: 0;
+      margin-top: 32px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      overflow: hidden;
     }
-
-    /* Stats row inside header */
-    .header-stats {
-      margin-top: 28px;
-      display: flex;
-      gap: 32px;
-      flex-wrap: wrap; /* Wraps on small screens */
+    .stat-box {
+      flex: 1; padding: 18px 24px;
+      border-right: 1px solid rgba(255,255,255,0.08);
     }
-
-    .stat-item { text-align: center; }
-
-    /* The big number */
+    .stat-box:last-child { border-right: none; }
     .stat-num {
       font-family: 'Playfair Display', serif;
-      font-size: 2.4em;
-      color: var(--gold);
-      display: block;
-      line-height: 1;
+      font-size: 2em; color: var(--gold);
+      line-height: 1; display: block;
     }
+    .stat-label { font-size: 0.72em; color: rgba(245,240,232,0.4); margin-top: 4px; letter-spacing: 0.06em; }
 
-    .stat-label {
-      color: rgba(255,255,255,0.5);
-      font-size: 0.8em;
-      margin-top: 4px;
-    }
+    /* MAIN */
+    .main { max-width: 960px; margin: 40px auto; padding: 0 24px 80px; }
 
-    /* Refresh button */
-    .refresh-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255,255,255,0.1); /* Semi-transparent white */
-      color: white;
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 8px;
-      padding: 10px 20px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.88em;
-      cursor: pointer;
-      margin-top: 24px;
-      transition: background 0.2s;
-    }
-    .refresh-btn:hover {
-      background: rgba(255,255,255,0.18);
-    }
-
-    /* ============================================
-       MAIN CONTENT AREA
-       ============================================ */
-    .main {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px 60px;
-    }
-
-    /* ============================================
-       SECTION TITLES
-       ============================================ */
-    .section-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.3em;
-      color: var(--navy);
+    /* SECTION HEADER */
+    .section-header {
+      display: flex; align-items: center; gap: 12px;
       margin: 40px 0 16px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid var(--navy);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      /* Fade in animation — triggered by JavaScript */
-      opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.5s, transform 0.5s;
     }
-    .section-title.visible { opacity: 1; transform: translateY(0); }
+    .section-header.visible { opacity: 1; transform: translateY(0); }
+    .section-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--navy); color: var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72em; font-weight: 600; flex-shrink: 0;
+    }
+    .section-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15em; color: var(--navy);
+    }
+    .section-divider { flex: 1; height: 1px; background: var(--cream-dark); }
 
-    /* ============================================
-       CARDS — white boxes holding each chart
-       ============================================ */
+    /* CARD */
     .card {
-      background: var(--white);
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 12px rgba(15,37,64,0.07);
-      border: 1px solid var(--border);
-      /* Fade in animation */
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
+      background: var(--white); border-radius: 14px;
+      padding: 24px; margin-bottom: 14px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--cream-dark);
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.5s, transform 0.5s;
     }
     .card.visible { opacity: 1; transform: translateY(0); }
-
-    /* Small label above each chart */
-    .card-title {
-      font-size: 0.78em;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 16px;
+    .card-question {
+      font-size: 0.92em; font-weight: 500;
+      color: var(--navy); margin-bottom: 20px;
+      line-height: 1.5;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--cream-dark);
     }
-
-    /* ============================================
-       BAR CHARTS — horizontal bars
-       ============================================ */
-    .bar-item { margin-bottom: 14px; }
-    .bar-item:last-child { margin-bottom: 0; }
-
-    /* Row with label on left and count on right */
-    .bar-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.88em;
-      margin-bottom: 6px;
+    .card-type-badge {
+      display: inline-block;
+      font-size: 0.65em; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted);
+      background: var(--cream); padding: 2px 8px;
+      border-radius: 10px; margin-left: 8px;
+      vertical-align: middle; font-weight: 400;
     }
-    .bar-label span:last-child {
-      color: var(--muted);
-      font-size: 0.9em;
-    }
+    .no-data { font-size: 0.85em; color: var(--muted); font-style: italic; }
 
-    /* The grey track */
+    /* BAR CHART */
+    .bar-list { display: flex; flex-direction: column; gap: 10px; }
+    .bar-item {}
+    .bar-meta {
+      display: flex; justify-content: space-between;
+      font-size: 0.82em; margin-bottom: 5px;
+    }
+    .bar-label-text { color: var(--navy); font-weight: 500; }
+    .bar-stats { color: var(--muted); font-size: 0.95em; }
     .bar-track {
-      background: var(--light);
-      border-radius: 6px;
-      height: 10px;
-      overflow: hidden;
-      border: 1px solid var(--border);
+      height: 8px; background: var(--cream-dark);
+      border-radius: 8px; overflow: hidden;
     }
-
-    /* The colored fill — width animated by JavaScript */
     .bar-fill {
-      height: 100%;
-      border-radius: 6px;
-      background: var(--blue); /* Default color */
-      transition: width 1s ease; /* Smooth grow animation */
-      width: 0; /* Starts at 0, JS sets the real width */
+      height: 100%; border-radius: 8px;
+      background: linear-gradient(90deg, var(--navy), var(--navy-light));
+      width: 0; transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+    .bar-fill.gold { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+    .bar-fill.green { background: linear-gradient(90deg, var(--green), #52b788); }
 
-    /* Color variants for different sections */
-    .bar-fill.gold  { background: var(--gold); }
-    .bar-fill.red   { background: var(--accent); }
-    .bar-fill.green { background: var(--green); }
-
-    /* ============================================
-       STAR RATING DISPLAY
-       ============================================ */
-    .star-display {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-top: 8px;
-    }
-
-    /* The big average number */
-    .star-num {
+    /* STAR RATING */
+    .star-display { display: flex; align-items: center; gap: 20px; }
+    .star-big {
       font-family: 'Playfair Display', serif;
-      font-size: 2.4em;
-      color: var(--navy);
-      line-height: 1;
+      font-size: 3em; color: var(--gold); line-height: 1;
     }
+    .star-detail {}
+    .stars-visual { display: flex; gap: 3px; font-size: 1.4em; margin-bottom: 4px; }
+    .star-on { color: var(--gold); }
+    .star-off { color: var(--cream-dark); }
+    .star-sub { font-size: 0.78em; color: var(--muted); }
+    .star-breakdown { margin-top: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .star-row { display: flex; align-items: center; gap: 8px; font-size: 0.8em; }
+    .star-row-label { width: 40px; color: var(--muted); flex-shrink: 0; }
+    .star-row-track { flex: 1; height: 6px; background: var(--cream-dark); border-radius: 6px; overflow: hidden; }
+    .star-row-fill { height: 100%; background: var(--gold); border-radius: 6px; width: 0; transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .star-row-count { width: 28px; text-align: right; color: var(--muted); flex-shrink: 0; }
 
-    .stars-row { font-size: 1.6em; line-height: 1; }
-    .stars-row .s      { color: #ddd; } /* Empty star */
-    .stars-row .s.on   { color: var(--gold); } /* Filled star */
-
-    .star-sub {
-      font-size: 0.78em;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    /* ============================================
-       TWO-COLUMN GRID
-       ============================================ */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr; /* Two equal columns */
-      gap: 16px;
-    }
-
-    /* On mobile, stack into one column */
-    @media (max-width: 600px) {
-      .grid-2 { grid-template-columns: 1fr; }
-      .header h1 { font-size: 1.7em; }
-      .header { padding: 60px 20px 40px; }
-    }
-
-    /* ============================================
-       CHIP TAGS — for services section
-       ============================================ */
-    .chip-list {
-      display: flex;
-      flex-wrap: wrap; /* Wraps to next line if too many */
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .chip {
-      background: var(--light);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 0.82em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .chip:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    }
-
-    /* The count badge inside each chip */
-    .chip-count {
-      background: var(--blue);
-      color: white;
-      border-radius: 10px;
-      padding: 2px 8px;
-      font-size: 0.85em;
-      font-weight: 500;
-    }
-
-    /* ============================================
-       VERBATIM COMMENTS
-       ============================================ */
-    .verbatim-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
+    /* VERBATIM */
+    .verbatim-list { display: flex; flex-direction: column; gap: 10px; }
     .verbatim {
-      background: var(--light);
-      border-left: 3px solid var(--blue); /* Blue left border */
-      padding: 14px 18px;
-      border-radius: 0 10px 10px 0;
-      font-size: 0.9em;
-      line-height: 1.7;
-      color: #333;
-      /* Fade in animation */
-      opacity: 0;
-      transform: translateX(-10px); /* Slides in from left */
-      transition: opacity 0.4s ease, transform 0.4s ease;
+      background: var(--cream); border-radius: 10px;
+      padding: 14px 16px;
+      border-left: 3px solid var(--gold);
+      font-size: 0.88em; color: var(--navy);
+      line-height: 1.6;
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 0.4s, transform 0.4s;
     }
-    .verbatim.visible { opacity: 1; transform: translateX(0); }
+    .verbatim.visible { opacity: 1; transform: translateY(0); }
+    .verbatim-meta { font-size: 0.75em; color: var(--muted); margin-top: 6px; }
 
-    .verbatim-meta {
-      font-size: 0.75em;
-      color: var(--muted);
-      margin-top: 8px;
-    }
-
-    /* ============================================
-       LOADING STATE
-       ============================================ */
-    #loading {
-      text-align: center;
-      padding: 80px 20px;
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center; padding: 80px 40px;
       color: var(--muted);
     }
+    .empty-state .icon { font-size: 3em; opacity: 0.3; margin-bottom: 16px; }
+    .empty-state h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3em; color: var(--navy);
+      margin-bottom: 8px; font-weight: 500;
+    }
+    .empty-state p { font-size: 0.88em; }
 
-    /* Spinning circle */
+    /* LOADING */
+    .loading { text-align: center; padding: 80px; color: var(--muted); }
     .spinner {
-      width: 36px; height: 36px;
-      border: 3px solid var(--border);
-      border-top-color: var(--blue); /* Only top is colored = creates spin effect */
+      width: 32px; height: 32px;
+      border: 2px solid var(--cream-dark);
+      border-top-color: var(--navy);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite; /* Spins forever */
+      animation: spin 0.7s linear infinite;
       margin: 0 auto 16px;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); } /* Full rotation */
-    }
-
-    /* Empty state when no responses yet */
-    .empty {
-      text-align: center;
-      padding: 40px;
-      color: var(--muted);
-      font-size: 0.95em;
-    }
-
+    /* GRID */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
 
-  <!-- BACK BUTTON -->
-  <a href="/" class="back-btn">&larr; Accueil</a>
-
-  <!-- HEADER -->
   <div class="header">
     <div class="header-inner">
-      <span class="header-tag">Tableau de bord</span>
-      <h1>R&eacute;sultats du sondage<br>Conditions de vie &agrave; Millau</h1>
-      <p>Analyse des r&eacute;ponses collect&eacute;es aupr&egrave;s des habitants</p>
-
-      <!-- Live stats — filled by JavaScript -->
-      <div class="header-stats">
-        <div class="stat-item">
-          <span class="stat-num" id="total-count">&mdash;</span>
-          <div class="stat-label">R&eacute;ponses totales</div>
+      <div class="header-nav">
+        <a href="/workspace" class="back-link">← Mes projets</a>
+        <button class="refresh-btn" onclick="loadResults()">↻ Actualiser</button>
+      </div>
+      <div class="header-tag">Résultats</div>
+      <h1 id="survey-title">Chargement...</h1>
+      <div class="header-sub" id="survey-sub"></div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <span class="stat-num" id="stat-responses">—</span>
+          <div class="stat-label">Réponses totales</div>
         </div>
-        <div class="stat-item">
-          <span class="stat-num" id="last-date">&mdash;</span>
-          <div class="stat-label">Derni&egrave;re r&eacute;ponse</div>
+        <div class="stat-box">
+          <span class="stat-num" id="stat-questions">—</span>
+          <div class="stat-label">Questions</div>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num" id="stat-last">—</span>
+          <div class="stat-label">Dernière réponse</div>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num" id="stat-sections">—</span>
+          <div class="stat-label">Sections</div>
         </div>
       </div>
-
-      <!-- Refresh button — calls loadResults() again -->
-      <button class="refresh-btn" onclick="loadResults()">
-        &#8635; Actualiser les donn&eacute;es
-        <!-- &#8635; = ↻ refresh arrow -->
-      </button>
     </div>
   </div>
 
-  <!-- MAIN DASHBOARD -->
-  <div class="main">
-
-    <!-- Loading spinner — shown while fetching data -->
-    <div id="loading">
-      <div class="spinner"></div>
-      <p>Chargement des r&eacute;sultats...</p>
-    </div>
-
-    <!-- Dashboard content — filled by JavaScript -->
-    <div id="dashboard" style="display:none"></div>
-
+  <div class="main" id="main">
+    <div class="loading"><div class="spinner"></div>Chargement des résultats...</div>
   </div>
 
   <script>
+    var surveyId = window.location.pathname.split("/").pop();
+    var questionsData = null;
+    var responsesData = [];
 
-    // LOAD AND DISPLAY RESULTS
     async function loadResults() {
-      // Show loading spinner, hide dashboard
-      document.getElementById("loading").style.display = "block";
-      document.getElementById("dashboard").style.display = "none";
+      document.getElementById("main").innerHTML = '<div class="loading"><div class="spinner"></div>Chargement des résultats...</div>';
 
       try {
-        // Fetch data from Flask /results endpoint
-        var res = await fetch("/results");
-        var raw = await res.json(); // Parse JSON response
+        // Load questions structure
+        var qRes = await fetch("/public-questions/" + surveyId);
+        questionsData = await qRes.json();
 
-        // Parse each response's stored JSON answer
-        var data = raw.map(function(r) {
-          try {
-            return Object.assign(JSON.parse(r.answer), {time: r.time});
-            // Object.assign merges the parsed answer with the time field
-          } catch(e) {
-            return null; // Skip broken entries
-          }
-        }).filter(Boolean); // Remove nulls
+        // Load survey info
+        var surveys = [];
+        try {
+          var sRes = await fetch("/my-surveys");
+          surveys = await sRes.json();
+        } catch(e) {}
+        var survey = surveys.find(function(s) { return s.id == surveyId; });
 
-        // Update header stats
-        document.getElementById("total-count").textContent = data.length;
-        if (data.length > 0) {
-          var d = new Date(data[0].time);
-          document.getElementById("last-date").textContent =
-            d.toLocaleDateString('fr-FR', {day: 'numeric', month: 'short'});
+        // Update header
+        document.getElementById("survey-title").innerHTML =
+          (questionsData.title || survey && survey.title || "Sondage") +
+          ' <em>— résultats</em>';
+
+        // Load responses
+        var rRes = await fetch("/results/" + surveyId);
+        var raw = await rRes.json();
+
+        responsesData = raw.map(function(r) {
+          try { return Object.assign(JSON.parse(r.answer), { _time: r.time }); }
+          catch(e) { return null; }
+        }).filter(Boolean);
+
+        var n = responsesData.length;
+        var sections = questionsData.sections || [];
+        var totalQ = sections.reduce(function(acc, s) { return acc + s.questions.length; }, 0);
+
+        // Update stats
+        document.getElementById("stat-responses").textContent = n;
+        document.getElementById("stat-questions").textContent = totalQ;
+        document.getElementById("stat-sections").textContent = sections.length;
+        if (n > 0 && responsesData[0]._time) {
+          var d = new Date(responsesData[0]._time);
+          document.getElementById("stat-last").textContent =
+            d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+        } else {
+          document.getElementById("stat-last").textContent = "—";
         }
 
-        // If no data yet, show empty message
-        if (data.length === 0) {
-          document.getElementById("dashboard").innerHTML =
-            '<div class="card visible empty">Aucune r&eacute;ponse enregistr&eacute;e pour le moment.</div>';
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("dashboard").style.display = "block";
+        document.getElementById("survey-sub").textContent =
+          n === 0 ? "Aucune réponse pour le moment" :
+          n === 1 ? "1 réponse enregistrée" : n + " réponses enregistrées";
+
+        if (n === 0) {
+          document.getElementById("main").innerHTML =
+            '<div class="empty-state">' +
+              '<div class="icon">📊</div>' +
+              '<h3>Aucune réponse pour le moment</h3>' +
+              '<p>Partagez votre sondage pour commencer à collecter des données.</p>' +
+            '</div>';
           return;
         }
 
-        // Build the dashboard HTML and inject it
-        document.getElementById("dashboard").innerHTML = buildDashboard(data);
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
+        // Build dashboard
+        var html = "";
+        sections.forEach(function(section, si) {
+          html += '<div class="section-header">' +
+            '<div class="section-num">' + (si + 1) + '</div>' +
+            '<div class="section-name">' + section.title + '</div>' +
+            '<div class="section-divider"></div>' +
+          '</div>';
 
-        // Animate bars after a short delay (so CSS transition works)
+          section.questions.forEach(function(q, qi) {
+            var id = "q_" + si + "_" + qi;
+            html += buildQuestionCard(q, id, n);
+          });
+        });
+
+        document.getElementById("main").innerHTML = html;
+
+        // Animate bars
         setTimeout(function() {
           document.querySelectorAll(".bar-fill").forEach(function(b) {
-            b.style.width = b.dataset.w; // data-w was set by buildDashboard()
+            b.style.width = b.dataset.w;
+          });
+          document.querySelectorAll(".star-row-fill").forEach(function(b) {
+            b.style.width = b.dataset.w;
           });
         }, 100);
 
-        // Trigger fade-in animations for visible elements
-        triggerAnimations();
+        // Scroll animations
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry, i) {
+            if (entry.isIntersecting) {
+              setTimeout(function() { entry.target.classList.add("visible"); }, i * 60);
+            }
+          });
+        }, { threshold: 0.05 });
+        document.querySelectorAll(".card, .section-header, .verbatim").forEach(function(el) {
+          observer.observe(el);
+        });
 
       } catch(e) {
-        document.getElementById("loading").innerHTML =
-          '<p style="color:red">Erreur de chargement. V&eacute;rifiez que le serveur tourne.</p>';
+        document.getElementById("main").innerHTML =
+          '<div class="empty-state"><div class="icon">⚠️</div><h3>Erreur de chargement</h3><p>' + e.message + '</p></div>';
       }
     }
 
-    // TRIGGER SCROLL ANIMATIONS
-    function triggerAnimations() {
-      var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry, i) {
-          if (entry.isIntersecting) {
-            setTimeout(function() {
-              entry.target.classList.add("visible");
-            }, i * 80); // Stagger each element by 80ms
-          }
-        });
-      }, { threshold: 0.05 });
+    function buildQuestionCard(q, id, n) {
+      var typeLabel = { text: "Texte", textarea: "Texte long", radio: "Choix unique", stars: "Étoiles" }[q.type] || q.type;
 
-      // Observe all animatable elements
-      document.querySelectorAll(".card, .section-title, .verbatim").forEach(function(el) {
-        observer.observe(el);
-      });
+      var inner = "";
+
+      if (q.type === "stars") {
+        inner = buildStarsCard(q, id, n);
+      } else if (q.type === "radio") {
+        inner = buildBarCard(q, id, n, "gold");
+      } else if (q.type === "text" || q.type === "textarea") {
+        inner = buildVerbatimCard(q, id);
+      } else {
+        inner = buildBarCard(q, id, n, "");
+      }
+
+      return '<div class="card">' +
+        '<div class="card-question">' + q.label +
+          '<span class="card-type-badge">' + typeLabel + '</span>' +
+        '</div>' +
+        inner +
+      '</div>';
     }
 
-    // HELPER: calculate percentage
-    function pct(count, total) {
-      return total ? Math.round(count / total * 100) : 0;
-    }
+    function buildStarsCard(q, id, n) {
+      var vals = responsesData.map(function(r) { return parseInt(r[id]); }).filter(function(v) { return v > 0; });
+      if (vals.length === 0) return '<div class="no-data">Aucune note pour le moment</div>';
 
-    // HELPER: count occurrences of each value for a given key
-    // e.g. countValues(data, "satisfaction") returns [["Satisfait", 5], ["Neutre", 3], ...]
-    function countValues(data, key) {
-      var counts = {};
-      data.forEach(function(r) {
-        var v = r[key];
-        if (v) counts[v] = (counts[v] || 0) + 1;
-      });
-      // Sort by count descending (most common first)
-      return Object.entries(counts).sort(function(a, b) { return b[1] - a[1]; });
-    }
-
-    // HELPER: calculate average star rating
-    function avgStars(data, key) {
-      var vals = data.map(function(r) { return parseInt(r[key]); }).filter(function(v) { return v > 0; });
-      return vals.length ? (vals.reduce(function(a, b) { return a + b; }, 0) / vals.length).toFixed(1) : null;
-    }
-
-    // HELPER: build star display HTML
-    function starsHTML(avg) {
-      if (!avg) return '<span style="color:#aaa;font-size:0.9em">Aucune note</span>';
+      var avg = (vals.reduce(function(a, b) { return a + b; }, 0) / vals.length).toFixed(1);
       var full = Math.round(avg);
-      var s = '';
+
+      // Stars visual
+      var starsHTML = "";
       for (var i = 1; i <= 5; i++) {
-        s += '<span class="s ' + (i <= full ? 'on' : '') + '">&#9733;</span>';
+        starsHTML += '<span class="' + (i <= full ? "star-on" : "star-off") + '">★</span>';
       }
-      return '<div class="star-display">' +
-        '<div class="star-num">' + avg + '</div>' +
-        '<div><div class="stars-row">' + s + '</div><div class="star-sub">sur 5</div></div>' +
+
+      // Breakdown by star count
+      var counts = [0, 0, 0, 0, 0];
+      vals.forEach(function(v) { if (v >= 1 && v <= 5) counts[v - 1]++; });
+
+      var breakdownHTML = '<div class="star-breakdown">';
+      for (var s = 5; s >= 1; s--) {
+        var c = counts[s - 1];
+        var p = n ? Math.round(c / vals.length * 100) : 0;
+        breakdownHTML += '<div class="star-row">' +
+          '<div class="star-row-label">' + s + ' ★</div>' +
+          '<div class="star-row-track"><div class="star-row-fill" data-w="' + p + '%" style="width:0"></div></div>' +
+          '<div class="star-row-count">' + c + '</div>' +
         '</div>';
-    }
-
-    // HELPER: build a bar chart HTML
-    // entries = [["Label", count], ...], total = total responses, colorClass = css class for color
-    function barChart(entries, total, colorClass) {
-      colorClass = colorClass || '';
-      if (!entries.length) return '<p style="color:#aaa;font-size:0.9em">Aucune donn&eacute;e</p>';
-      return entries.map(function(entry) {
-        var label = entry[0], count = entry[1];
-        var p = pct(count, total);
-        // data-w stores the target width — animated by JavaScript after render
-        return '<div class="bar-item">' +
-          '<div class="bar-label"><span>' + label + '</span><span>' + count + ' (' + p + '%)</span></div>' +
-          '<div class="bar-track"><div class="bar-fill ' + colorClass + '" data-w="' + p + '%" style="width:0"></div></div>' +
-          '</div>';
-      }).join('');
-    }
-
-    // BUILD THE FULL DASHBOARD HTML
-    function buildDashboard(data) {
-      var n = data.length; // Total number of responses
-      var html = '';
-
-      // --- SATISFACTION ---
-      html += '<div class="section-title">&#127968; Satisfaction g&eacute;n&eacute;rale</div>';
-      var sat = countValues(data, 'satisfaction');
-      html += '<div class="card"><div class="card-title">Êtes-vous satisfait(e) de vivre à Millau ?</div>' + barChart(sat, n) + '</div>';
-
-      // --- AGE & DURATION GRID ---
-      html += '<div class="section-title">&#128100; Profil des r&eacute;pondants</div>';
-      html += '<div class="grid-2">';
-
-      var ages = countValues(data, 'age');
-      html += '<div class="card"><div class="card-title">Tranche d\'&acirc;ge</div>' + barChart(ages, n, 'gold') + '</div>';
-
-      // Group years of residence into buckets
-      var dur = {"Moins d'1 an": 0, "1-5 ans": 0, "5-15 ans": 0, "Plus de 15 ans": 0};
-      data.forEach(function(r) {
-        var y = parseInt(r.annees);
-        if (!isNaN(y)) {
-          if (y < 1)       dur["Moins d'1 an"]++;
-          else if (y <= 5) dur["1-5 ans"]++;
-          else if (y <= 15)dur["5-15 ans"]++;
-          else             dur["Plus de 15 ans"]++;
-        }
-      });
-      var durEntries = Object.entries(dur).filter(function(e) { return e[1] > 0; });
-      html += '<div class="card"><div class="card-title">Dur&eacute;e de r&eacute;sidence</div>' + barChart(durEntries, n, 'gold') + '</div>';
-      html += '</div>'; // End grid-2
-
-      // --- STAR RATINGS GRID ---
-      html += '<div class="section-title">&#11088; Notes moyennes</div>';
-      html += '<div class="grid-2">';
-      [['logement','&#127968; Logement'], ['transports','&#128663; Transports'], ['environnement','&#127807; Environnement']].forEach(function(pair) {
-        var avg = avgStars(data, pair[0]);
-        html += '<div class="card"><div class="card-title">' + pair[1] + '</div>' + starsHTML(avg) + '</div>';
-      });
-      html += '</div>';
-
-      // --- EMPLOYMENT & SECURITY GRID ---
-      html += '<div class="section-title">&#128188; Emploi &amp; S&eacute;curit&eacute;</div>';
-      html += '<div class="grid-2">';
-      var emploi = countValues(data, 'emploi');
-      html += '<div class="card"><div class="card-title">Opportunit&eacute;s d\'emploi</div>' + barChart(emploi, n, 'red') + '</div>';
-      var secu = countValues(data, 'securite');
-      html += '<div class="card"><div class="card-title">Sentiment de s&eacute;curit&eacute;</div>' + barChart(secu, n, 'green') + '</div>';
-      html += '</div>';
-
-      // --- SERVICES CHIPS ---
-      html += '<div class="section-title">&#127973; Services jug&eacute;s insuffisants</div>';
-      var serviceCounts = {};
-      data.forEach(function(r) {
-        if (r.services_insuffisants) {
-          r.services_insuffisants.split(', ').forEach(function(s) {
-            if (s) serviceCounts[s] = (serviceCounts[s] || 0) + 1;
-          });
-        }
-      });
-      var serviceEntries = Object.entries(serviceCounts).sort(function(a, b) { return b[1] - a[1]; });
-      html += '<div class="card"><div class="chip-list">';
-      serviceEntries.forEach(function(e) {
-        html += '<div class="chip">' + e[0] + ' <span class="chip-count">' + e[1] + '</span></div>';
-      });
-      html += '</div></div>';
-
-      // --- FUTURE OUTLOOK ---
-      html += '<div class="section-title">&#128301; Intention de rester &agrave; Millau</div>';
-      var avenir = countValues(data, 'avenir');
-      html += '<div class="card">' + barChart(avenir, n) + '</div>';
-
-      // --- COMMUNITY ---
-      html += '<div class="section-title">&#129309; Esprit de communaut&eacute;</div>';
-      var communaute = countValues(data, 'communaute');
-      html += '<div class="card">' + barChart(communaute, n, 'green') + '</div>';
-
-      // --- FREE COMMENTS ---
-      var comments = data.map(function(r) {
-        return {text: r.commentaire_libre, meta: r.quartier, time: r.time};
-      }).filter(function(r) { return r.text && r.text.trim().length > 5; });
-
-      if (comments.length > 0) {
-        html += '<div class="section-title">&#128172; Commentaires libres (' + comments.length + ')</div>';
-        html += '<div class="verbatim-list">';
-        comments.slice(0, 20).forEach(function(c) { // Show max 20 comments
-          var d = new Date(c.time);
-          var dateStr = d.toLocaleDateString('fr-FR', {day: 'numeric', month: 'short', year: 'numeric'});
-          html += '<div class="verbatim">' +
-            '"' + c.text + '"' +
-            '<div class="verbatim-meta">' + (c.meta ? c.meta + ' &middot; ' : '') + dateStr + '</div>' +
-            '</div>';
-        });
-        html += '</div>';
       }
+      breakdownHTML += '</div>';
 
-      return html; // Return the complete HTML string
+      return '<div class="star-display">' +
+        '<div class="star-big">' + avg + '</div>' +
+        '<div class="star-detail">' +
+          '<div class="stars-visual">' + starsHTML + '</div>' +
+          '<div class="star-sub">Moyenne sur ' + vals.length + ' réponse' + (vals.length > 1 ? 's' : '') + '</div>' +
+        '</div>' +
+      '</div>' + breakdownHTML;
     }
 
-    // Start loading when page opens
-    loadResults();
+    function buildBarCard(q, id, n, colorClass) {
+      var counts = {};
+      responsesData.forEach(function(r) {
+        var v = r[id];
+        if (v && v.toString().trim()) {
+          counts[v] = (counts[v] || 0) + 1;
+        }
+      });
+      var entries = Object.entries(counts).sort(function(a, b) { return b[1] - a[1]; });
+      if (entries.length === 0) return '<div class="no-data">Aucune réponse pour le moment</div>';
 
+      var html = '<div class="bar-list">';
+      entries.forEach(function(entry) {
+        var label = entry[0], count = entry[1];
+        var p = Math.round(count / n * 100);
+        html += '<div class="bar-item">' +
+          '<div class="bar-meta">' +
+            '<span class="bar-label-text">' + label + '</span>' +
+            '<span class="bar-stats">' + count + ' réponse' + (count > 1 ? 's' : '') + ' · ' + p + '%</span>' +
+          '</div>' +
+          '<div class="bar-track"><div class="bar-fill ' + colorClass + '" data-w="' + p + '%" style="width:0"></div></div>' +
+        '</div>';
+      });
+      html += '</div>';
+      return html;
+    }
+
+    function buildVerbatimCard(q, id) {
+      var answers = responsesData.map(function(r, i) {
+        return { text: r[id], time: r._time };
+      }).filter(function(r) { return r.text && r.text.trim().length > 1; });
+
+      if (answers.length === 0) return '<div class="no-data">Aucune réponse textuelle pour le moment</div>';
+
+      var html = '<div class="verbatim-list">';
+      answers.slice(0, 20).forEach(function(a) {
+        var dateStr = "";
+        if (a.time) {
+          var d = new Date(a.time);
+          dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+        html += '<div class="verbatim">' +
+          '"' + a.text + '"' +
+          (dateStr ? '<div class="verbatim-meta">' + dateStr + '</div>' : '') +
+        '</div>';
+      });
+      if (answers.length > 20) {
+        html += '<div style="font-size:0.8em;color:var(--muted);text-align:center;padding:8px">+ ' + (answers.length - 20) + ' autres réponses</div>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    loadResults();
   </script>
 </body>
 </html>
