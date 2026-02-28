@@ -242,9 +242,9 @@
       <div class="avatar-info">
         <div class="avatar-name" id="avatar-name">Chargement...</div>
         <div class="avatar-username" id="avatar-username">@...</div>
-        <input type="text" class="avatar-url-input" id="avatar-url"
-          placeholder="URL de votre photo de profil (https://...)"
-          oninput="previewAvatar(this.value)">
+        <input type="file" class="avatar-url-input" id="avatar-file"
+        accept="image/*" onchange="handleImageUpload(this)">
+        <input type="hidden" id="avatar-url">
       </div>
     </div>
 
@@ -339,6 +339,22 @@
       t.style.display = "block";
       setTimeout(function() { t.style.display = "none"; }, 3000);
     }
+
+    function handleImageUpload(input) {
+  var file = input.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    showToast("Image trop grande (max 2MB)", "error");
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var base64 = e.target.result;
+    document.getElementById("avatar-url").value = base64;
+    previewAvatar(base64);
+  };
+  reader.readAsDataURL(file);
+}
 
     loadProfile();
   </script>
