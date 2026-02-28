@@ -83,6 +83,19 @@ def init_db():
         cur.execute("ALTER TABLE surveys ADD COLUMN theme_json TEXT DEFAULT '{}'")
     except:
         conn.rollback()
+    
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN display_name TEXT")
+    except:
+        conn.rollback()
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN bio TEXT")
+    except:
+        conn.rollback()
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN avatar_url TEXT")
+    except:
+        conn.rollback()
 
     conn.commit()
     cur.close()
