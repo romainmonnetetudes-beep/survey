@@ -3,348 +3,433 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tableau de bord &mdash; Sondage Millau</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <title>Mon espace — Sondage Millau</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --navy: #0f2540;
-      --blue: #1a5276;
-      --accent: #c0392b;
-      --gold: #d4a843;
-      --light: #f7f3ee;
-      --white: #ffffff;
-      --muted: #7f8c8d;
-      --border: #e0d9d0;
-      --green: #27ae60;
+      --navy: #0f1e2d; --navy-light: #1a2f42;
+      --cream: #f5f0e8; --cream-dark: #ede7d9;
+      --gold: #c9a84c; --gold-light: #e8c97a;
+      --muted: #7a8a96; --white: #ffffff;
+      --green: #2d6a4f; --green-light: #e8f4ee;
+      --red: #8b2635; --blue: #1a3a5c;
+      --shadow: 0 2px 16px rgba(15,30,45,0.08);
+      --shadow-md: 0 8px 40px rgba(15,30,45,0.13);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--light);
-      color: var(--navy);
-      min-height: 100vh;
-      animation: pageIn 0.4s ease forwards;
-    }
-    @keyframes pageIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    /* Header */
-    .header {
-      background: var(--navy);
-      padding: 40px;
+    body { font-family: 'Lexend', sans-serif; background: var(--cream); color: var(--navy); min-height: 100vh; animation: pageIn 0.5s ease forwards; }
+    @keyframes pageIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ===== HERO ===== */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      padding: 48px 10% 56px;
       position: relative;
       overflow: hidden;
+      color: white;
     }
-    .header::before {
+    .hero::before {
       content: '';
       position: absolute;
-      top: -60px; right: -60px;
-      width: 300px; height: 300px;
+      top: -100px; right: -100px;
+      width: 400px; height: 400px;
       border-radius: 50%;
-      background: rgba(192,57,43,0.12);
+      background: rgba(201,168,76,0.07);
     }
-    .header-inner {
-      max-width: 860px;
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 5%;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: rgba(201,168,76,0.04);
+    }
+
+    .hero-inner {
+      max-width: 960px;
       margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       position: relative;
-      z-index: 1;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 40px;
       flex-wrap: wrap;
-      gap: 16px;
     }
-    .header-left h1 {
+
+    /* AVATAR */
+    .avatar-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .avatar {
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      background: var(--navy-light);
+      border: 4px solid rgba(201,168,76,0.3);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+      display: flex; align-items: center; justify-content: center;
       font-family: 'Playfair Display', serif;
-      font-size: 1.8em;
-      color: white;
-      margin-bottom: 4px;
-    }
-    .header-left p {
-      color: rgba(255,255,255,0.6);
-      font-size: 0.88em;
-    }
-    .header-left p span {
+      font-size: 2.2em;
       color: var(--gold);
-      font-weight: 500;
     }
-    .logout-btn {
+    .avatar:hover { border-color: var(--gold); transform: scale(1.04); }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-edit-hint {
+      position: absolute;
+      bottom: 2px; right: 2px;
+      width: 26px; height: 26px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7em;
+      color: var(--navy);
+      border: 2px solid var(--navy);
+    }
+    #avatarInput { display: none; }
+
+    /* HERO CONTENT */
+    .hero-content { flex: 1; min-width: 240px; }
+    .hero-greeting {
+      font-size: 0.78em;
+      color: rgba(245,240,232,0.45);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .hero-name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8em, 3vw, 2.4em);
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .hero-name em { color: var(--gold); font-style: italic; font-weight: 400; }
+    .hero-username { font-size: 0.78em; color: rgba(245,240,232,0.4); margin-bottom: 14px; }
+    .hero-bio {
+      font-size: 0.88em;
+      color: rgba(245,240,232,0.7);
+      line-height: 1.6;
+      max-width: 420px;
+      margin-bottom: 20px;
+      min-height: 20px;
+    }
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-edit {
       background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
       color: white;
-      border: 1px solid rgba(255,255,255,0.2);
+      padding: 9px 18px;
       border-radius: 8px;
-      padding: 8px 18px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.85em;
+      font-family: 'Lexend', sans-serif;
+      font-size: 0.82em;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-edit:hover { background: rgba(255,255,255,0.18); }
+    .btn-logout {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.4);
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-family: 'Lexend', sans-serif;
+      font-size: 0.82em;
       cursor: pointer;
       text-decoration: none;
-      transition: background 0.2s;
+      transition: all 0.2s;
     }
-    .logout-btn:hover { background: rgba(255,255,255,0.18); }
+    .btn-logout:hover { color: white; border-color: rgba(255,255,255,0.25); }
 
-    /* Main */
-    .main {
-      max-width: 860px;
-      margin: 40px auto;
-      padding: 0 20px 80px;
+    /* ===== EDIT PANEL ===== */
+    .edit-panel {
+      max-width: 960px;
+      margin: 0 auto;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+      padding: 0 10%;
     }
-
-    /* Section title */
-    .section-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.2em;
-      color: var(--navy);
-      margin-bottom: 16px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid var(--navy);
+    .edit-panel.open {
+      max-height: 600px;
+      opacity: 1;
+      padding: 0 10% 24px;
     }
-
-    /* Cards grid */
-    .cards {
+    .edit-inner {
+      background: var(--white);
+      border-radius: 0 0 16px 16px;
+      padding: 28px 32px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--cream-dark);
+      border-top: none;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: 1fr 1fr;
       gap: 16px;
-      margin-bottom: 40px;
+    }
+    .edit-inner .full { grid-column: 1 / -1; }
+    .edit-label { font-size: 0.72em; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 6px; display: block; }
+    .edit-input {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px solid var(--cream-dark);
+      border-radius: 8px;
+      font-family: 'Lexend', sans-serif;
+      font-size: 0.88em;
+      color: var(--navy);
+      background: var(--cream);
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .edit-input:focus { border-color: var(--gold); background: var(--white); }
+    textarea.edit-input { resize: vertical; min-height: 72px; }
+    .edit-save {
+      padding: 10px 24px;
+      background: var(--navy);
+      color: var(--gold);
+      border: none;
+      border-radius: 8px;
+      font-family: 'Lexend', sans-serif;
+      font-size: 0.85em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .edit-save:hover { background: var(--navy-light); transform: translateY(-1px); }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 10% 80px;
     }
 
+    /* SHARE LINK BOX */
+    .link-box {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--cream-dark);
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.5s, transform 0.5s;
+    }
+    .link-box.visible { opacity: 1; transform: translateY(0); }
+    .link-icon { font-size: 1.5em; flex-shrink: 0; }
+    .link-info { flex: 1; min-width: 0; }
+    .link-title { font-size: 0.85em; font-weight: 500; margin-bottom: 4px; }
+    .link-url {
+      font-family: monospace;
+      font-size: 0.8em;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .link-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .copy-btn {
+      padding: 8px 16px;
+      background: var(--navy);
+      color: var(--cream);
+      border: none;
+      border-radius: 7px;
+      font-family: 'Lexend', sans-serif;
+      font-size: 0.78em;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover { background: var(--navy-light); }
+    .copy-msg { font-size: 0.75em; color: var(--green); display: none; align-self: center; }
+
+    /* SECTION LABEL */
+    .section-label {
+      font-size: 0.65em;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    /* ACTION CARDS */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 40px; }
     .card {
       background: var(--white);
-      border-radius: 12px;
-      padding: 28px 24px;
-      box-shadow: 0 2px 12px rgba(15,37,64,0.07);
-      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 26px 22px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--cream-dark);
+      border-top: 3px solid transparent;
       text-decoration: none;
       color: var(--navy);
       display: block;
-      border-top: 3px solid transparent;
       transition: transform 0.2s, box-shadow 0.2s;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.2s;
+      opacity: 0; transform: translateY(16px);
     }
-    .card.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 28px rgba(15,37,64,0.12);
-    }
+    .card.visible { opacity: 1; transform: translateY(0); }
+    .card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
     .card.blue  { border-top-color: var(--blue); }
     .card.green { border-top-color: var(--green); }
     .card.gold  { border-top-color: var(--gold); }
-    .card.red   { border-top-color: var(--accent); }
-
-    .card-icon { font-size: 2em; margin-bottom: 12px; display: block; }
-    .card-label {
-      font-size: 0.68em;
-      font-weight: 500;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 6px;
-      display: block;
-    }
-    .card h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.25em;
-      margin-bottom: 8px;
-    }
-    .card p {
-      font-size: 0.86em;
-      color: var(--muted);
-      line-height: 1.5;
-      margin-bottom: 14px;
-    }
-    .card-arrow {
-      font-size: 0.85em;
-      font-weight: 500;
-      color: var(--blue);
-      transition: transform 0.2s;
-      display: inline-block;
-    }
+    .card.red   { border-top-color: var(--red); }
+    .card-icon { font-size: 1.8em; margin-bottom: 12px; display: block; }
+    .card-tag { font-size: 0.65em; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; display: block; }
+    .card h2 { font-family: 'Playfair Display', serif; font-size: 1.15em; margin-bottom: 7px; }
+    .card p { font-size: 0.83em; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+    .card-arrow { font-size: 0.82em; font-weight: 500; color: var(--blue); transition: transform 0.2s; display: inline-block; }
     .card:hover .card-arrow { transform: translateX(5px); }
 
-    /* Survey link box */
-    .link-box {
-      background: var(--white);
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 12px rgba(15,37,64,0.07);
-      border: 1px solid var(--border);
-      margin-bottom: 40px;
-      opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-    .link-box.visible { opacity: 1; transform: translateY(0); }
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 10px; font-size: 0.85em; font-weight: 500; z-index: 1000; display: none; box-shadow: var(--shadow-md); }
+    .toast.success { background: var(--navy); color: var(--cream); }
+    .toast.error { background: var(--red); color: white; }
 
-    .link-box h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.1em;
-      margin-bottom: 6px;
-    }
-    .link-box p {
-      font-size: 0.85em;
-      color: var(--muted);
-      margin-bottom: 14px;
-    }
-    .link-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .link-url {
-      flex: 1;
-      padding: 10px 14px;
-      background: var(--light);
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-size: 0.88em;
-      color: var(--navy);
-      font-family: monospace;
-      word-break: break-all;
-    }
-    .copy-btn {
-      background: var(--navy);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 18px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.88em;
-      cursor: pointer;
-      transition: background 0.2s;
-      white-space: nowrap;
-    }
-    .copy-btn:hover { background: var(--blue); }
-    .copy-msg {
-      font-size: 0.82em;
-      color: var(--green);
-      display: none;
-      margin-top: 6px;
-    }
-
-    /* Loading */
-    #loading {
-      text-align: center;
-      padding: 60px;
-      color: var(--muted);
-    }
-    .spinner {
-      width: 32px; height: 32px;
-      border: 3px solid var(--border);
-      border-top-color: var(--blue);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 12px;
-    }
+    /* LOADING */
+    #loading { text-align: center; padding: 80px; color: var(--muted); }
+    .spinner { width: 32px; height: 32px; border: 2px solid var(--cream-dark); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 14px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    @media (max-width: 600px) {
-      .header { padding: 30px 20px; }
-      .header-left h1 { font-size: 1.4em; }
+    @media (max-width: 640px) {
+      .hero { padding: 36px 6% 44px; }
+      .main { padding: 0 6% 60px; }
+      .edit-inner { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Header with username and logout -->
-  <div class="header">
-    <div class="header-inner">
-      <div class="header-left">
-        <h1>&#128075; Bonjour, <span id="username-display">...</span> !</h1>
-        <p>Bienvenue sur votre tableau de bord &mdash; g&eacute;rez votre sondage ici.</p>
-      </div>
-      <div style="display:flex;gap:10px;align-items:center">
-        <a href="/" class="logout-btn" style="background:rgba(255,255,255,0.05)">
-         &larr; Accueil
-      <a href="/logout" class="logout-btn">Se d&eacute;connecter</a>
-    </div>
-  </div>
-
-  <div class="main">
-
-    <!-- Loading spinner -->
-    <div id="loading">
-      <div class="spinner"></div>
-      <p>Chargement...</p>
-    </div>
-
-    <!-- Dashboard content -->
-    <div id="content" style="display:none">
-
-      <!-- Public survey link -->
-      <div class="link-box" id="link-box">
-        <h3>Partagez ce lien</h3>
-        <p>Envoyez ce lien aux personnes que vous souhaitez sonder. Elles n'ont pas besoin de compte.</p>
-        <div class="link-row">
-          <div class="link-url" id="survey-link">...</div>
-          <button class="copy-btn" onclick="copyLink()">&#128203; Copier</button>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="avatar-wrap">
+        <div class="avatar" id="avatar-display" onclick="document.getElementById('avatarInput').click()">
+          <span id="avatar-initials">?</span>
         </div>
-        <div class="copy-msg" id="copy-msg">&#10003; Lien copi&eacute; !</div>
+        <div class="avatar-edit-hint">✏</div>
+        <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatarUpload(this)">
       </div>
 
-      <!-- Action cards -->
-      <div class="section-title">&#9881; Vos outils</div>
-      <div class="cards" id="cards">
+      <div class="hero-content">
+        <div class="hero-greeting">Bonjour 👋</div>
+        <div class="hero-name" id="hero-name">Chargement<em>...</em></div>
+        <div class="hero-username" id="hero-username">@...</div>
+        <div class="hero-bio" id="hero-bio"></div>
+        <div class="hero-actions">
+          <button class="btn-edit" onclick="toggleEdit()">✏ Modifier le profil</button>
+          <a href="/logout" class="btn-logout">Se déconnecter</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        <a id="card-survey" href="#" class="card blue">
-          <span class="card-icon">&#128203;</span>
-          <span class="card-label">Pr&eacute;visualiser</span>
-          <h2>Voir mon sondage</h2>
-          <p>Visualisez votre sondage tel que le verront vos r&eacute;pondants.</p>
-          <span class="card-arrow">Ouvrir &rarr;</span>
-        </a>
+  <!-- EDIT PANEL -->
+  <div class="edit-panel" id="edit-panel">
+    <div class="edit-inner">
+      <div>
+        <label class="edit-label">Nom affiché</label>
+        <input type="text" class="edit-input" id="edit-name" placeholder="ex: Romain M." oninput="liveUpdateName(this.value)">
+      </div>
+      <div>
+        <label class="edit-label">Photo de profil</label>
+        <input type="text" class="edit-input" id="edit-avatar-url" placeholder="ou collez une URL d'image" oninput="previewAvatarUrl(this.value)">
+      </div>
+      <div class="full">
+        <label class="edit-label">Bio</label>
+        <textarea class="edit-input" id="edit-bio" placeholder="Parlez-nous de vous..."></textarea>
+      </div>
+      <div class="full" style="display:flex;justify-content:flex-end">
+        <button class="edit-save" onclick="saveProfile()">✓ Enregistrer</button>
+      </div>
+    </div>
+  </div>
 
-        <a id="card-results" href="#" class="card green">
-          <span class="card-icon">&#128202;</span>
-          <span class="card-label">Statistiques</span>
-          <h2>Voir mes r&eacute;sultats</h2>
-          <p>Consultez les r&eacute;ponses et analyses de votre sondage.</p>
-          <span class="card-arrow">Ouvrir &rarr;</span>
-        </a>
+  <!-- MAIN -->
+  <div id="loading" class="main"><div class="spinner"></div>Chargement...</div>
 
-        <a href="/choose" class="card gold">
-          <span class="card-icon">&#9998;</span>
-          <span class="card-label">Modifier</span>
-          <h2>&Eacute;diter les questions</h2>
-          <p>Ajoutez, modifiez ou supprimez des questions de votre sondage.</p>
-          <span class="card-arrow">Ouvrir &rarr;</span>
-        </a>
+  <div class="main" id="content" style="display:none">
 
+    <!-- SHARE LINK -->
+    <div class="link-box" id="link-box">
+      <div class="link-icon">🔗</div>
+      <div class="link-info">
+        <div class="link-title">Lien de votre sondage</div>
+        <div class="link-url" id="survey-link">...</div>
+      </div>
+      <div class="link-actions">
+        <button class="copy-btn" onclick="copyLink()">📋 Copier</button>
+        <span class="copy-msg" id="copy-msg">✓ Copié !</span>
       </div>
     </div>
 
+    <!-- ACTION CARDS -->
+    <div class="section-label">Vos outils</div>
+    <div class="cards">
+      <a id="card-survey" href="#" class="card blue">
+        <span class="card-icon">📋</span>
+        <span class="card-tag">Prévisualiser</span>
+        <h2>Voir mon sondage</h2>
+        <p>Visualisez votre sondage tel que le verront vos répondants.</p>
+        <span class="card-arrow">Ouvrir →</span>
+      </a>
+      <a id="card-results" href="#" class="card green">
+        <span class="card-icon">📊</span>
+        <span class="card-tag">Statistiques</span>
+        <h2>Voir mes résultats</h2>
+        <p>Consultez les réponses et analyses de votre sondage.</p>
+        <span class="card-arrow">Ouvrir →</span>
+      </a>
+      <a href="/choose" class="card gold">
+        <span class="card-icon">✏️</span>
+        <span class="card-tag">Modifier</span>
+        <h2>Éditer les questions</h2>
+        <p>Ajoutez, modifiez ou supprimez des questions de votre sondage.</p>
+        <span class="card-arrow">Ouvrir →</span>
+      </a>
+    </div>
+
   </div>
+
+  <div class="toast" id="toast"></div>
 
   <script>
     var surveyId = null;
+    var currentAvatar = "";
 
-    // Load user info when page opens
+    // ===== LOAD =====
     async function loadDashboard() {
       try {
+        // Load user/survey info
         var res = await fetch("/me");
-
-        // If not logged in, redirect to login
-        if (res.status === 401) {
-          window.location.href = "/login";
-          return;
-        }
-
+        if (res.status === 401) { window.location.href = "/login"; return; }
         var data = await res.json();
         surveyId = data.survey.id;
 
-        // Update header username
-        document.getElementById("username-display").textContent = data.user.username;
+        // Load profile
+        var pRes = await fetch("/get-profile");
+        var profile = await pRes.json();
 
-        // Set survey public link
+        // Update hero
+        var displayName = profile.display_name || data.user.username;
+        document.getElementById("hero-name").innerHTML = displayName + ' <em>👋</em>';
+        document.getElementById("hero-username").textContent = "@" + data.user.username;
+        document.getElementById("hero-bio").textContent = profile.bio || "";
+
+        // Pre-fill edit form
+        document.getElementById("edit-name").value = profile.display_name || "";
+        document.getElementById("edit-bio").value = profile.bio || "";
+        document.getElementById("edit-avatar-url").value = profile.avatar_url || "";
+        currentAvatar = profile.avatar_url || "";
+
+        // Avatar
+        updateAvatarDisplay(profile.avatar_url, displayName);
+
+        // Survey link
         var link = window.location.origin + "/survey/" + surveyId;
         document.getElementById("survey-link").textContent = link;
-
-        // Set card links
         document.getElementById("card-survey").href = "/survey/" + surveyId;
         document.getElementById("card-results").href = "/resultats/" + surveyId;
 
@@ -352,26 +437,94 @@
         document.getElementById("loading").style.display = "none";
         document.getElementById("content").style.display = "block";
 
-        // Trigger animations
+        // Animate
         setTimeout(function() {
           document.querySelectorAll(".card, .link-box").forEach(function(el, i) {
-            setTimeout(function() { el.classList.add("visible"); }, i * 120);
+            setTimeout(function() { el.classList.add("visible"); }, i * 100);
           });
         }, 50);
 
-      } catch(e) {
-        window.location.href = "/login";
+      } catch(e) { window.location.href = "/login"; }
+    }
+
+    // ===== AVATAR =====
+    function updateAvatarDisplay(url, name) {
+      var display = document.getElementById("avatar-display");
+      var initials = document.getElementById("avatar-initials");
+      if (url && url.length > 0) {
+        display.innerHTML = '<img src="' + url + '" onerror="this.parentElement.innerHTML=\'<span id=avatar-initials>' + (name||'?').substring(0,2).toUpperCase() + '</span>\'">';
+      } else {
+        initials.textContent = (name || '?').substring(0, 2).toUpperCase();
       }
     }
 
-    // Copy survey link to clipboard
+    function handleAvatarUpload(input) {
+      var file = input.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) { showToast("Image trop grande (max 2MB)", "error"); return; }
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        currentAvatar = e.target.result;
+        document.getElementById("edit-avatar-url").value = "";
+        updateAvatarDisplay(currentAvatar, document.getElementById("edit-name").value);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function previewAvatarUrl(url) {
+      if (url && url.startsWith("http")) {
+        currentAvatar = url;
+        updateAvatarDisplay(url, document.getElementById("edit-name").value);
+      }
+    }
+
+    function liveUpdateName(val) {
+      if (val) document.getElementById("hero-name").innerHTML = val + ' <em>👋</em>';
+    }
+
+    // ===== EDIT PANEL =====
+    function toggleEdit() {
+      document.getElementById("edit-panel").classList.toggle("open");
+    }
+
+    // ===== SAVE PROFILE =====
+    async function saveProfile() {
+      var display_name = document.getElementById("edit-name").value.trim();
+      var bio = document.getElementById("edit-bio").value.trim();
+      var avatar_url = currentAvatar || document.getElementById("edit-avatar-url").value.trim();
+
+      var res = await fetch("/save-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ display_name, bio, avatar_url })
+      });
+      var json = await res.json();
+      if (json.status === "ok") {
+        document.getElementById("hero-bio").textContent = bio;
+        updateAvatarDisplay(avatar_url, display_name || json.username);
+        document.getElementById("edit-panel").classList.remove("open");
+        showToast("✓ Profil mis à jour !", "success");
+      } else {
+        showToast("Erreur lors de la sauvegarde", "error");
+      }
+    }
+
+    // ===== COPY LINK =====
     function copyLink() {
       var link = document.getElementById("survey-link").textContent;
       navigator.clipboard.writeText(link).then(function() {
         var msg = document.getElementById("copy-msg");
-        msg.style.display = "block";
+        msg.style.display = "inline";
         setTimeout(function() { msg.style.display = "none"; }, 2000);
       });
+    }
+
+    // ===== TOAST =====
+    function showToast(msg, type) {
+      var t = document.getElementById("toast");
+      t.textContent = msg; t.className = "toast " + type;
+      t.style.display = "block";
+      setTimeout(function() { t.style.display = "none"; }, 3000);
     }
 
     loadDashboard();
