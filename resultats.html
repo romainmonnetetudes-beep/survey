@@ -251,6 +251,7 @@
 
     </select>
     <button class="refresh-btn" onclick="loadResults()">↻ Actualiser</button>
+    <button class="refresh-btn" onclick="exportCSV()">Exporter CSV</button>
   </div>
 </div>                                    
       <div class="header-tag">Résultats</div>
@@ -517,7 +518,41 @@
       return html;
     }
 
-    loadResults();
+    function exportCSV() {
+  if (responsesData.length === 0) { alert("Aucune donnée à exporter"); return; }
+  var sections = questionsData.sections || [];
+
+  var headers = ["Date"];
+  sections.forEach(function(s) {
+    s.questions.forEach(function(q) {
+      headers.push('"' + q.label.replace(/"/g, '""') + '"');
+    });
+  });
+
+  var rows = [headers.join(",")];
+  responsesData.forEach(function(r) {
+    var row = ['"' + (r._time || "") + '"'];
+    sections.forEach(function(s, si) {
+      s.questions.forEach(function(q, qi) {
+        var val = r["q_" + si + "_" + qi] || "";
+        row.push('"' + val.toString().replace(/"/g, '""') + '"');
+      });
+    });
+    rows.push(row.join(","));
+  });
+
+  var csv = rows.join("\n");
+  var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "resultats_sondage.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}    
+      loadResults(); 
+
+
   </script>
 </body>
 </html>
