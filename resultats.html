@@ -292,7 +292,8 @@
       try {
         // Load questions structure
         var qRes = await fetch("/public-questions/" + surveyId);
-        questionsData = await qRes.json();
+        var qRaw = await qRes.json();
+        questionsData = qRaw.questions || qRaw;
 
         // Load survey info
         var surveys = [];
