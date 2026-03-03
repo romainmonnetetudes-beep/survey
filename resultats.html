@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Résultats — Sondage Millau</title>
@@ -251,7 +252,7 @@
 
     </select>
     <button class="refresh-btn" onclick="loadResults()">↻ Actualiser</button>
-    <button class="refresh-btn" onclick="exportCSV()">Exporter CSV</button>
+    <button class="refresh-btn" onclick="exportCSV()">⬇ Exporter Excel</button>
   </div>
 </div>                                    
       <div class="header-tag">Résultats</div>
@@ -519,37 +520,60 @@
     }
 
     function exportCSV() {
-  if (responsesData.length === 0) { alert("Aucune donnée à exporter"); return; }
+  if (responsesData.length === 0) { alert("Aucune donnée à exporter !"); return; }
   var sections = questionsData.sections || [];
+  var n = responsesData.length;
 
-  var headers = ["Date"];
-  sections.forEach(function(s) {
-    s.questions.forEach(function(q) {
-      headers.push('"' + q.label.replace(/"/g, '""') + '"');
+  // SHEET 1 - Statistics
+  var statsRows = [
+    ["Section", "Question", "Type", "Réponse", "Nombre", "Pourcentage"]
+  ];
+
+  sections.forEach(function(section, si) {
+    section.questions.forEach(function(q, qi) {
+      var id = "q_" + si + "_" + qi;
+      var typeLabel = { text: "Texte", textarea: "Texte long", radio: "Choix unique", stars: "Étoiles" }[q.type] || q.type;
+
+      if (q.type === "stars") {
+        var vals = responsesData.map(function(r) { return parseInt(r[id]); }).filter(function(v) { return v > 0; });
+        var avg = vals.length ? (vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1) : "—";
+        statsRows.push([section.title, q.label, typeLabel, "Moyenne : " + avg + " / 5", vals.length, "—"]);
+      } else if (q.type === "radio") {
+        var counts = {};
+        responsesData.forEach(function(r) { var v = r[id]; if (v) counts[v] = (counts[v]||0)+1; });
+        var entries = Object.entries(counts).sort(function(a,b){return b[1]-a[1];});
+        entries.forEach(function(e, i) {
+          statsRows.push([i===0 ? section.title : "", i===0 ? q.label : "", i===0 ? typeLabel : "", e[0], e[1], Math.round(e[1]/n*100)+"%"]);
+        });
+      } else {
+        var answers = responsesData.map(function(r){return r[id];}).filter(Boolean);
+        statsRows.push([section.title, q.label, typeLabel, answers.length + " réponse(s) texte", answers.length, "—"]);
+      }
     });
   });
 
-  var rows = [headers.join(",")];
-  responsesData.forEach(function(r) {
-    var row = ['"' + (r._time || "") + '"'];
+  // SHEET 2 - Raw responses
+  var rawHeaders = ["#", "Date"];
+  sections.forEach(function(s) { s.questions.forEach(function(q) { rawHeaders.push(q.label); }); });
+  var rawRows = [rawHeaders];
+  responsesData.forEach(function(r, ri) {
+    var row = [ri+1, r._time ? new Date(r._time).toLocaleString('fr-FR') : ""];
     sections.forEach(function(s, si) {
-      s.questions.forEach(function(q, qi) {
-        var val = r["q_" + si + "_" + qi] || "";
-        row.push('"' + val.toString().replace(/"/g, '""') + '"');
-      });
+      s.questions.forEach(function(q, qi) { row.push(r["q_"+si+"_"+qi] || ""); });
     });
-    rows.push(row.join(","));
+    rawRows.push(row);
   });
 
-  var csv = rows.join("\n");
-  var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement("a");
-  a.href = url;
-  a.download = "resultats_sondage.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}    
+  // Build workbook using SheetJS
+  var wb = XLSX.utils.book_new();
+  var ws1 = XLSX.utils.aoa_to_sheet(statsRows);
+  var ws2 = XLSX.utils.aoa_to_sheet(rawRows);
+  ws1['!cols'] = [{wch:28},{wch:38},{wch:14},{wch:30},{wch:10},{wch:14}];
+  ws2['!cols'] = [{wch:5},{wch:20}].concat(rawHeaders.slice(2).map(function(){return {wch:25};}));
+  XLSX.utils.book_append_sheet(wb, ws1, "Statistiques");
+  XLSX.utils.book_append_sheet(wb, ws2, "Réponses brutes");
+  XLSX.writeFile(wb, "resultats_sondage.xlsx");
+}
       loadResults(); 
 
 
