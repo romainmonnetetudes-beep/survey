@@ -303,6 +303,9 @@ def resultats():
 
 @app.route("/resultats/<int:survey_id>")
 def resultats_survey(survey_id):
+    user = current_user()
+    if not user:
+        return redirect("/login")
     return send_from_directory(".", "resultats.html")
 
 @app.route("/debug-users")
