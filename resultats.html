@@ -320,6 +320,10 @@
 
   <script>
     var surveyId = window.location.pathname.split("/").pop();
+    if (!surveyId || isNaN(surveyId)) {
+      document.getElementById("main").innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><h3>Sondage introuvable</h3><p>Le sondage que vous essayez de consulter n’existe pas ou a été supprimé.</p></div>';
+    }
+    
     var questionsData = null;
     var responsesData = [];
 
