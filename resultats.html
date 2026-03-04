@@ -2,6 +2,8 @@
 <html lang="fr">
 <head>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Résultats — Sondage Millau</title>
@@ -232,6 +234,27 @@
     /* GRID */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+    
+.view-tab {
+  padding: 8px 16px; border-radius: 8px;
+  font-family: 'Syne', sans-serif; font-size: 0.8em;
+  border: 1.5px solid var(--cream-dark);
+  background: var(--white); color: var(--muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.view-tab.active {
+  background: var(--navy); color: var(--gold);
+  border-color: var(--navy);
+}
+.view-tab:hover:not(.active) { background: var(--cream-dark); color: var(--navy); }
+.download-btn {
+  padding: 8px 18px; border-radius: 8px;
+  font-family: 'Syne', sans-serif; font-size: 0.8em;
+  border: none; background: var(--gold); color: var(--navy);
+  cursor: pointer; font-weight: 600; transition: all 0.15s;
+}
+.download-btn:hover { background: var(--gold-light); transform: translateY(-1px); }
+
   </style>
 </head>
 <body>
@@ -276,6 +299,18 @@
           <div class="stat-label">Sections</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div style="max-width: 960px;margin:24px auto 0;padding:0 24px;display: none" id="tabs-bar">
+    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex:wrap-wrap;">
+      <div style="display:flex;gap:6px;">
+        <button class="view-tab active" id="tab-charts" onclick="switchView('charts')">📊 Graphiques</button>
+        <button class="view-tab" id="tab-table" onclick="switchView('table')">📋 Tableau</button>
+        <button class="view-tab" id="tab-summary" onclick="switchView('summary')">⚡ Résumé</button>
+      
+      </div>
+    <button class="download-btn" id="download-btn" onclick="downloadCurrent()">⬇ Télécharger</button>
     </div>
   </div>
 
@@ -574,9 +609,117 @@
   XLSX.utils.book_append_sheet(wb, ws2, "Réponses brutes");
   XLSX.writeFile(wb, "resultats_sondage.xlsx");
 }
-      loadResults(); 
 
+var currentView = "charts";
 
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll(".view-tab").forEach(function(t) { t.classList.remove("active"); });
+  document.getElementById("tab-" + view).classList.add("active");
+
+  if (view === "charts") {
+    renderChartsView();
+  } else if (view === "table") {
+    renderTableView();
+  } else if (view === "summary") {
+    renderSummaryView();
+  }
+}
+
+function renderTableView() {
+  var sections = questionsData.sections || [];
+  var n = responsesData.length;
+  var html = '<div style="overflow-x:auto">';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:0.85em;">';
+  
+  // Headers
+  html += '<thead><tr>';
+  html += '<th style="background:var(--navy);color:var(--gold);padding:12px 16px;text-align:left;white-space:nowrap">#</th>';
+  html += '<th style="background:var(--navy);color:var(--gold);padding:12px 16px;text-align:left">Date</th>';
+  sections.forEach(function(s, si) {
+    s.questions.forEach(function(q, qi) {
+      html += '<th style="background:var(--navy);color:var(--gold);padding:12px 16px;text-align:left;white-space:nowrap;max-width:200px">' + q.label + '</th>';
+    });
+  });
+  html += '</tr></thead><tbody>';
+
+  // Rows
+  responsesData.forEach(function(r, ri) {
+    var bg = ri % 2 === 0 ? "var(--cream)" : "var(--white)";
+    html += '<tr style="background:' + bg + '">';
+    html += '<td style="padding:10px 16px;font-weight:600;color:var(--gold)">' + (ri+1) + '</td>';
+    html += '<td style="padding:10px 16px;color:var(--muted);white-space:nowrap">' + (r._time ? new Date(r._time).toLocaleString('fr-FR') : "—") + '</td>';
+    sections.forEach(function(s, si) {
+      s.questions.forEach(function(q, qi) {
+        var val = r["q_"+si+"_"+qi] || "—";
+        html += '<td style="padding:10px 16px;max-width:200px">' + val + '</td>';
+      });
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  document.getElementById("main").innerHTML = html;
+}
+
+function renderSummaryView() {
+  var sections = questionsData.sections || [];
+  var n = responsesData.length;
+  var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">';
+
+  sections.forEach(function(section, si) {
+    section.questions.forEach(function(q, qi) {
+      var id = "q_"+si+"_"+qi;
+      html += '<div class="card visible" style="padding:20px">';
+      html += '<div style="font-size:0.72em;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">' + (section.title||"Section") + '</div>';
+      html += '<div style="font-size:0.88em;font-weight:500;margin-bottom:14px;line-height:1.4">' + q.label + '</div>';
+
+      if (q.type === "stars") {
+        var vals = responsesData.map(function(r){return parseInt(r[id]);}).filter(function(v){return v>0;});
+        var avg = vals.length ? (vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1) : "—";
+        html += '<div style="font-family:Playfair Display,serif;font-size:2.5em;color:var(--gold);line-height:1">' + avg + '</div>';
+        html += '<div style="font-size:0.75em;color:var(--muted);margin-top:4px">moyenne sur 5</div>';
+      } else if (q.type === "radio") {
+        var counts = {};
+        responsesData.forEach(function(r){var v=r[id];if(v)counts[v]=(counts[v]||0)+1;});
+        var top = Object.entries(counts).sort(function(a,b){return b[1]-a[1];})[0];
+        if (top) {
+          html += '<div style="font-family:Playfair Display,serif;font-size:1.8em;color:var(--navy);line-height:1">' + Math.round(top[1]/n*100) + '%</div>';
+          html += '<div style="font-size:0.75em;color:var(--muted);margin-top:4px">ont répondu "' + top[0] + '"</div>';
+        }
+      } else {
+        var answers = responsesData.map(function(r){return r[id];}).filter(Boolean);
+        html += '<div style="font-family:Playfair Display,serif;font-size:2.5em;color:var(--navy);line-height:1">' + answers.length + '</div>';
+        html += '<div style="font-size:0.75em;color:var(--muted);margin-top:4px">réponses texte</div>';
+      }
+      html += '</div>';
+    });
+  });
+
+  html += '</div>';
+  document.getElementById("main").innerHTML = html;
+}
+
+function renderChartsView() {
+  loadResults();
+  document.getElementById("tabs-bar").style.display = "block";
+}
+
+function downloadCurrent() {
+  if (currentView === "table") {
+    exportCSV();
+  } else if (currentView === "charts" || currentView === "summary") {
+    var { jsPDF } = window.jspdf;
+    var pdf = new jsPDF("p", "mm", "a4");
+    html2canvas(document.getElementById("main"), { scale: 2 }).then(function(canvas) {
+      var img = canvas.toDataURL("image/png");
+      var w = pdf.internal.pageSize.getWidth();
+      var h = (canvas.height * w) / canvas.width;
+      pdf.addImage(img, "PNG", 0, 0, w, h);
+      pdf.save("resultats_sondage.pdf");
+    });
+  }
+}
+
+    loadResults();
   </script>
-</body>
-</html>
